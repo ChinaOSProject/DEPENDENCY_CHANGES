@@ -7,7 +7,7 @@ Reason: 在 Kylin V10 SP1 与 glibc 2.28 环境中构建 Node.js v26.9.0。
 Root Cause: 编译设备默认 GCC 8 无法满足该版本的 C++20 构建要求。
 Changes: 使用编译设备用户目录中的 GCC 13.4.0 和 Python 3.10.16；使用 bubblewrap 隔离构建；使用 `--openssl-no-asm`、`--partly-static`、`-DHWY_COMPILE_ONLY_EMU128` 与 `/lib64/ld.so.1` 动态加载器。
 Compatibility Impact: 产物最高 GLIBC 为 2.28；zlib 与 libatomic 使用目标系统共享库；未发现动态 GLIBCXX 或 CXXABI 版本依赖。
-Upstream Status: 使用 `v26-debian10` 分支源码；Highway 的 LoongArch GCC 判断修改待提交。
+Upstream Status: 适配改动已提交至本地 `v26-loong64` 分支（`0a99c90a380`），未提交至上游。
 Validation: 目标机输出 `v26.9.0`、`loong64 linux`；JSON 字符串序列化往返测试通过；`ldd`、ELF 动态加载器和 ABI 版本检查通过；`.deb` 解包后的 `/usr/bin/node` 在目标机 bubblewrap 中运行通过；未运行完整 Node.js 测试集及上游 CI。
 Project-side Changes: V8 JSON stringifier 在 Highway scalar target 使用标量实现；Highway 仅在 LoongArch 保留 EMU128；安装文件为 `/usr/bin/node`，未包含 npm 和 Corepack。
 
