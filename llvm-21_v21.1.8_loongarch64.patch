@@ -1,0 +1,758 @@
+--- a/lld/ELF/EhFrame.cpp
++++ b/lld/ELF/EhFrame.cpp
+@@ -22,6 +22,7 @@
+ #include "Relocations.h"
+ #include "Target.h"
+ #include "llvm/BinaryFormat/Dwarf.h"
++#include "llvm/Support/DataExtractor.h"
+ 
+ using namespace llvm;
+ using namespace llvm::ELF;
+@@ -33,8 +34,9 @@
+ namespace {
+ class EhReader {
+ public:
+-  EhReader(InputSectionBase *s, ArrayRef<uint8_t> d) : isec(s), d(d) {}
+-  uint8_t getFdeEncoding();
++  EhReader(InputSectionBase *s, ArrayRef<uint8_t> d)
++      : isec(s), d(d), start(d.data()) {}
++  uint8_t getFdeEncoding(CieEncodings *encodings = nullptr);
+   bool hasLSDA();
+ 
+ private:
+@@ -48,11 +50,12 @@
+   void skipBytes(size_t count);
+   StringRef readString();
+   void skipLeb128();
+-  void skipAugP();
++  void skipAugP(CieEncodings *encodings = nullptr);
+   StringRef getAugmentation();
+ 
+   InputSectionBase *isec;
+   ArrayRef<uint8_t> d;
++  const uint8_t *start;
+ };
+ }
+ 
+@@ -119,8 +122,14 @@
+   return 0;
+ }
+ 
+-void EhReader::skipAugP() {
++void EhReader::skipAugP(CieEncodings *encodings) {
++  uint32_t encodingOffset = d.data() - start;
+   uint8_t enc = readByte();
++  if (encodings) {
++    encodings->personalityEncodingOffset = encodingOffset;
++    encodings->personalityEncoding = enc;
++    encodings->personalityOffset = d.data() - start;
++  }
+   if ((enc & 0xf0) == DW_EH_PE_aligned)
+     return errOn(d.data() - 1, "DW_EH_PE_aligned encoding is not supported");
+   size_t size = getAugPSize(isec->getCtx(), enc);
+@@ -131,8 +140,24 @@
+   d = d.slice(size);
+ }
+ 
+-uint8_t elf::getFdeEncoding(EhSectionPiece *p) {
+-  return EhReader(p->sec, p->data()).getFdeEncoding();
++uint8_t elf::getFdeEncoding(EhSectionPiece *p, CieEncodings *encodings) {
++  return EhReader(p->sec, p->data()).getFdeEncoding(encodings);
++}
++
++uint32_t elf::getFdeLsdaOffset(EhSectionPiece *p, uint8_t encoding) {
++  Ctx &ctx = p->sec->getCtx();
++  DataExtractor data(p->data(), ctx.arg.isLE, ctx.arg.wordsize);
++  DataExtractor::Cursor cursor(8 + 2 * getAugPSize(ctx, encoding));
++  uint64_t augmentationSize = data.getULEB128(cursor);
++  if (Error error = cursor.takeError())
++    Fatal(ctx) << p->sec << ": invalid FDE augmentation: "
++               << toString(std::move(error));
++  if (augmentationSize == 0)
++    return 0;
++  if (augmentationSize < ctx.arg.wordsize ||
++      !data.isValidOffsetForDataOfSize(cursor.tell(), augmentationSize))
++    Fatal(ctx) << p->sec << ": invalid FDE augmentation size";
++  return cursor.tell();
+ }
+ 
+ bool elf::hasLSDA(const EhSectionPiece &p) {
+@@ -163,26 +188,34 @@
+   return aug;
+ }
+ 
+-uint8_t EhReader::getFdeEncoding() {
+-  // We only care about an 'R' value, but other records may precede an 'R'
+-  // record. Unfortunately records are not in TLV (type-length-value) format,
+-  // so we need to teach the linker how to skip records for each type.
++uint8_t EhReader::getFdeEncoding(CieEncodings *encodings) {
++  // 读取地址编码，需要元数据时同时记录各字段的位置。
+   StringRef aug = getAugmentation();
++  uint8_t fdeEncoding = DW_EH_PE_absptr;
+   for (char c : aug) {
+-    if (c == 'R')
+-      return readByte();
+-    if (c == 'z')
++    if (c == 'R') {
++      if (!encodings)
++        return readByte();
++      encodings->fdeEncodingOffset = d.data() - start;
++      fdeEncoding = readByte();
++      encodings->fdeEncoding = fdeEncoding;
++    } else if (c == 'z')
+       skipLeb128();
+-    else if (c == 'L')
+-      readByte();
+-    else if (c == 'P')
+-      skipAugP();
++    else if (c == 'L') {
++      uint32_t encodingOffset = d.data() - start;
++      uint8_t encoding = readByte();
++      if (encodings) {
++        encodings->lsdaEncodingOffset = encodingOffset;
++        encodings->lsdaEncoding = encoding;
++      }
++    } else if (c == 'P')
++      skipAugP(encodings);
+     else if (c != 'B' && c != 'S' && c != 'G') {
+       errOn(aug.data(), "unknown .eh_frame augmentation string: " + aug);
+       break;
+     }
+   }
+-  return DW_EH_PE_absptr;
++  return fdeEncoding;
+ }
+ 
+ bool EhReader::hasLSDA() {
+--- a/lld/ELF/EhFrame.h
++++ b/lld/ELF/EhFrame.h
+@@ -10,11 +10,23 @@
+ #define LLD_ELF_EHFRAME_H
+ 
+ #include "lld/Common/LLVM.h"
++#include "llvm/BinaryFormat/Dwarf.h"
+ 
+ namespace lld::elf {
+ struct EhSectionPiece;
+ 
+-uint8_t getFdeEncoding(EhSectionPiece *p);
++struct CieEncodings {
++  uint8_t fdeEncoding = llvm::dwarf::DW_EH_PE_absptr;
++  uint8_t lsdaEncoding = llvm::dwarf::DW_EH_PE_omit;
++  uint8_t personalityEncoding = llvm::dwarf::DW_EH_PE_omit;
++  uint32_t fdeEncodingOffset = 0;
++  uint32_t lsdaEncodingOffset = 0;
++  uint32_t personalityEncodingOffset = 0;
++  uint32_t personalityOffset = 0;
++};
++
++uint8_t getFdeEncoding(EhSectionPiece *p, CieEncodings *encodings = nullptr);
++uint32_t getFdeLsdaOffset(EhSectionPiece *p, uint8_t encoding);
+ bool hasLSDA(const EhSectionPiece &p);
+ }
+ 
+--- a/lld/ELF/InputSection.cpp
++++ b/lld/ELF/InputSection.cpp
+@@ -774,6 +774,7 @@
+   int64_t a = r.addend;
+   switch (r.expr) {
+   case R_ABS:
++  case RE_LOONGARCH_SOP_ABS:
+   case R_DTPREL:
+   case R_RELAX_TLS_LD_TO_LE_ABS:
+   case R_RELAX_GOT_PC_NOPIC:
+@@ -806,6 +807,8 @@
+   case R_GOTREL:
+   case RE_PPC64_RELAX_TOC:
+     return r.sym->getVA(ctx, a) - ctx.in.got->getVA();
++  case RE_LOONGARCH_SOP_GOTREL:
++    return r.sym->getGotVA(ctx) + a - ctx.in.got->getVA();
+   case R_GOTPLTREL:
+     return r.sym->getVA(ctx, a) - ctx.in.gotPlt->getVA();
+   case R_GOTPLT:
+@@ -1125,7 +1128,8 @@
+     // R_ABS/R_DTPREL and some other relocations can be used from non-SHF_ALLOC
+     // sections.
+     if (LLVM_LIKELY(expr == R_ABS) || expr == R_DTPREL || expr == R_GOTPLTREL ||
+-        expr == RE_RISCV_ADD || expr == RE_ARM_SBREL) {
++        expr == RE_RISCV_ADD || expr == RE_ARM_SBREL ||
++        expr == RE_LOONGARCH_SOP_ABS) {
+       target.relocateNoSym(bufLoc, type,
+                            SignExtend64<bits>(sym.getVA(ctx, addend)));
+       continue;
+--- a/lld/ELF/InputSection.h
++++ b/lld/ELF/InputSection.h
+@@ -388,6 +388,9 @@
+   InputSectionBase *sec;
+   uint32_t size;
+   unsigned firstRelocation;
++  bool fdePcRelative = false;
++  uint32_t personalityPcRelativeOffset = 0;
++  uint32_t lsdaPcRelativeOffset = 0;
+ };
+ 
+ // This corresponds to a .eh_frame section of an input file.
+--- a/lld/ELF/Arch/LoongArch.cpp
++++ b/lld/ELF/Arch/LoongArch.cpp
+@@ -12,6 +12,7 @@
+ #include "SyntheticSections.h"
+ #include "Target.h"
+ #include "llvm/BinaryFormat/ELF.h"
++#include "llvm/Support/ErrorHandling.h"
+ #include "llvm/Support/LEB128.h"
+ 
+ using namespace llvm;
+@@ -22,6 +23,28 @@
+ using namespace lld::elf;
+ 
+ namespace {
++// ABI v0 SOP 操作基于 Loongnix 已发布的实现。
++// 原实现按照 University of Illinois Open Source License 发布。
++struct RelStack {
++  static constexpr unsigned capacity = 16;
++  uint64_t stack[capacity] = {};
++  int top = -1;
++
++  void push_back(uint64_t value) {
++    if (top + 1 >= static_cast<int>(capacity))
++      report_fatal_error("LoongArch SOP operand overflow");
++    stack[++top] = value;
++  }
++
++  uint64_t pop_back_val() {
++    if (top < 0)
++      report_fatal_error("LoongArch SOP operand underflow");
++    return stack[top--];
++  }
++};
++
++thread_local RelStack relStack;
++
+ class LoongArch final : public TargetInfo {
+ public:
+   LoongArch(Ctx &);
+@@ -277,23 +300,11 @@
+                      << ": cannot link object files with different ABI from "
+                      << targetFile;
+ 
+-    // We cannot process psABI v1.x / object ABI v0 files (containing stack
+-    // relocations), unlike ld.bfd.
+-    //
+-    // Instead of blindly accepting every v0 object and only failing at
+-    // relocation processing time, just disallow interlink altogether. We
+-    // don't expect significant usage of object ABI v0 in the wild (the old
+-    // world may continue using object ABI v0 for a while, but as it's not
+-    // binary-compatible with the upstream i.e. new-world ecosystem, it's not
+-    // being considered here).
+-    //
+-    // There are briefly some new-world systems with object ABI v0 binaries too.
+-    // It is because these systems were built before the new ABI was finalized.
+-    // These are not supported either due to the extremely small number of them,
+-    // and the few impacted users are advised to simply rebuild world or
+-    // reinstall a recent system.
+-    if ((flags & EF_LOONGARCH_OBJABI_MASK) != EF_LOONGARCH_OBJABI_V1)
++    uint32_t objAbi = flags & EF_LOONGARCH_OBJABI_MASK;
++    if (objAbi != 0 && objAbi != EF_LOONGARCH_OBJABI_V1)
+       ErrAlways(ctx) << f << ": unsupported object file ABI version";
++    if (objAbi == 0)
++      target &= ~EF_LOONGARCH_OBJABI_MASK;
+   }
+ 
+   return target;
+@@ -407,7 +418,41 @@
+   case R_LARCH_NONE:
+   case R_LARCH_MARK_LA:
+   case R_LARCH_MARK_PCREL:
++  case R_LARCH_GNU_VTINHERIT:
++  case R_LARCH_GNU_VTENTRY:
+     return R_NONE;
++  case R_LARCH_SOP_PUSH_PCREL:
++    return R_PC;
++  case R_LARCH_SOP_PUSH_TLS_GOT:
++    return R_GOT_OFF;
++  case R_LARCH_SOP_PUSH_TLS_GD:
++    return R_TLSGD_GOT;
++  case R_LARCH_SOP_PUSH_TLS_TPREL:
++    return R_TPREL;
++  case R_LARCH_SOP_PUSH_GPREL:
++    return RE_LOONGARCH_SOP_GOTREL;
++  case R_LARCH_SOP_PUSH_PLT_PCREL:
++    return R_PLT_PC;
++  case R_LARCH_SOP_PUSH_ABSOLUTE:
++  case R_LARCH_SOP_PUSH_DUP:
++  case R_LARCH_SOP_ASSERT:
++  case R_LARCH_SOP_NOT:
++  case R_LARCH_SOP_SUB:
++  case R_LARCH_SOP_SL:
++  case R_LARCH_SOP_SR:
++  case R_LARCH_SOP_ADD:
++  case R_LARCH_SOP_AND:
++  case R_LARCH_SOP_IF_ELSE:
++  case R_LARCH_SOP_POP_32_S_10_5:
++  case R_LARCH_SOP_POP_32_U_10_12:
++  case R_LARCH_SOP_POP_32_S_10_12:
++  case R_LARCH_SOP_POP_32_S_10_16:
++  case R_LARCH_SOP_POP_32_S_10_16_S2:
++  case R_LARCH_SOP_POP_32_S_5_20:
++  case R_LARCH_SOP_POP_32_S_0_5_10_16_S2:
++  case R_LARCH_SOP_POP_32_S_0_10_10_16_S2:
++  case R_LARCH_SOP_POP_32_U:
++    return RE_LOONGARCH_SOP_ABS;
+   case R_LARCH_32:
+   case R_LARCH_64:
+   case R_LARCH_ABS_HI20:
+@@ -541,14 +586,6 @@
+   case R_LARCH_TLS_DESC_PCREL20_S2:
+     return R_TLSDESC_PC;
+ 
+-  // Other known relocs that are explicitly unimplemented:
+-  //
+-  // - psABI v1 relocs that need a stateful stack machine to work, and not
+-  //   required when implementing psABI v2;
+-  // - relocs that are not used anywhere (R_LARCH_{ADD,SUB}_24 [1], and the
+-  //   two GNU vtable-related relocs).
+-  //
+-  // [1]: https://web.archive.org/web/20230709064026/https://github.com/loongson/LoongArch-Documentation/issues/51
+   default:
+     Err(ctx) << getErrorLoc(ctx, loc) << "unknown relocation (" << type.v
+              << ") against symbol " << &s;
+@@ -573,6 +610,112 @@
+ void LoongArch::relocate(uint8_t *loc, const Relocation &rel,
+                          uint64_t val) const {
+   switch (rel.type) {
++  case R_LARCH_SOP_PUSH_PCREL:
++  case R_LARCH_SOP_PUSH_ABSOLUTE:
++  case R_LARCH_SOP_PUSH_GPREL:
++  case R_LARCH_SOP_PUSH_TLS_TPREL:
++  case R_LARCH_SOP_PUSH_TLS_GOT:
++  case R_LARCH_SOP_PUSH_TLS_GD:
++  case R_LARCH_SOP_PUSH_PLT_PCREL:
++    relStack.push_back(val);
++    return;
++  case R_LARCH_SOP_PUSH_DUP: {
++    uint64_t operand = relStack.pop_back_val();
++    relStack.push_back(operand);
++    relStack.push_back(operand);
++    return;
++  }
++  case R_LARCH_SOP_ASSERT:
++    if (relStack.pop_back_val() == 0)
++      report_fatal_error("LoongArch SOP assertion failed");
++    return;
++  case R_LARCH_SOP_NOT:
++    relStack.push_back(!relStack.pop_back_val());
++    return;
++  case R_LARCH_SOP_SUB: {
++    uint64_t operand2 = relStack.pop_back_val();
++    uint64_t operand1 = relStack.pop_back_val();
++    relStack.push_back(operand1 - operand2);
++    return;
++  }
++  case R_LARCH_SOP_SL:
++  case R_LARCH_SOP_SR: {
++    uint64_t amount = relStack.pop_back_val();
++    uint64_t operand = relStack.pop_back_val();
++    if (amount >= 64)
++      report_fatal_error("LoongArch SOP shift count is out of range");
++    relStack.push_back(rel.type == R_LARCH_SOP_SL
++                           ? operand << amount
++                           : static_cast<int64_t>(operand) >> amount);
++    return;
++  }
++  case R_LARCH_SOP_ADD: {
++    uint64_t operand2 = relStack.pop_back_val();
++    uint64_t operand1 = relStack.pop_back_val();
++    relStack.push_back(operand1 + operand2);
++    return;
++  }
++  case R_LARCH_SOP_AND: {
++    uint64_t operand2 = relStack.pop_back_val();
++    uint64_t operand1 = relStack.pop_back_val();
++    relStack.push_back(operand1 & operand2);
++    return;
++  }
++  case R_LARCH_SOP_IF_ELSE: {
++    uint64_t operand3 = relStack.pop_back_val();
++    uint64_t operand2 = relStack.pop_back_val();
++    uint64_t operand1 = relStack.pop_back_val();
++    relStack.push_back(operand1 ? operand2 : operand3);
++    return;
++  }
++  case R_LARCH_SOP_POP_32_S_10_5:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 5, rel);
++    write32le(loc, (read32le(loc) & ~(0x1f << 10)) | ((val & 0x1f) << 10));
++    return;
++  case R_LARCH_SOP_POP_32_U_10_12:
++    val = relStack.pop_back_val();
++    checkUInt(ctx, loc, val, 12, rel);
++    write32le(loc, setK12(read32le(loc), val));
++    return;
++  case R_LARCH_SOP_POP_32_S_10_12:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 12, rel);
++    write32le(loc, setK12(read32le(loc), val));
++    return;
++  case R_LARCH_SOP_POP_32_S_10_16:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 16, rel);
++    write32le(loc, setK16(read32le(loc), val));
++    return;
++  case R_LARCH_SOP_POP_32_S_10_16_S2:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 18, rel);
++    checkAlignment(ctx, loc, val, 4, rel);
++    write32le(loc, setK16(read32le(loc), val >> 2));
++    return;
++  case R_LARCH_SOP_POP_32_S_5_20:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 20, rel);
++    write32le(loc, setJ20(read32le(loc), val));
++    return;
++  case R_LARCH_SOP_POP_32_S_0_5_10_16_S2:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 23, rel);
++    checkAlignment(ctx, loc, val, 4, rel);
++    write32le(loc, setD5k16(read32le(loc), val >> 2));
++    return;
++  case R_LARCH_SOP_POP_32_S_0_10_10_16_S2:
++    val = relStack.pop_back_val();
++    checkInt(ctx, loc, val, 28, rel);
++    checkAlignment(ctx, loc, val, 4, rel);
++    write32le(loc, setD10k16(read32le(loc), val >> 2));
++    return;
++  case R_LARCH_SOP_POP_32_U:
++    val = relStack.pop_back_val();
++    checkUInt(ctx, loc, val, 32, rel);
++    write32le(loc, val);
++    return;
+   case R_LARCH_32_PCREL:
+     checkInt(ctx, loc, val, 32, rel);
+     [[fallthrough]];
+@@ -1271,6 +1414,7 @@
+ }
+ 
+ void LoongArch::relocateAlloc(InputSectionBase &sec, uint8_t *buf) const {
++  relStack.top = -1;
+   const unsigned bits = ctx.arg.is64 ? 64 : 32;
+   uint64_t secAddr = sec.getOutputSection()->addr;
+   if (auto *s = dyn_cast<InputSection>(&sec))
+@@ -1386,6 +1530,8 @@
+     }
+     relocate(loc, rel, val);
+   }
++  if (relStack.top != -1)
++    report_fatal_error("LoongArch SOP expression is incomplete");
+ }
+ 
+ // When relaxing just R_LARCH_ALIGN, relocDeltas is usually changed only once in
+--- a/lld/ELF/Relocations.cpp
++++ b/lld/ELF/Relocations.cpp
+@@ -200,7 +200,8 @@
+                RE_MIPS_GOT_LOCAL_PAGE, RE_MIPS_GOT_OFF, RE_MIPS_GOT_OFF32,
+                RE_AARCH64_GOT_PAGE_PC, RE_AARCH64_AUTH_GOT_PAGE_PC,
+                RE_AARCH64_AUTH_GOT_PAGE_PC, R_GOT_PC, R_GOTPLT,
+-               RE_AARCH64_GOT_PAGE, RE_LOONGARCH_GOT, RE_LOONGARCH_GOT_PAGE_PC>(
++               RE_AARCH64_GOT_PAGE, RE_LOONGARCH_GOT, RE_LOONGARCH_GOT_PAGE_PC,
++               RE_LOONGARCH_SOP_GOTREL>(
+       expr);
+ }
+ 
+@@ -983,7 +984,8 @@
+           R_GOTPLT_GOTREL, R_GOTPLT_PC, RE_PPC32_PLTREL, RE_PPC64_CALL_PLT,
+           RE_PPC64_RELAX_TOC, RE_RISCV_ADD, RE_AARCH64_GOT_PAGE,
+           RE_AARCH64_AUTH_GOT, RE_AARCH64_AUTH_GOT_PC, RE_LOONGARCH_PLT_PAGE_PC,
+-          RE_LOONGARCH_GOT, RE_LOONGARCH_GOT_PAGE_PC>(e))
++          RE_LOONGARCH_GOT, RE_LOONGARCH_GOT_PAGE_PC, RE_LOONGARCH_SOP_ABS,
++          RE_LOONGARCH_SOP_GOTREL>(e))
+     return true;
+ 
+   // These never do, except if the entire file is position dependent or if
+@@ -1519,6 +1521,28 @@
+ 
+   RelExpr expr =
+       ctx.target->getRelExpr(type, sym, sec->content().data() + offset);
++  if (ctx.arg.emachine == EM_LOONGARCH && type == R_LARCH_64) {
++    if (auto *eh = dyn_cast<EhInputSection>(sec)) {
++      auto findPiece = [&](ArrayRef<EhSectionPiece> pieces)
++          -> const EhSectionPiece * {
++        auto piece = llvm::upper_bound(
++            pieces, rel.r_offset,
++            [](uint64_t off, const EhSectionPiece &entry) {
++              return off < entry.inputOff;
++            });
++        return piece == pieces.begin() ? nullptr : &*--piece;
++      };
++      if (const EhSectionPiece *cie = findPiece(eh->cies))
++        if (cie->personalityPcRelativeOffset &&
++            rel.r_offset == cie->inputOff + cie->personalityPcRelativeOffset)
++          expr = R_PC;
++      if (const EhSectionPiece *fde = findPiece(eh->fdes))
++        if ((fde->fdePcRelative && rel.r_offset == fde->inputOff + 8) ||
++            (fde->lsdaPcRelativeOffset &&
++             rel.r_offset == fde->inputOff + fde->lsdaPcRelativeOffset))
++          expr = R_PC;
++    }
++  }
+   int64_t addend = RelTy::HasAddend
+                        ? getAddend<ELFT>(rel)
+                        : ctx.target->getImplicitAddend(
+--- a/lld/ELF/Relocations.h
++++ b/lld/ELF/Relocations.h
+@@ -132,6 +132,8 @@
+   RE_LOONGARCH_TLSGD_PAGE_PC,
+   RE_LOONGARCH_TLSDESC_PAGE_PC,
+   RE_LOONGARCH_RELAX_TLS_GD_TO_IE_PAGE_PC,
++  RE_LOONGARCH_SOP_ABS,
++  RE_LOONGARCH_SOP_GOTREL,
+ };
+ 
+ // Architecture-neutral representation of relocation.
+--- a/lld/ELF/SyntheticSections.cpp
++++ b/lld/ELF/SyntheticSections.cpp
+@@ -419,6 +419,40 @@
+     rec->cie = &cie;
+     cieRecords.push_back(rec);
+   }
++  if (ctx.arg.emachine == EM_LOONGARCH && ctx.arg.is64 && ctx.arg.isPic &&
++      (cast<ObjFile<ELFT>>(cie.sec->file)->getObj().getHeader().e_flags &
++       EF_LOONGARCH_OBJABI_MASK) == 0) {
++    CieEncodings encodings;
++    getFdeEncoding(&cie, &encodings);
++    auto isAbsolute64 = [](uint8_t encoding) {
++      uint8_t format = encoding & ~DW_EH_PE_indirect;
++      return format == DW_EH_PE_absptr || format == DW_EH_PE_udata8 ||
++             format == DW_EH_PE_sdata8;
++    };
++    if (encodings.fdeEncodingOffset != 0 &&
++        encodings.fdeEncodingOffset < cie.size &&
++        !(encodings.fdeEncoding & DW_EH_PE_indirect) &&
++        isAbsolute64(encodings.fdeEncoding))
++      rec->convertedEncodingOffset = encodings.fdeEncodingOffset;
++    if (encodings.lsdaEncodingOffset != 0 &&
++        encodings.lsdaEncodingOffset < cie.size &&
++        isAbsolute64(encodings.lsdaEncoding)) {
++      rec->convertedLsdaEncodingOffset = encodings.lsdaEncodingOffset;
++      rec->convertedLsdaEncoding =
++          DW_EH_PE_pcrel | DW_EH_PE_sdata8 |
++          (encodings.lsdaEncoding & DW_EH_PE_indirect);
++    }
++    if (encodings.personalityEncodingOffset != 0 &&
++        encodings.personalityOffset + 8 <= cie.size &&
++        isAbsolute64(encodings.personalityEncoding)) {
++      rec->convertedPersonalityEncodingOffset =
++          encodings.personalityEncodingOffset;
++      rec->convertedPersonalityOffset = encodings.personalityOffset;
++      rec->convertedPersonalityEncoding =
++          DW_EH_PE_pcrel | DW_EH_PE_sdata8 |
++          (encodings.personalityEncoding & DW_EH_PE_indirect);
++    }
++  }
+   return rec;
+ }
+ 
+@@ -550,10 +584,17 @@
+ 
+   size_t off = 0;
+   for (CieRecord *rec : cieRecords) {
++    rec->cie->personalityPcRelativeOffset = rec->convertedPersonalityOffset;
+     rec->cie->outputOff = off;
+     off += rec->cie->size;
+ 
++    uint8_t fdeEncoding = rec->convertedLsdaEncodingOffset
++                              ? getFdeEncoding(rec->cie)
++                              : static_cast<uint8_t>(DW_EH_PE_absptr);
+     for (EhSectionPiece *fde : rec->fdes) {
++      fde->fdePcRelative = rec->convertedEncodingOffset != 0;
++      if (rec->convertedLsdaEncodingOffset)
++        fde->lsdaPcRelativeOffset = getFdeLsdaOffset(fde, fdeEncoding);
+       fde->outputOff = off;
+       off += fde->size;
+     }
+@@ -577,7 +618,9 @@
+ 
+   uint64_t va = getPartition(ctx).ehFrameHdr->getVA();
+   for (CieRecord *rec : cieRecords) {
+-    uint8_t enc = getFdeEncoding(rec->cie);
++    uint8_t enc = rec->convertedEncodingOffset
++                      ? DW_EH_PE_pcrel | DW_EH_PE_sdata8
++                      : getFdeEncoding(rec->cie);
+     for (EhSectionPiece *fde : rec->fdes) {
+       uint64_t pc = getFdePc(buf, fde->outputOff, enc);
+       uint64_t fdeVA = getParent()->addr + fde->outputOff;
+@@ -647,6 +690,15 @@
+   for (CieRecord *rec : cieRecords) {
+     size_t cieOffset = rec->cie->outputOff;
+     writeCieFde(ctx, buf + cieOffset, rec->cie->data());
++    if (rec->convertedEncodingOffset)
++      buf[cieOffset + rec->convertedEncodingOffset] =
++          DW_EH_PE_pcrel | DW_EH_PE_sdata8;
++    if (rec->convertedLsdaEncodingOffset)
++      buf[cieOffset + rec->convertedLsdaEncodingOffset] =
++          rec->convertedLsdaEncoding;
++    if (rec->convertedPersonalityEncodingOffset)
++      buf[cieOffset + rec->convertedPersonalityEncodingOffset] =
++          rec->convertedPersonalityEncoding;
+ 
+     for (EhSectionPiece *fde : rec->fdes) {
+       size_t off = fde->outputOff;
+--- a/lld/ELF/SyntheticSections.h
++++ b/lld/ELF/SyntheticSections.h
+@@ -45,6 +45,12 @@
+ struct CieRecord {
+   EhSectionPiece *cie = nullptr;
+   SmallVector<EhSectionPiece *, 0> fdes;
++  uint32_t convertedEncodingOffset = 0;
++  uint32_t convertedLsdaEncodingOffset = 0;
++  uint32_t convertedPersonalityEncodingOffset = 0;
++  uint32_t convertedPersonalityOffset = 0;
++  uint8_t convertedLsdaEncoding = 0;
++  uint8_t convertedPersonalityEncoding = 0;
+ };
+ 
+ // Section for .eh_frame.
+--- a/clang/lib/Driver/ToolChains/Linux.cpp
++++ b/clang/lib/Driver/ToolChains/Linux.cpp
+@@ -533,6 +533,12 @@
+         ("ld-linux-loongarch-" +
+          tools::loongarch::getLoongArchABI(getDriver(), Args, Triple) + ".so.1")
+             .str();
++    if (Loader == "ld-linux-loongarch-lp64d.so.1") {
++      std::string Root = computeSysRoot();
++      if (!getDriver().getVFS().exists(Root + "/lib64/" + Loader) &&
++          getDriver().getVFS().exists(Root + "/lib64/ld.so.1"))
++        Loader = "ld.so.1";
++    }
+     break;
+   }
+   case llvm::Triple::m68k:
+--- a/lld/test/ELF/loongarch-interlink.test
++++ b/lld/test/ELF/loongarch-interlink.test
+@@ -3,6 +3,7 @@
+ 
+ # RUN: yaml2obj %t/blob.yaml -o %t/blob.o
+ # RUN: yaml2obj %t/v0-lp64d.yaml -o %t/v0-lp64d.o
++# RUN: %python %S/Inputs/loongarch-set-flags.py %t/v0-lp64d.o %t/v2-lp64d.o 0x83
+ # RUN: llvm-mc --filetype=obj --triple=loongarch64-unknown-gnu %t/start.s -o %t/v1-lp64d.o
+ # RUN: llvm-mc --filetype=obj --triple=loongarch64-unknown-gnusf %t/start.s -o %t/v1-lp64s.o
+ # RUN: llvm-mc --filetype=obj --triple=loongarch64-unknown-gnu %t/bar.s -o %t/v1-b-lp64d.o
+@@ -28,8 +29,15 @@
+ # RUN: not ld.lld %t/v1-lp64s.o %t/v1-b-lp64d.o -o /dev/null 2>&1 | FileCheck -DFILE1=%t/v1-b-lp64d.o -DFILE2=%t/v1-lp64s.o --check-prefix=INTERLINK-ERR %s
+ # INTERLINK-ERR: error: [[FILE1]]: cannot link object files with different ABI from [[FILE2]]
+ 
+-## Check that interlink between different object ABI versions is disallowed.
+-# RUN: not ld.lld %t/v0-lp64d.o %t/v1-b-lp64d.o %t/blob.o -o /dev/null 2>&1 | FileCheck -DFILE=%t/v0-lp64d.o --check-prefix=VERSION-ERR %s
++## 检查 ABI v0 与 ABI v1 混合链接时的标志，覆盖两种输入顺序。
++# RUN: ld.lld -e 0 %t/v0-lp64d.o %t/v1-b-lp64d.o %t/blob.o -o %t/v0-mixed.out
++# RUN: ld.lld -e 0 %t/v1-b-lp64d.o %t/v0-lp64d.o %t/blob.o -o %t/v0-reversed.out
++# RUN: llvm-readobj -h %t/v0-mixed.out | FileCheck --check-prefix=V0-LP64D %s
++# RUN: llvm-readobj -h %t/v0-reversed.out | FileCheck --check-prefix=V0-LP64D %s
++# V0-LP64D: Flags [ (0x3)
++
++## 检查未支持的对象 ABI 版本。
++# RUN: not ld.lld %t/v2-lp64d.o %t/v1-b-lp64d.o %t/blob.o -o /dev/null 2>&1 | FileCheck -DFILE=%t/v2-lp64d.o --check-prefix=VERSION-ERR %s
+ # VERSION-ERR: error: [[FILE]]: unsupported object file ABI version
+ 
+ #--- blob.bin
+--- /dev/null
++++ b/lld/test/ELF/loongarch-sop.s
+@@ -0,0 +1,83 @@
++# REQUIRES: loongarch
++# RUN: split-file %s %t
++# RUN: llvm-mc --filetype=obj --triple=loongarch64 %t/ops.s -o %t/ops.o
++# RUN: ld.lld %t/ops.o -o %t/ops.out
++# RUN: llvm-objdump -s --section=.data %t/ops.out | FileCheck %s --check-prefix=DATA
++# RUN: llvm-mc --filetype=obj --triple=loongarch64 %t/underflow.s -o %t/underflow.o
++# RUN: not --crash ld.lld %t/underflow.o -o /dev/null 2>&1 | FileCheck %s --check-prefix=UNDERFLOW
++# RUN: llvm-mc --filetype=obj --triple=loongarch64 %t/overflow.s -o %t/overflow.o
++# RUN: not --crash ld.lld %t/overflow.o -o /dev/null 2>&1 | FileCheck %s --check-prefix=OVERFLOW
++# RUN: llvm-mc --filetype=obj --triple=loongarch64 %t/assert.s -o %t/assert.o
++# RUN: not --crash ld.lld %t/assert.o -o /dev/null 2>&1 | FileCheck %s --check-prefix=ASSERT
++# RUN: llvm-mc --filetype=obj --triple=loongarch64 %t/shift.s -o %t/shift.o
++# RUN: not --crash ld.lld %t/shift.o -o /dev/null 2>&1 | FileCheck %s --check-prefix=SHIFT
++
++# DATA: 0c000000 01000000 0c000000 0c000000
++# UNDERFLOW: LoongArch SOP operand underflow
++# OVERFLOW: LoongArch SOP operand overflow
++# ASSERT: LoongArch SOP assertion failed
++# SHIFT: LoongArch SOP shift count is out of range
++
++#--- ops.s
++.text
++.global _start
++_start:
++  nop
++.data
++dup:
++  .long 0
++  .reloc dup, R_LARCH_SOP_PUSH_ABSOLUTE, 6
++  .reloc dup, R_LARCH_SOP_PUSH_DUP
++  .reloc dup, R_LARCH_SOP_ADD
++  .reloc dup, R_LARCH_SOP_POP_32_U
++invert:
++  .long 0
++  .reloc invert, R_LARCH_SOP_PUSH_ABSOLUTE, 0
++  .reloc invert, R_LARCH_SOP_NOT
++  .reloc invert, R_LARCH_SOP_POP_32_U
++select:
++  .long 0
++  .reloc select, R_LARCH_SOP_PUSH_ABSOLUTE, 0
++  .reloc select, R_LARCH_SOP_PUSH_ABSOLUTE, 99
++  .reloc select, R_LARCH_SOP_PUSH_ABSOLUTE, 12
++  .reloc select, R_LARCH_SOP_IF_ELSE
++  .reloc select, R_LARCH_SOP_POP_32_U
++check:
++  .long 0
++  .reloc check, R_LARCH_SOP_PUSH_ABSOLUTE, 1
++  .reloc check, R_LARCH_SOP_ASSERT
++  .reloc check, R_LARCH_SOP_PUSH_ABSOLUTE, 12
++  .reloc check, R_LARCH_SOP_POP_32_U
++
++#--- underflow.s
++.text
++.global _start
++_start:
++  .long 0
++  .reloc _start, R_LARCH_SOP_POP_32_U
++
++#--- overflow.s
++.text
++.global _start
++_start:
++  .long 0
++  .rept 17
++  .reloc _start, R_LARCH_SOP_PUSH_ABSOLUTE, 1
++  .endr
++
++#--- assert.s
++.text
++.global _start
++_start:
++  .long 0
++  .reloc _start, R_LARCH_SOP_PUSH_ABSOLUTE, 0
++  .reloc _start, R_LARCH_SOP_ASSERT
++
++#--- shift.s
++.text
++.global _start
++_start:
++  .long 0
++  .reloc _start, R_LARCH_SOP_PUSH_ABSOLUTE, 1
++  .reloc _start, R_LARCH_SOP_PUSH_ABSOLUTE, 64
++  .reloc _start, R_LARCH_SOP_SL
+--- /dev/null
++++ b/lld/test/ELF/Inputs/loongarch-set-flags.py
+@@ -0,0 +1,13 @@
++import shutil
++import sys
++
++from elftools.elf.elffile import ELFFile
++
++shutil.copyfile(sys.argv[1], sys.argv[2])
++with open(sys.argv[2], "r+b") as stream:
++    elf = ELFFile(stream)
++    header = elf.header
++    header["e_flags"] = int(sys.argv[3], 0)
++    encoded_header = elf.structs.Elf_Ehdr.build(header)
++    stream.seek(0)
++    stream.write(encoded_header)
