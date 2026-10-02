@@ -1,0 +1,81 @@
+diff --git a/lib/std/os/linux.zig b/lib/std/os/linux.zig
+index 424f80bb6a..68ade676fa 100644
+--- a/lib/std/os/linux.zig
++++ b/lib/std/os/linux.zig
+@@ -2229,11 +2229,16 @@ pub fn sigaction(sig: SIG, noalias act: ?*const Sigaction, noalias oact: ?*Sigac
+ const usize_bits = @typeInfo(usize).int.bits;
+ 
+ /// Defined as one greater than the largest defined signal number.
+-pub const NSIG = if (is_mips) 128 else 65;
++pub const NSIG = if (is_mips)
++    128
++else if (native_arch == .loongarch64 and builtin.os.tag == .linux and
++    builtin.os.version_range.linux.range.min.order(.{ .major = 5, .minor = 19, .patch = 0 }) == .lt)
++    129
++else
++    65;
+ 
+-/// Linux kernel's sigset_t.  This is logically 64-bit on most
+-/// architectures, but 128-bit on MIPS.  Contrast with the 1024-bit
+-/// sigset_t exported by the glibc and musl library ABIs.
++/// Linux 内核的 sigset_t 使用 64 bits 或 128 bits。
++/// glibc 和 musl 公开接口的 sigset_t 使用 1024 bits。
+ pub const sigset_t = [(NSIG - 1 + 7) / @bitSizeOf(SigsetElement)]SigsetElement;
+ 
+ const SigsetElement = c_ulong;
+diff --git a/lib/std/os/linux/test.zig b/lib/std/os/linux/test.zig
+index 63e0d2f96a..b32d410159 100644
+--- a/lib/std/os/linux/test.zig
++++ b/lib/std/os/linux/test.zig
+@@ -131,6 +131,12 @@ test "fadvise" {
+     try expectEqual(@as(usize, 0), ret);
+ }
+ 
++test "rt_sigaction" {
++    var action: linux.Sigaction = undefined;
++    const result = linux.sigaction(.USR1, null, &action);
++    try expectEqual(linux.E.SUCCESS, linux.errno(result));
++}
++
+ test "sigset_t" {
+     const SIG = linux.SIG;
+     assert(@sizeOf(linux.sigset_t) == (linux.NSIG / 8));
+diff --git a/lib/std/zig/system.zig b/lib/std/zig/system.zig
+index 61f78093d6..edd44916af 100644
+--- a/lib/std/zig/system.zig
++++ b/lib/std/zig/system.zig
+@@ -477,7 +477,9 @@ pub fn resolveTargetQuery(io: Io, query: Target.Query) DetectError!Target {
+     // OS version, we do at least know that some ABIs require a particular OS version (by way of
+     // `std.zig.target.available_libcs`). So in this case, adjust the OS version to the minimum that
+     // we know is required.
+-    if (result.abi != query_abi and query.os_version_min == null) {
++    const is_legacy_loongarch = result.cpu.arch == .loongarch64 and result.os.tag == .linux and
++        if (result.dynamic_linker.get()) |ld| mem.eql(u8, ld, "/lib64/ld.so.1") else false;
++    if (result.abi != query_abi and query.os_version_min == null and !is_legacy_loongarch) {
+         const result_ver_range = &result.os.version_range;
+         const abi_ver_range = result.os.tag.defaultVersionRange(result.cpu.arch, result.abi).version_range;
+ 
+@@ -987,7 +989,7 @@ fn detectAbiAndDynamicLinker(io: Io, cpu: Target.Cpu, os: Target.Os, query: Targ
+         }
+         break :blk array;
+     };
+-    var ld_info_list_buffer: [all_abis.len]LdInfo = undefined;
++    var ld_info_list_buffer: [all_abis.len + 1]LdInfo = undefined;
+     var ld_info_list_len: usize = 0;
+ 
+     switch (Target.DynamicLinker.kind(os.tag)) {
+@@ -1016,6 +1018,14 @@ fn detectAbiAndDynamicLinker(io: Io, cpu: Target.Cpu, os: Target.Os, query: Targ
+         },
+     }
+ 
++    if (cpu.arch == .loongarch64 and os.tag == .linux) {
++        ld_info_list_buffer[ld_info_list_len] = .{
++            .ld = .init("/lib64/ld.so.1"),
++            .abi = .gnu,
++        };
++        ld_info_list_len += 1;
++    }
++
+     const ld_info_list = ld_info_list_buffer[0..ld_info_list_len];
+ 
+     var file_reader: Io.File.Reader = undefined;
