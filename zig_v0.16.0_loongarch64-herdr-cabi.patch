@@ -1,0 +1,238 @@
+--- a/src/codegen/llvm.zig
++++ b/src/codegen/llvm.zig
+@@ -1365,7 +1365,7 @@
+                         for (0..field_types.len, llvm_args_start..) |field_i, llvm_arg_index| {
+                             const param = wip.arg(@intCast(llvm_arg_index));
+                             const field_ptr = try wip.gepStruct(llvm_ty, arg_ptr, field_i, "");
+-                            const alignment: Builder.Alignment = .fromByteUnits(@divExact(target.ptrBitWidth(), 8));
++                            const alignment = it.fieldAlignment(param_ty, field_i);
+                             _ = try wip.store(.normal, param, field_ptr, alignment);
+                         }
+ 
+--- a/src/codegen/llvm/FuncGen.zig
++++ b/src/codegen/llvm/FuncGen.zig
+@@ -722,7 +722,7 @@
+             const llvm_ty = try o.builder.structType(.normal, llvm_types);
+             try llvm_args.ensureUnusedCapacity(it.types_len);
+             for (llvm_types, 0..) |field_ty, i| {
+-                const alignment: Builder.Alignment = .fromByteUnits(@divExact(target.ptrBitWidth(), 8));
++                const alignment = it.fieldAlignment(param_ty, i);
+                 const field_ptr = try self.wip.gepStruct(llvm_ty, arg_ptr, i, "");
+                 const loaded = try self.wip.load(.normal, field_ty, field_ptr, alignment, "");
+                 llvm_args.appendAssumeCapacity(loaded);
+@@ -6580,6 +6580,8 @@
+     types_len: u32,
+     types_buffer: [8]Builder.Type,
+     byval_attr: bool,
++    loongarch_gprs: u8 = 8,
++    loongarch_fprs: u8 = 8,
+ 
+     const Lowering = union(enum) {
+         no_bits,
+@@ -6602,6 +6604,15 @@
+         return nextInner(it, Type.fromInterned(ty));
+     }
+ 
++    pub fn fieldAlignment(it: *const ParamTypeIterator, ty: Type, field_index: usize) Builder.Alignment {
++        const zcu = it.object.zcu;
++        if (it.fn_info.cc == .loongarch64_lp64) {
++            const fields = loongarch_c_abi.classifyType(ty, zcu).fields;
++            return fields.types[field_index].abiAlignment(zcu).toLlvm();
++        }
++        return .fromByteUnits(@divExact(zcu.getTarget().ptrBitWidth(), 8));
++    }
++
+     /// `airCall` uses this instead of `next` so that it can take into account variadic functions.
+     fn nextCall(it: *ParamTypeIterator, fg: *FuncGen, args: []const Air.Inst.Ref) Allocator.Error!?Lowering {
+         const ip = &it.object.zcu.intern_pool;
+@@ -6703,6 +6714,29 @@
+                     .i32_array => |size| return Lowering{ .i32_array = size },
+                 }
+             },
++            .loongarch64_lp64 => {
++                it.zig_index += 1;
++                it.llvm_index += 1;
++                switch (loongarch_c_abi.classifyArg(
++                    ty,
++                    zcu,
++                    &it.loongarch_gprs,
++                    &it.loongarch_fprs,
++                    it.zig_index > it.fn_info.param_types.len,
++                )) {
++                    .memory => return .byref_mut,
++                    .byval => return .byval,
++                    .integer => return .abi_sized_int,
++                    .fields => |fields| {
++                        it.types_len = fields.len;
++                        for (fields.types[0..fields.len], 0..) |field_ty, i| {
++                            it.types_buffer[i] = try it.object.lowerType(field_ty);
++                        }
++                        it.llvm_index += it.types_len - 1;
++                        return .multiple_llvm_types;
++                    },
++                }
++            },
+             .riscv64_lp64, .riscv32_ilp32 => {
+                 it.zig_index += 1;
+                 it.llvm_index += 1;
+@@ -6890,6 +6924,7 @@
+         .types_len = 0,
+         .types_buffer = undefined,
+         .byval_attr = false,
++        .loongarch_gprs = if (fn_info.cc == .loongarch64_lp64 and firstParamSRet(fn_info, object.zcu, object.zcu.getTarget())) 7 else 8,
+     };
+ }
+ 
+@@ -6929,6 +6964,7 @@
+             .byval => false,
+         },
+         .riscv64_lp64, .riscv32_ilp32 => riscv_c_abi.classifyType(return_type, zcu) == .memory,
++        .loongarch64_lp64 => loongarch_c_abi.classifyType(return_type, zcu) == .memory,
+         .mips_o32 => switch (mips_c_abi.classifyType(return_type, zcu, .ret)) {
+             .memory, .i32_array => true,
+             .byval => false,
+@@ -6979,6 +7015,18 @@
+             .memory, .i32_array => return .void,
+             .byval => return o.lowerType(return_type),
+         },
++        .loongarch64_lp64 => switch (loongarch_c_abi.classifyType(return_type, zcu)) {
++            .memory => return .void,
++            .byval => return o.lowerType(return_type),
++            .integer => return o.builder.intType(@intCast(return_type.abiSize(zcu) * 8)),
++            .fields => |fields| {
++                var types: [2]Builder.Type = undefined;
++                for (fields.types[0..fields.len], 0..) |field_ty, i| {
++                    types[i] = try o.lowerType(field_ty);
++                }
++                return o.builder.structType(.normal, types[0..fields.len]);
++            },
++        },
+         .riscv64_lp64, .riscv32_ilp32 => switch (riscv_c_abi.classifyType(return_type, zcu)) {
+             .memory => return .void,
+             .integer => return o.builder.intType(@intCast(return_type.bitSize(zcu))),
+@@ -7699,6 +7747,7 @@
+ const aarch64_c_abi = @import("../aarch64/abi.zig");
+ const arm_c_abi = @import("../arm/abi.zig");
+ const riscv_c_abi = @import("../riscv64/abi.zig");
++const loongarch_c_abi = @import("../loongarch64/abi.zig");
+ const mips_c_abi = @import("../mips/abi.zig");
+ 
+ const Zcu = @import("../../Zcu.zig");
+--- /dev/null
++++ b/src/codegen/loongarch64/abi.zig
+@@ -0,0 +1,115 @@
++const std = @import("std");
++const Type = @import("../../Type.zig");
++const Zcu = @import("../../Zcu.zig");
++
++pub const Fields = struct {
++    types: [2]Type = undefined,
++    len: u32 = 0,
++};
++
++pub const Class = union(enum) {
++    memory,
++    byval,
++    integer,
++    fields: Fields,
++};
++
++pub fn classifyType(ty: Type, zcu: *Zcu) Class {
++    const target = zcu.getTarget();
++    std.debug.assert(target.cpu.arch == .loongarch64);
++    std.debug.assert(ty.hasRuntimeBits(zcu));
++
++    switch (ty.zigTypeTag(zcu)) {
++        .@"struct" => {
++            if (ty.containerLayout(zcu) != .@"packed") {
++                const flen: u16 = switch (target.abi) {
++                    .gnusf, .muslsf => 0,
++                    .gnuf32, .muslf32 => 32,
++                    else => 64,
++                };
++                var fields: Fields = .{};
++                var any_float = false;
++                if (flattenFields(ty, zcu, flen, &fields, &any_float) and any_float) {
++                    return .{ .fields = fields };
++                }
++            }
++            return classifyAggregate(ty, zcu);
++        },
++        .@"union", .vector => return classifyAggregate(ty, zcu),
++        .int => return if (ty.bitSize(zcu) > 128) .memory else .byval,
++        else => return .byval,
++    }
++}
++
++pub fn classifyArg(ty: Type, zcu: *Zcu, gprs: *u8, fprs: *u8, is_vararg: bool) Class {
++    var class = classifyType(ty, zcu);
++    if (class == .fields) {
++        var required_gprs: u8 = 0;
++        var required_fprs: u8 = 0;
++        for (class.fields.types[0..class.fields.len]) |field_ty| {
++            if (field_ty.isRuntimeFloat()) {
++                required_fprs += 1;
++            } else {
++                required_gprs += 1;
++            }
++        }
++        if (!is_vararg and gprs.* >= required_gprs and fprs.* >= required_fprs) {
++            gprs.* -= required_gprs;
++            fprs.* -= required_fprs;
++            return class;
++        }
++        class = classifyAggregate(ty, zcu);
++    }
++    if (ty.isRuntimeFloat()) {
++        const flen: u16 = switch (zcu.getTarget().abi) {
++            .gnusf, .muslsf => 0,
++            .gnuf32, .muslf32 => 32,
++            else => 64,
++        };
++        if (!is_vararg and ty.bitSize(zcu) <= flen and fprs.* > 0) {
++            fprs.* -= 1;
++            return class;
++        }
++        if (is_vararg) class = classifyAggregate(ty, zcu);
++    }
++    const required_gprs: u8 = if (class == .memory) 1 else @intCast((ty.abiSize(zcu) + 7) / 8);
++    gprs.* -|= required_gprs;
++    return class;
++}
++
++fn classifyAggregate(ty: Type, zcu: *Zcu) Class {
++    const size = ty.abiSize(zcu);
++    if (size > 16) return .memory;
++    return .integer;
++}
++
++fn flattenFields(ty: Type, zcu: *Zcu, flen: u16, fields: *Fields, any_float: *bool) bool {
++    if (!ty.hasRuntimeBits(zcu)) return true;
++    switch (ty.zigTypeTag(zcu)) {
++        .@"struct" => {
++            if (ty.containerLayout(zcu) == .@"packed") return false;
++            for (0..ty.structFieldCount(zcu)) |i| {
++                if (!flattenFields(ty.fieldType(i, zcu), zcu, flen, fields, any_float)) return false;
++            }
++            return true;
++        },
++        .array => {
++            for (0..ty.arrayLen(zcu)) |_| {
++                if (!flattenFields(ty.childType(zcu), zcu, flen, fields, any_float)) return false;
++            }
++            return true;
++        },
++        .float => {
++            if (ty.bitSize(zcu) > flen) return false;
++            any_float.* = true;
++        },
++        .bool, .pointer, .optional, .int, .@"enum", .error_set => {
++            if (ty.abiSize(zcu) > 8) return false;
++        },
++        else => return false,
++    }
++    if (fields.len == fields.types.len) return false;
++    fields.types[fields.len] = ty;
++    fields.len += 1;
++    return true;
++}
