@@ -1,0 +1,83 @@
+From d845e5b1b5ec13689cc7bb169a14005e771476d7 Mon Sep 17 00:00:00 2001
+From: Laevatein Scarlet <fish_magic@ftmc.me>
+Date: Sat, 3 Oct 2026 21:52:15 +0800
+Subject: [PATCH 1/2] fix(linux): format KMS display names without ranges::to
+
+---
+ src/platform/linux/kmsgrab.cpp |  2 +-
+ src/utility.h                  | 18 ++++++++++++++++++
+ tests/unit/test_utility.cpp    | 16 ++++++++++++++++
+ 3 files changed, 35 insertions(+), 1 deletion(-)
+
+diff --git a/src/platform/linux/kmsgrab.cpp b/src/platform/linux/kmsgrab.cpp
+index 8a085763633d3cfce98d51ce88ec5d58d0c8bc81..1f64a7081dfb6441e181a3e077d6b059df347c25 100644
+--- a/src/platform/linux/kmsgrab.cpp
++++ b/src/platform/linux/kmsgrab.cpp
+@@ -2286,7 +2286,7 @@ namespace platf {
+ 
+     kms::card_descriptors = std::move(cds);
+ 
+-    BOOST_LOG(debug) << "Final KMS display_names return list: " << (display_names | std::views::join_with(' ') | std::ranges::to<std::string>());
++    BOOST_LOG(debug) << "Final KMS display_names return list: " << util::join_strings(display_names, " ");
+     return display_names;
+   }
+ 
+diff --git a/src/utility.h b/src/utility.h
+index fa96bdd0c19526e139e796fad304cd3e0c7f195a..f32407a7987b011e8c799fc03efdd4b89a21850c 100644
+--- a/src/utility.h
++++ b/src/utility.h
+@@ -269,6 +269,24 @@ struct argument_type<T(U)> {
+ 
+ namespace util {
+ 
++  /**
++   * @brief Join strings without requiring C++23 range container conversion.
++   *
++   * @param values Strings to join, including any empty entries.
++   * @param separator Text inserted between adjacent entries.
++   * @return Joined text, or an empty string when no entries are provided.
++   */
++  inline std::string join_strings(const std::vector<std::string> &values, std::string_view separator) {
++    std::string result;
++    for (auto it = values.begin(); it != values.end(); ++it) {
++      if (it != values.begin()) {
++        result.append(separator);
++      }
++      result.append(*it);
++    }
++    return result;
++  }
++
+   template<template<typename...> class X, class... Y>
+   struct __instantiation_of: public std::false_type {};
+ 
+diff --git a/tests/unit/test_utility.cpp b/tests/unit/test_utility.cpp
+index 0de618330aeac78c756d5ab2b6ea2ccb46def3d5..f7823630e3d9a25079ff2abdc1c23733893d9017 100644
+--- a/tests/unit/test_utility.cpp
++++ b/tests/unit/test_utility.cpp
+@@ -17,6 +17,22 @@
+ // local includes
+ #include <src/utility.h>
+ 
++TEST(UtilityJoinStringsTests, EmptyAndSingleEntry) {
++  EXPECT_TRUE(util::join_strings({}, " ").empty());
++  EXPECT_EQ(util::join_strings({"DP-1"}, " "), "DP-1");
++}
++
++TEST(UtilityJoinStringsTests, PreservesOrderAndEmptyEntries) {
++  EXPECT_EQ(util::join_strings({"DP-1", "HDMI-A-1"}, " "), "DP-1 HDMI-A-1");
++  EXPECT_EQ(util::join_strings({"", "DP-1", ""}, " | "), " | DP-1 | ");
++  EXPECT_EQ(util::join_strings({"DP-1", "HDMI-A-1"}, ""), "DP-1HDMI-A-1");
++}
++
++TEST(UtilityJoinStringsTests, PreservesEmbeddedNulls) {
++  const std::string name {"DP\0-1", 5};
++  EXPECT_EQ(util::join_strings({name, "HDMI-A-1"}, " "), name + " HDMI-A-1");
++}
++
+ struct HexConversionTest: testing::TestWithParam<std::tuple<std::uint32_t, bool, std::string>> {};
+ 
+ TEST_P(HexConversionTest, ToStringProducesExpectedHex) {
+-- 
+2.25.1
+

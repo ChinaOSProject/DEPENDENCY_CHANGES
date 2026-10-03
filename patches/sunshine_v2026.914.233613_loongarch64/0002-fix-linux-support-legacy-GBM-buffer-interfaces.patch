@@ -1,0 +1,258 @@
+From e0627e50193a296365eb86de96498bbc63c144fb Mon Sep 17 00:00:00 2001
+From: Laevatein Scarlet <fish_magic@ftmc.me>
+Date: Sat, 3 Oct 2026 22:27:55 +0800
+Subject: [PATCH 2/2] fix(linux): support legacy GBM buffer interfaces
+
+---
+ src/platform/linux/wayland.cpp             |  22 ++++-
+ src/platform/linux/wayland.h               |  27 +++++-
+ tests/unit/platform/linux/test_wayland.cpp | 108 +++++++++++++++++++++
+ 3 files changed, 152 insertions(+), 5 deletions(-)
+
+diff --git a/src/platform/linux/wayland.cpp b/src/platform/linux/wayland.cpp
+index ee3f2c3edd631d806db347350e7ecb6d8e5e336c..b2f774b14697a1ac87c4970684d9f1161849c573 100644
+--- a/src/platform/linux/wayland.cpp
++++ b/src/platform/linux/wayland.cpp
+@@ -3,6 +3,7 @@
+  * @brief Definitions for Wayland capture.
+  */
+ // platform includes
++#include <dlfcn.h>
+ #include <drm_fourcc.h>
+ #include <fcntl.h>
+ #include <gbm.h>
+@@ -37,10 +38,15 @@ namespace wl {
+   namespace {
+     const gbm_bo_accessors_t gbm_bo_accessors {
+       .get_plane_count = gbm_bo_get_plane_count,
+-      .get_fd_for_plane = gbm_bo_get_fd_for_plane,
++      .get_fd_for_plane = reinterpret_cast<decltype(gbm_bo_accessors_t::get_fd_for_plane)>(dlsym(RTLD_DEFAULT, "gbm_bo_get_fd_for_plane")),
+       .get_stride_for_plane = gbm_bo_get_stride_for_plane,
+       .get_offset = gbm_bo_get_offset,
+       .get_modifier = gbm_bo_get_modifier,
++      .get_fd = gbm_bo_get_fd,
++    };
++    const gbm_bo_creators_t gbm_bo_creators {
++      .create_with_modifiers2 = reinterpret_cast<decltype(gbm_bo_creators_t::create_with_modifiers2)>(dlsym(RTLD_DEFAULT, "gbm_bo_create_with_modifiers2")),
++      .create_with_modifiers = gbm_bo_create_with_modifiers,
+     };
+   }  // namespace
+ 
+@@ -389,14 +395,15 @@ namespace wl {
+     frame.destroy();
+ 
+     const auto plane_count = accessors.get_plane_count(bo);
+-    if (plane_count <= 0 || plane_count > static_cast<int>(std::size(frame.sd.fds))) {
++    if (plane_count <= 0 || plane_count > static_cast<int>(std::size(frame.sd.fds)) ||
++        (!accessors.get_fd_for_plane && (plane_count != 1 || !accessors.get_fd))) {
+       BOOST_LOG(error) << "[wayland] GBM buffer has unsupported plane count ["sv << plane_count << ']';
+       return std::nullopt;
+     }
+ 
+     frame.sd.modifier = accessors.get_modifier(bo);
+     for (auto plane = 0; plane < plane_count; ++plane) {
+-      frame.sd.fds[plane] = accessors.get_fd_for_plane(bo, plane);
++      frame.sd.fds[plane] = accessors.get_fd_for_plane ? accessors.get_fd_for_plane(bo, plane) : accessors.get_fd(bo);
+       if (frame.sd.fds[plane] < 0) {
+         BOOST_LOG(error) << "[wayland] Failed to export DMA-BUF plane ["sv << plane << ']';
+         frame.destroy();
+@@ -410,6 +417,13 @@ namespace wl {
+     return static_cast<std::uint32_t>(plane_count);
+   }
+ 
++  gbm_bo *create_gbm_bo_with_modifiers(gbm_device *device, std::uint32_t width, std::uint32_t height, std::uint32_t format, const std::uint64_t *modifiers, unsigned int count, std::uint32_t usage, const gbm_bo_creators_t &creators) {
++    if (creators.create_with_modifiers2) {
++      return creators.create_with_modifiers2(device, width, height, format, modifiers, count, usage);
++    }
++    return creators.create_with_modifiers(device, width, height, format, modifiers, count);
++  }
++
+   // DMA-BUF creation helper
+   void dmabuf_t::create_and_copy_dmabuf(zwlr_screencopy_frame_v1 *frame) {
+     if (!init_gbm()) {
+@@ -423,7 +437,7 @@ namespace wl {
+     if (supported_modifiers) {
+       auto it = supported_modifiers->find(dmabuf_info.format);
+       if (it != supported_modifiers->end() && !it->second.empty()) {
+-        current_bo = gbm_bo_create_with_modifiers2(gbm_device, dmabuf_info.width, dmabuf_info.height, dmabuf_info.format, it->second.data(), it->second.size(), GBM_BO_USE_RENDERING);
++        current_bo = create_gbm_bo_with_modifiers(gbm_device, dmabuf_info.width, dmabuf_info.height, dmabuf_info.format, it->second.data(), it->second.size(), GBM_BO_USE_RENDERING, gbm_bo_creators);
+       }
+     }
+ 
+diff --git a/src/platform/linux/wayland.h b/src/platform/linux/wayland.h
+index 5cd24bf0bc5c0eac55aefa884f4047a0d64674cb..adb62ca7927031f92320605c5ed922565694c7aa 100644
+--- a/src/platform/linux/wayland.h
++++ b/src/platform/linux/wayland.h
+@@ -28,6 +28,7 @@
+ #ifdef SUNSHINE_BUILD_WAYLAND
+ 
+ struct gbm_bo;
++struct gbm_device;
+ 
+ namespace wl {
+   /**
+@@ -48,12 +49,36 @@ namespace wl {
+    */
+   struct gbm_bo_accessors_t {
+     int (*get_plane_count)(gbm_bo *bo);  ///< Return the number of memory planes in the buffer.
+-    int (*get_fd_for_plane)(gbm_bo *bo, int plane);  ///< Duplicate the DMA-BUF descriptor for one plane.
++    int (*get_fd_for_plane)(gbm_bo *bo, int plane);  ///< Duplicate one plane's descriptor, or nullptr on legacy GBM.
+     std::uint32_t (*get_stride_for_plane)(gbm_bo *bo, int plane);  ///< Return the row stride for one plane.
+     std::uint32_t (*get_offset)(gbm_bo *bo, int plane);  ///< Return the byte offset for one plane.
+     std::uint64_t (*get_modifier)(gbm_bo *bo);  ///< Return the DRM format modifier shared by the planes.
++    int (*get_fd)(gbm_bo *bo) {};  ///< Duplicate a single-plane buffer descriptor on legacy GBM.
+   };
+ 
++  /**
++   * @brief Available GBM allocation interfaces for explicit DRM modifiers.
++   */
++  struct gbm_bo_creators_t {
++    gbm_bo *(*create_with_modifiers2)(gbm_device *, std::uint32_t, std::uint32_t, std::uint32_t, const std::uint64_t *, unsigned int, std::uint32_t);  ///< Allocate with usage flags, or nullptr on legacy GBM.
++    gbm_bo *(*create_with_modifiers)(gbm_device *, std::uint32_t, std::uint32_t, std::uint32_t, const std::uint64_t *, unsigned int);  ///< Allocate with the legacy modifier interface.
++  };
++
++  /**
++   * @brief Allocate a GBM buffer using the available explicit-modifier interface.
++   *
++   * @param device GBM device that owns the buffer.
++   * @param width Buffer width in pixels.
++   * @param height Buffer height in pixels.
++   * @param format DRM pixel format.
++   * @param modifiers Allowed DRM format modifiers.
++   * @param count Number of modifiers.
++   * @param usage Usage flags passed to the modern interface.
++   * @param creators Available allocation interfaces.
++   * @return Allocated buffer, or nullptr when allocation fails.
++   */
++  gbm_bo *create_gbm_bo_with_modifiers(gbm_device *device, std::uint32_t width, std::uint32_t height, std::uint32_t format, const std::uint64_t *modifiers, unsigned int count, std::uint32_t usage, const gbm_bo_creators_t &creators);
++
+   /**
+    * @brief Captured Wayland frame metadata and DMA-BUF surface state.
+    */
+diff --git a/tests/unit/platform/linux/test_wayland.cpp b/tests/unit/platform/linux/test_wayland.cpp
+index 98b221a9ddefe1f4e6a9d80ac7d6d9f7def69412..672aab8949a6021b47f365816bf1d3e57a3d887e 100644
+--- a/tests/unit/platform/linux/test_wayland.cpp
++++ b/tests/unit/platform/linux/test_wayland.cpp
+@@ -10,6 +10,7 @@
+   // system includes
+   #include <drm_fourcc.h>
+   #include <fcntl.h>
++  #include <gbm.h>
+   #include <unistd.h>
+ 
+   // test includes
+@@ -168,4 +169,111 @@ TEST(WaylandCaptureTest, ClosesExportedPlanesAfterLaterPlaneFails) {
+   EXPECT_EQ(fd_error, EBADF);
+   EXPECT_EQ(frame.sd.fds[0], -1);
+ }
++
++TEST(WaylandCaptureTest, ExportsSinglePlaneOnLegacyGbm) {
++  fake_gbm_bo_t bo {
++    .plane_count = 1,
++    .modifier = DRM_FORMAT_MOD_LINEAR,
++    .strides = {7680},
++    .offsets = {128},
++  };
++  auto accessors = fake_accessors;
++  accessors.get_fd_for_plane = nullptr;
++  accessors.get_fd = [](gbm_bo *buffer) {
++    return get_fd_for_plane(buffer, 0);
++  };
++  wl::frame_t frame;
++
++  ASSERT_EQ(wl::export_gbm_bo_planes(static_cast<gbm_bo *>(static_cast<void *>(&bo)), frame, accessors), 1);
++  EXPECT_EQ(frame.sd.fds[0], bo.exported_fds[0]);
++  EXPECT_EQ(frame.sd.pitches[0], bo.strides[0]);
++  EXPECT_EQ(frame.sd.offsets[0], bo.offsets[0]);
++  EXPECT_EQ(frame.sd.modifier, bo.modifier);
++
++  frame.destroy();
++  EXPECT_EQ(fcntl(bo.exported_fds[0], F_GETFD), -1);
++  EXPECT_EQ(errno, EBADF);
++}
++
++TEST(WaylandCaptureTest, RejectsMultiplePlanesOnLegacyGbm) {
++  fake_gbm_bo_t bo {
++    .plane_count = 2,
++  };
++  auto accessors = fake_accessors;
++  accessors.get_fd_for_plane = nullptr;
++  accessors.get_fd = [](gbm_bo *) {
++    ADD_FAILURE() << "A multi-plane buffer must not use the legacy single-plane exporter";
++    return -1;
++  };
++  wl::frame_t frame;
++
++  EXPECT_FALSE(wl::export_gbm_bo_planes(static_cast<gbm_bo *>(static_cast<void *>(&bo)), frame, accessors));
++  EXPECT_EQ(frame.sd.fds[0], -1);
++}
++
++TEST(WaylandCaptureTest, CleansFrameAfterLegacyExportFails) {
++  fake_gbm_bo_t bo {
++    .plane_count = 1,
++    .failed_plane = 0,
++  };
++  auto accessors = fake_accessors;
++  accessors.get_fd_for_plane = nullptr;
++  accessors.get_fd = [](gbm_bo *buffer) {
++    return get_fd_for_plane(buffer, 0);
++  };
++  wl::frame_t frame;
++
++  EXPECT_FALSE(wl::export_gbm_bo_planes(static_cast<gbm_bo *>(static_cast<void *>(&bo)), frame, accessors));
++  EXPECT_EQ(frame.sd.fds[0], -1);
++}
++
++TEST(WaylandCaptureTest, SelectsAvailableModifierAllocation) {
++  int allocation_path = 0;
++  auto *device = static_cast<gbm_device *>(static_cast<void *>(&allocation_path));
++  const std::uint64_t modifiers[] {DRM_FORMAT_MOD_LINEAR};
++  auto creators = wl::gbm_bo_creators_t {
++    .create_with_modifiers2 = [](gbm_device *device, std::uint32_t width, std::uint32_t height, std::uint32_t format, const std::uint64_t *modifiers, unsigned int count, std::uint32_t usage) -> gbm_bo * {
++      EXPECT_EQ(width, 1920);
++      EXPECT_EQ(height, 1080);
++      EXPECT_EQ(format, DRM_FORMAT_XRGB8888);
++      EXPECT_EQ(count, 1);
++      EXPECT_EQ(modifiers[0], DRM_FORMAT_MOD_LINEAR);
++      EXPECT_EQ(usage, GBM_BO_USE_RENDERING);
++      *static_cast<int *>(static_cast<void *>(device)) = 2;
++      return static_cast<gbm_bo *>(static_cast<void *>(device));
++    },
++    .create_with_modifiers = [](gbm_device *device, std::uint32_t width, std::uint32_t height, std::uint32_t format, const std::uint64_t *modifiers, unsigned int count) -> gbm_bo * {
++      EXPECT_EQ(width, 1920);
++      EXPECT_EQ(height, 1080);
++      EXPECT_EQ(format, DRM_FORMAT_XRGB8888);
++      EXPECT_EQ(count, 1);
++      EXPECT_EQ(modifiers[0], DRM_FORMAT_MOD_LINEAR);
++      *static_cast<int *>(static_cast<void *>(device)) = 1;
++      return static_cast<gbm_bo *>(static_cast<void *>(device));
++    },
++  };
++
++  auto *buffer = wl::create_gbm_bo_with_modifiers(device, 1920, 1080, DRM_FORMAT_XRGB8888, modifiers, 1, GBM_BO_USE_RENDERING, creators);
++  EXPECT_EQ(buffer, static_cast<gbm_bo *>(static_cast<void *>(device)));
++  EXPECT_EQ(allocation_path, 2);
++
++  creators.create_with_modifiers2 = nullptr;
++  buffer = wl::create_gbm_bo_with_modifiers(device, 1920, 1080, DRM_FORMAT_XRGB8888, modifiers, 1, GBM_BO_USE_RENDERING, creators);
++  EXPECT_EQ(buffer, static_cast<gbm_bo *>(static_cast<void *>(device)));
++  EXPECT_EQ(allocation_path, 1);
++}
++
++TEST(WaylandCaptureTest, PreservesModernModifierAllocationFailure) {
++  const wl::gbm_bo_creators_t creators {
++    .create_with_modifiers2 = [](gbm_device *, std::uint32_t, std::uint32_t, std::uint32_t, const std::uint64_t *, unsigned int, std::uint32_t) -> gbm_bo * {
++      return nullptr;
++    },
++    .create_with_modifiers = [](gbm_device *, std::uint32_t, std::uint32_t, std::uint32_t, const std::uint64_t *, unsigned int) -> gbm_bo * {
++      ADD_FAILURE() << "A modern allocation failure must retain the existing implicit-modifier fallback";
++      return nullptr;
++    },
++  };
++
++  EXPECT_EQ(wl::create_gbm_bo_with_modifiers(nullptr, 1920, 1080, DRM_FORMAT_XRGB8888, nullptr, 0, GBM_BO_USE_RENDERING, creators), nullptr);
++}
+ #endif
+-- 
+2.25.1
+

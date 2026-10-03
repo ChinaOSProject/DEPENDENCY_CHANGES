@@ -1,0 +1,39 @@
+From 0e1eff16622bf8e70f6a637136a60e38208feb19 Mon Sep 17 00:00:00 2001
+From: Laevatein Scarlet <fish_magic@ftmc.me>
+Date: Sat, 3 Oct 2026 21:16:19 +0800
+Subject: [PATCH 3/3] Recognize LoongArch64 for CBS and x264 builds
+
+---
+ cmake/ffmpeg/ffmpeg.cmake | 2 ++
+ cmake/ffmpeg/x264.cmake   | 2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/cmake/ffmpeg/ffmpeg.cmake b/cmake/ffmpeg/ffmpeg.cmake
+index ceea6ed..c3087b5 100644
+--- a/cmake/ffmpeg/ffmpeg.cmake
++++ b/cmake/ffmpeg/ffmpeg.cmake
+@@ -15,6 +15,8 @@ elseif (${arch} STREQUAL "ppc64le")
+     set(CBS_ARCH_PATH ppc)
+ elseif (${arch} STREQUAL "amd64" OR ${arch} STREQUAL "x86_64")
+     set(CBS_ARCH_PATH x86)
++elseif (${arch} STREQUAL "loongarch64" OR ${arch} STREQUAL "loong64")
++    set(CBS_ARCH_PATH loongarch)
+ elseif (${arch} STREQUAL "mips")
+     set(CBS_ARCH_PATH mips)
+ else()
+diff --git a/cmake/ffmpeg/x264.cmake b/cmake/ffmpeg/x264.cmake
+index 4b3b29e..b4dbbea 100644
+--- a/cmake/ffmpeg/x264.cmake
++++ b/cmake/ffmpeg/x264.cmake
+@@ -14,6 +14,8 @@ elseif (${arch} STREQUAL "ppc64le")
+     set(X264_ARCH powerpc64le)
+ elseif (${arch} STREQUAL "amd64" OR ${arch} STREQUAL "x86_64")
+     set(X264_ARCH x86_64)
++elseif (${arch} STREQUAL "loongarch64" OR ${arch} STREQUAL "loong64")
++    set(X264_ARCH loongarch64)
+ elseif (${arch} STREQUAL "mips")
+     set(X264_ARCH mips)  # TODO: unknown if this is the correct value
+ else()
+-- 
+2.25.1
+
