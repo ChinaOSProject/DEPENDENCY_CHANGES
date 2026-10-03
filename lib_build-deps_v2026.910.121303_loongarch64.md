@@ -200,7 +200,7 @@ index 0b1871f..c3087b5 100644
 +
  if(BUILD_FFMPEG_ALL_PATCHES OR BUILD_FFMPEG_CBS_PATCHES)
      file(GLOB FFMPEG_CBS_PATCH_FILES ${CMAKE_CURRENT_SOURCE_DIR}/patches/FFmpeg/FFmpeg/cbs/*.patch)
- 
+
 @@ -12,6 +15,8 @@ elseif (${arch} STREQUAL "ppc64le")
      set(CBS_ARCH_PATH ppc)
  elseif (${arch} STREQUAL "amd64" OR ${arch} STREQUAL "x86_64")
@@ -213,7 +213,7 @@ index 0b1871f..c3087b5 100644
 @@ -145,6 +150,8 @@ if(CMAKE_CROSSCOMPILING)
      endif()
  endif()
- 
+
 +list(APPEND FFMPEG_EXTRA_CONFIGURE ${FFMPEG_USER_CONFIGURE})
 +
  # convert list to string
@@ -232,7 +232,7 @@ index 0476b52..5a29ad9 100644
 +endif()
 +
  CPMGetPackage(libva)
- 
+
  set(LIBVA_GENERATED_SRC_PATH ${libva_SOURCE_DIR})
 diff --git a/cmake/ffmpeg/x264.cmake b/cmake/ffmpeg/x264.cmake
 index 4b3b29e..b4dbbea 100644
