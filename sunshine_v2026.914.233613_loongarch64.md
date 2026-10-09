@@ -135,3 +135,27 @@ H264实际接收242帧、1个IDR，解码后242帧/59个不同帧；Opus551包�
 FFmpeg自身LSX/LASX intrinsics因GCC13不支持相关选项自动关闭，x264汇编路径已实际使用LSX/LASX；x265为8-bit portable C++。未交付SVT软件AV1、CUDA/NVENC、Vulkan、KWin或Portal路径，不声明HDR/10-bit HEVC等未验证能力。
 
 所有本地证据位于 `/tmp/sunshine-build-20261003` 与独立依赖工作目录。正式报告和源码补丁在源码仓库外统一归档；最终`.deb`通过二进制仓库Git LFS交付，未上传测试私钥或临时构建材料。
+
+## 2026-10-09：目标机安装与真实桌面串流验证
+
+将上述 SHA256 对应的正式 `.deb` 安装到目标机，安装事务仅新增 Sunshine，55项运行依赖均由目标现有包满足。启用 `app-dev.lizardbyte.app.Sunshine.service` 用户服务；UKUI 的 `graphical-session.target` 当前为 active，测试后服务保持 active/running，重启次数为0。
+
+真实桌面为 X11 `:0`、1920x1080。配置使用 X11 采集与 `libx264` 软件编码，运行日志确认 LSX/LASX 路径和 Qt 托盘创建成功。移除当前安装程序的额外 file capabilities，服务以桌面用户及 `NoNewPrivileges=yes` 运行。加载包所需的 UHID 运行模块，并使用包内 udev 规则赋予活动桌面用户 `/dev/uinput`、`/dev/uhid` 读写权限；没有给设备设置全局可写权限。
+
+对当前已安装、正在运行的实例进行真实 Moonlight 协议验证：临时 PIN 配对、客户端证书 HTTPS 认证、Desktop 启动、加密 RTSP、H264 视频、Opus 音频及输入通道初始化均通过。640x360x30配置的3秒测试收到67帧视频、1个IDR、120个音频包及57600个音频采样，客户端错误0；目标现有 FFmpeg 实际解码全部67帧 H264。桌面媒体直接送入解码器与空设备，保留的证据仅为协议日志和统计 JSON；测试结束后取消串流并精确移除临时客户端配对与私钥。管理接口未认证返回401，使用本地管理账号访问成功。
+
+本次实例绑定 `127.0.0.1`，端口如下；UDP端口在串流时使用。
+
+| 用途 | 协议与端口 |
+| --- | --- |
+| GameStream HTTPS | TCP 47984 |
+| GameStream HTTP / 配对 | TCP 47989 |
+| 管理界面 | TCP 47990 |
+| RTSP | TCP 48010 |
+| 视频 | UDP 47998 |
+| 控制 | UDP 47999 |
+| 音频 | UDP 48000 |
+
+外部访问由使用者配置 SSH 转发，连接方案必须覆盖 TCP 与 UDP；普通 `ssh -L` 仅转发 TCP。此前为本次部署创建的独立 VPN 服务、隧道、运行文件、配置与客户端密钥已清理。SSH 转发及公网链路尚未执行端到端测试。
+
+本节补充了构建阶段报告之外的真实 X11 桌面与本机串流验证；物理键鼠/手柄事件注入、KMS/Wayland、硬件编码、长时间串流和高分辨率性能仍未验证。证据为目标机临时目录中的 `protocol.log`、`protocol-result.json` 与本次用户服务日志，统计为 `video_frames=67 idr_frames=1 audio_frames=120 audio_samples=57600 failures=0`。
