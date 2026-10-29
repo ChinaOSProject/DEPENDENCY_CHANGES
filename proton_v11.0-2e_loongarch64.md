@@ -1,6 +1,6 @@
 # Proton 11.0-2e：原生 LoongArch64 移植记录
 
-更新日期：2026-10-29（Asia/Shanghai）。状态：已完成本体原生构建规则、启动器选择、FFmpeg 和 lsteamclient Unix 共享库的实际构建/加载验证；现代 Wine 的龙芯后端仍在验证和接通。尚未完成完整原生 Proton、Windows PE 程序或 Steam 游戏运行，未生成 Proton `.deb`。
+更新日期：2026-10-29（Asia/Shanghai）。状态：已完成本体原生构建规则、FFmpeg、lsteamclient 两侧模块编译链接，并以真实安装的现代 Wine core 通过 Proton Session 执行普通原生 Winelib 程序。尚未完成完整原生 Proton、Windows PE 程序或 Steam 游戏运行，未生成 Proton `.deb`。
 
 用户要求坚持原生龙芯，优先完成 Firefox；随后授权在现有配置与可复用实现不足时修改上游源码。Firefox 已另行完成交付。本记录区分已运行的原生组件和未解决的运行时接口。
 
@@ -36,22 +36,34 @@
 - 完整 Makefile 的 x86_64、ARM64、LoongArch 映射检查通过；LoongArch 的 Unix 目标为原生，Windows 客体目标仍为 i386/x86_64，未启用面向 ARM64 的 FEX。
 - 通过实际 CMake、Meson、Cargo 规则分别编译并安装原生共享库，再实际加载调用函数，均返回 261。三件均为 machine 258 / flags `0x3`，Rust 探针 GLIBC 需求最高 2.27。
 - 启动器的三架构选择、ARM opt-out、缺失原生运行时拒绝及 prefix 链接检查通过；以该环境实际执行旧 Wine 8.21 原型的 native Wine/wineserver `--version` 成功。这只证明核心路径接线，没有把旧原型当成固定 Wine 的完成版本。
+- 随后使用现代 Wine 的实际 core 安装树验证正式布局：公共 wrapper 在 `bin/wine`，实际 ELF loader/preloader、Unix ntdll 和 ELF builtins 在 `lib/wine/loongarch64-unix`，Wine placeholder 在 `loongarch64-windows`。按本体 post-build 规则将公共入口移入 `files/bin-loongarch64`，其余保留实际安装布局；真实本机 `platform.machine()`、无架构 mock，使用本体 `Session.init_wine/run_proc` 运行现代普通 `main(42,37)` 返回 0。清除外部 LD_LIBRARY_PATH/LD_PRELOAD/WINEBUILDDIR/WINELOADERNOEXEC/WINEDLLPATH，不设置 bootstrap 环境。
+- 使用本体 `default_pfx.setup_dll_symlinks` 对实际 Wine 工具生成的 ntdll/kernel32/kernelbase/native-main metadata 建立原生相对链接，再以 `C:\windows\system32\native-main.exe` 运行同一程序返回 0。这补齐了此前仅用 fixture 证明的真实安装目录和 prefix 链接验证。该测试只调用 Session 的环境/进程接口，未运行完整 Proton 前缀创建和 Steam setup；core 子集缺失 wineboot 的 `c0000135` 和高地址范围预留警告仍保留在日志中。
 - 官方固定 FFmpeg `a77521cd5d27e955b16e8097eecefc779ffdcb6d`（4.3.3）通过真实 `ffmpeg-loongarch64-build` 配置、编译、安装；没有修改 FFmpeg 源码。七个共享库均为 machine 258、flags `0x3`，GLIBC 需求不超过 2.28。
 - 使用上述 FFmpeg 库与实际启用的 matroska demuxer，通过 custom AVIO 读取本体 `media/blank.mkv`，结果 `FFmpeg=4.3.3 streams=2 packets=305 eof=1`，退出 0、无 stderr。沿用本体原有的精简 FFmpeg 功能配置，没有以不支持的 file protocol 冒充运行验证。
-- 使用固定现代 Wine 的真实公共头文件，lsteamclient 的全部 219 个 Unix C++ 源文件原生编译退出 0；与其实际 `ntdll.so` 通过 `-Wl,-z,defs` 链接成完整 `lsteamclient.so`。共享库为 EM_LOONGARCH=258、flags `0x3`，GLIBC 需求最高 2.27；GLIBCXX 需要 3.4.29，后续交付须包含合适私有 C++ 运行库，不能直接假定宿主旧库满足。
+- 使用固定现代 Wine 的真实公共头文件，lsteamclient 的全部 219 个 Unix C++ 源文件原生编译退出 0；与其实际 `ntdll.so` 通过 `-Wl,-z,defs` 链接成完整 `lsteamclient.so`。共享库为 EM_LOONGARCH=258、flags `0x3`，GLIBC 需求最高 2.27；GLIBCXX 需要 3.4.29，不能直接假定宿主旧 C++ 库满足。
 - 用真实动态加载器 `RTLD_NOW` 加载该库并调用初始化函数，未配置、空路径、4096 字符超长路径、缺失文件和实际麒麟 Wine8 包的 x86_64 ELF 库五类情况全部按预期失败。测试没有提供模拟 Steam SDK，也没有以失败路径测试冒充 Steam 游戏成功。
-- 对代表性完整 Windows Apps 封装使用 Clang 的真实 i686/x86_64/AArch64 Windows target 预处理，修改前后输出逐字节一致。CRT 先包含顺序的原生 Winelib 编译另发现 Wine `corecrt.h` 位宽错误，现代 Wine 已独立修复为 `6175b31`；更新真实头文件后全部 44 个 Windows 侧 C 源文件也原生编译退出 0，并把指针截断警告作为错误。全部 263 个对象和 Unix 共享库均核对为 machine 258 / flags `0x3`。Windows 侧 DLL 的完整链接/加载仍在接通。
+- 对代表性完整 Windows Apps 封装使用 Clang 的真实 i686/x86_64/AArch64 Windows target 预处理，修改前后输出逐字节一致。CRT 先包含顺序的原生 Winelib 编译另发现 Wine `corecrt.h` 位宽错误，现代 Wine 已独立修复为 `6175b31`；更新真实头文件后全部 44 个 Windows 侧 C 源文件也原生编译退出 0，并把指针截断警告作为错误。全部 263 个对象和 Unix 共享库均核对为 machine 258 / flags `0x3`。
+- 使用现代 Wine 实际编译的 winegcc/winebuild，以及正常构建目标产生的 user32/ws2_32/winecrt0/ucrtbase/kernel32/ntdll import/static 库，按 MSVCRT 模式完整链接 `lsteamclient.dll.so`，`-z defs` 通过。该 ELF builtin 同为 machine 258、flags `0x3`、64 KiB LOAD 对齐、GLIBC 最高 2.27；独立 `RTLD_NOW` 映射成功。另用 Wine 正常工具生成 machine `0x6264` 的 PE placeholder，此文件只有 Wine 加载元数据，不是新的 LoongArch PE 编译器或可执行客体代码。尚未验证这个 DLL 的完整 Windows 导入解析、DllMain 和 Steam 接口运行。
+- 已组装实际开发组件树 `/tmp/proton-native-port-20261029/native-components-stage-root`，包含现代 core、两侧 lsteamclient、7 个 FFmpeg 库及私有 GNU13 `libstdc++.so.6`（其自身最高 GLIBC 2.27）。只用该树的库路径、系统 Python 和 `/usr/bin:/bin`，两侧 lsteamclient 的 ELF 映射、7 个媒体库及实际版本函数调用均通过；`/proc/self/maps` 确认私有 C++ 库确实从组件树加载，未加载 `/opt/gcc13`、Clang 或 LLVM 的 SDK 库。此为开发组件树，不是完整 Proton 分发；Windows 导入/DllMain/Steam/guest 验证范围没有因此扩大。证据 `logs/native-components-sdk-free-root.{log,json,exit}`。
 
-关键证据：`logs/native-rule-abi.json`、`launcher-validation.json`、`launcher-validation.log`、`configure-wine-source.log`、`configure-sdk-elf.log`、`test-container.log`、`mapping-*.log`、`ffmpeg-native-build.log`、`ffmpeg-native-validation.json`，以及 `lsteamclient-unix-build-root.json`、`lsteamclient-unix-link-root.exit`、`lsteamclient-unix-load-root.json`、`lsteamclient-existing-arches-root.json`。初次本体交接为 `/tmp/proton-native-port-20261029/PROTON_IMPLEMENTATION_HANDOFF.md`；该交接之后的 Steam 封装修复以本报告和新提交为准。
+关键证据：`logs/native-rule-abi.json`、`launcher-validation.json`、`launcher-validation.log`、`configure-wine-source.log`、`configure-sdk-elf.log`、`test-container.log`、`mapping-*.log`、`ffmpeg-native-build.log`、`ffmpeg-native-validation.json`，以及 `lsteamclient-unix-build-root.json`、`lsteamclient-unix-link-root.exit`、`lsteamclient-unix-load-root.json`、`lsteamclient-existing-arches-root.json`、`lsteamclient-winelib-link-root-02.exit`、`lsteamclient-winelib-abi-root.json`、`modern-core-session-root.json`。初次本体交接为 `/tmp/proton-native-port-20261029/PROTON_IMPLEMENTATION_HANDOFF.md`；该交接之后的 Steam 封装修复和实际 core Session 测试以本报告及新提交为准。
 
 ## 仍需完成的运行时条件
 
-1. 固定 Wine 上游没有原生 LoongArch ntdll/信号/线程/异常后端，正在独立 Wine 仓库中实现和验证。原生 ELF builtin 的实际安装目录、placeholder 与 launcher 的 prefix 链接仍须用真实安装树验证，当前 fixture 测试不替代这一检查。
-2. `lsteamclient` Unix 模块已真正编译和加载，Windows 侧模块、与实际 Wine 安装树的接通仍需验证；尚未取得或证明可加载兼容的原生 Steam SDK。显式库路径不是跨 ISA ABI 桥。
+1. 固定 Wine 上游缺失的原生 LoongArch ntdll/信号/线程/异常后端已在独立端口中实现并实跑验证；实际 core 安装树和 launcher/prefix 链接也已接通。现代 Wine 仍只安装已构建的 core 子集，自动 wineboot 报 `c0000135`；继续标准闭包编译又在现代 UCRT/MSVCRT 暴露四个缺失的异常处理架构接口，真实链接失败。详见 `lib_wine_v11.0_loongarch64.md`。完整正常前缀及图形回调尚未完成；旧 Wine8 原型的正常前缀成功不代替现代基线验证。
+2. `lsteamclient` Unix 模块和 Windows 侧 native ELF builtin 均已编译、链接并映射；Windows 导入、DllMain、与实际 Wine 安装树的接通仍需验证。尚未取得或证明可加载兼容的原生 Steam SDK；显式库路径不是跨 ISA ABI 桥。
 3. x86 Windows 游戏仍需与原生 Wine 对接的 CPU 执行后端、跨架构调用及上下文桥。目前构建规则没有提供这些实现，原生 Box64 动态翻译能力也不等于其 Windows 接口已支持龙芯。
 4. Steam 原生库或跨 ABI/进程桥仍缺失；LoongArch ELF 不能直接 dlopen x86 `steamclient.so`。当前 SDK 也尚未含全套 Windows 客体 PE 交叉工具链，未完成全量默认构建。
 
 初始上游障碍已实际复现：未经修改的固定版本在 `TARGET_ARCH=loongarch64` 或 `loong64` 下均于架构检查退出 2，日志 `/tmp/proton-native-check-20261028/`。这一历史失败已由上述本体规则改动推进，不能继续把“未知 TARGET_ARCH”当作当前代码的最终状态。
+
+## 本地组件与外接缓存
+
+用户授权的外接盘仅使用新增目录 `/media/laevatein/VCLIB/ChinaOSProject-build-cache-20261029-000151`，没有格式化、分区、重挂载或修改原有盘内文件。Linux 活动构建目录继续位于 ext4；NTFS 上以 tar 保存 Linux 文件属性，实际写入/rename/fsync 和完整 SHA256 已验证。
+
+除已验证的 Firefox 对象/容器归档外，新增原生组件编译缓存 `archives/proton-11.0-2e-native-components-20261029-root.tar`（202004480 字节，SHA256 `2b1f7faec188a075e454b305cf4446b93b8e0b0569dc69a0d8a9c91c3bfb180f`）和开发组件树 `archives/proton-11.0-2e-loongarch64-development-components-20261029.tar`（58869760 字节，SHA256 `817510b5b5d265c413df523f375935afcf2ca02d606623d2a3918a5510b7671d`）。两者都以 `tar --compare --acls --xattrs` 对照 ext4 原件通过，原件保留；均不是完整 Proton 发布包。
+
+`metadata/source-patches-20261029-native` 保存实际 Firefox/Proton/现代 Wine/旧 Wine 原型的补丁系列、固定基线和逐文件 SHA256。Proton 6 个、现代 Wine 16 个、旧 Wine 14 个补丁已在隔离 checkout 上从固定上游逐项重放，Git tree 与对应适配分支完全一致。未验证的现代正常前缀实验及真实编译器失败另存 `metadata/modern-prefix-blocker-20261029`，不混入已验证系列。
 
 ## 麒麟 Wine 8 软件包复用核查
 

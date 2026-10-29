@@ -30,6 +30,8 @@ Clang 的 `loongarch64-w64-mingw32` 和 `loongarch64-pc-windows-msvc` 探针虽�
 | `9a4196f` | preloader 将 Linux syscall 的负 errno 归一为调用方预期的 -1，避免把 mmap/open 失败误当有效地址或 fd。 |
 | `0a40982` | 延迟导入 thunk 保留 a0–a7、f0–f7 和 RA，用真实 GOT 调用解析器并正确计算 descriptor/IAT 偏移；修复原实现把 SP 清零而崩溃。 |
 | `a8c3850` | CRT 头文件使用真实 `__loongarch_lp64`，避免在 stdint/stdlib 先包含时把 size_t、ptrdiff_t、uintptr_t 定成 32 位。 |
+| `bea1728` | SetupAPI/manifest/INF/wine.inf 使用真实原生目录、`loongarch64` identity、`.ntloongarch64` 节和 machine `0x6264`，建立正确的 64 位原生前缀。 |
+| `7e8f247` | 只声明实际具备的原生 LoongArch machine，移除尚无后端的 ARM64/AMD64/i386/ARMNT 声明，避免 Wineboot 错建或运行跨架构目录。 |
 
 ## 已运行的验证
 
@@ -46,11 +48,21 @@ Clang 的 `loongarch64-w64-mingw32` 和 `loongarch64-pc-windows-msvc` 探针虽�
 - GCC8/GAS/ld 与 Clang22 的 520 项真实导入/延迟解析调用均通过，覆盖大于 4096 的 IAT 偏移、栈参数、浮点参数和调用者返回地址；解析器仅在首次需要时调用。
 - CRT-first 的 size_t/ptrdiff_t/uintptr_t 为 8 字节、LONG 为 4 字节的断言在 GCC8/Clang22 通过；受影响的已构建核心运行库按正常依赖关系重新编译。
 
-上述程序目前使用 `WINEBOOTSTRAPMODE=1` 从构建树加载 builtin，入口探针也使用明确的自定义入口而非宣称普通 CRT 全部通过。它们证明相应架构行为已实际运行，不证明普通安装前缀、Windows PE 程序或游戏已可用。
+最初的 hello/thread/stack-args/SEH/context 架构探针使用 `WINEBOOTSTRAPMODE=1` 从构建树加载 builtin，自定义入口不是普通 CRT。下面单独记录随后真正完成的普通前缀和 CRT 测试；这些结果仍不证明 Windows PE 程序或游戏已可用。
+
+## 普通前缀和 CRT 的真实结果
+
+- 从空目录建立 `/work/prefix-normal-clean-20261029-01`，以实际原生 loader 运行 `wineboot --init` 返回 0 并打印 configuration updated，全程没有设置 `WINEBOOTSTRAPMODE`。System32 有 124 项，实际 kernel32/ntdll/setupapi/wineboot/rundll32/shell32 placeholder 均为 machine `0x6264`、PE32+ `0x20b`；它们由 native ELF builtin 支持，不是 LoongArch COFF 工具链证明。
+- 用真实 Winegcc 的 `-mno-cygwin -nodefaultlibs -fshort-wchar -fno-builtin`、Wine CRT 头和实际 import/static 库编译普通 `int main`，从 `mainCRTStartup` 运行并返回 0。验证 argc/argv、高地址堆指针（`0xFFF...`）、UCRT stdio 文件往返、原生 machine 查询和 wildcard manifest 激活。
+- 实际调用 UCRT 导出的 `_crt_atexit`，退出时打印 `normal CRT UCRT exit handler reached`。最初 plain `atexit` 的实验绑定到 glibc，未算作成功，也没有为此修改 UCRT 源码；最终结果来自 Wine 自己的 UCRT 退出表。
+- 正常 rundll32 实际执行测试 INF，确认 `.ntloongarch64` 被选中、placeholder 源文件逐字节复制成功、缺少源文件时生成正确的原生 fallback placeholder。SystemSupportedProcessorArchitectures 实际返回唯一原生 `0x000f6264`，随后为零；全新前缀不再尝试 syswow64/sysarm32 rundll32。
+- 对最终 loader、preloader、wineserver、ntdll Unix/Winelib 模块和普通 CRT 程序六个实际 ELF 核验，均为 machine 258 / flags `0x3`，最高 GLIBC 依赖 2.27。
+
+证据为 `logs/runtime-wineboot-fresh-native-prefix-07.log`、`runtime-normal-crt-03.log`、`runtime-native-prefix-metadata-01.log`、`native-normal-prefix-validation.json`、`native-prefix-metadata-validation.json`，完整可复现命令见 `/tmp/wine-native-20261028/NORMAL_PREFIX_HANDOFF.md`。早期失败前缀保留了旧 timestamp，最终结果以新建 clean 前缀为准。
 
 ## 当前继续处理的边界
 
-修复 preloader 后，自动 wineboot 的 NtCreateUserProcess 已实际成功并取得子进程 pid/handle；原 `c00000e5` 的子进程启动障碍已推进。修复延迟导入后，Wineboot 已进入 Shell32；继续按实际加载链补编译标准 native builtin 依赖，包括 advapi32、ucrtbase、ws2_32、sechost、shell32、shcore、imm32 等，COM 依赖与正常 prefix 初始化仍在验证。此前对象未必反映新生成器行为，故对相关实际 DLL 显式重链，未只重建 import library 便宣称生效。
+按真实加载链补编译了标准 native builtin 依赖，包括 advapi32、ucrtbase、ws2_32、sechost、shell32、shcore、imm32、ole32/combase/oleaut32/coml2 等，并显式重链受新生成器影响的实际 DLL；没有只重建 import library 便宣称生效。普通前缀已完成，但日志仍真实报告 `KeUserModeCallback` 未实现、缺少 explorer.exe 和系统菜单失败；初始化返回 0 不等于图形程序正确。
 
 Win32k 用户回调、WoW64 跨机器上下文、PE unwind / 一般 native ELF DWARF unwind、部分栈回溯与架构 helper 尚未完成。当前注册帧 SEH 测试通过，不等于这些路径全部实现。明确的失败或未实现函数保留并记录，不用返回成功或仅关闭功能掩盖缺口。
 
