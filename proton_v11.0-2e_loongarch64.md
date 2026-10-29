@@ -1,52 +1,57 @@
-# Proton 11.0-2e：原生 LoongArch64 构建障碍记录
+# Proton 11.0-2e：原生 LoongArch64 移植记录
 
-检查日期：2026-10-28。状态：上游不接受原生 LoongArch 构建目标；未完成 Proton 编译，未生成或交付 `.deb`。用户已明确要求坚持原生龙芯版本，优先完成 Firefox，并记录 Proton 的移植障碍。
+更新日期：2026-10-29（Asia/Shanghai）。状态：已完成本体原生构建规则、启动器选择、FFmpeg 和 lsteamclient Unix 共享库的实际构建/加载验证；现代 Wine 的龙芯后端仍在验证和接通。尚未完成完整原生 Proton、Windows PE 程序或 Steam 游戏运行，未生成 Proton `.deb`。
+
+用户要求坚持原生龙芯，优先完成 Firefox；随后授权在现有配置与可复用实现不足时修改上游源码。Firefox 已另行完成交付。本记录区分已运行的原生组件和未解决的运行时接口。
 
 ## 固定源码与目标
 
-- 官方仓库：<https://github.com/ValveSoftware/Proton>。
-- 检查标签：`proton-11.0-2e`，提交 `bc896217ffcd67f892f952b010f898fe7bd0f0a1`；通过官方 `git ls-remote --tags` 与本地浅克隆核对。
-- 本地源码：`/home/laevatein/ChinaOSProject/proton`。仅克隆顶层仓库，未初始化子模块，未下载 Steam Runtime SDK。
-- 该标签固定的 Wine 子模块提交：`e60892cc2398b0a83c332a2078c7b85e47bdb42b`，仓库 <https://github.com/ValveSoftware/wine>。
-- 本机：Loongson-3A5000，`uname -m` 为 `loongarch64`；麒麟 V10 SP1，glibc 2.28，旧 ABI，原生 ELF flags `0x3`、解释器 `/lib64/ld.so.1`。
+- 本体上游：<https://github.com/ValveSoftware/Proton>，`proton-11.0-2e`，`bc896217ffcd67f892f952b010f898fe7bd0f0a1`。
+- 固定 Wine：<https://github.com/ValveSoftware/wine>，`e60892cc2398b0a83c332a2078c7b85e47bdb42b`；独立工作树 `/home/laevatein/ChinaOSProject/wine-proton`，未以旧 Wine 8.21 替换该基线。
+- 本体工作树：`/home/laevatein/ChinaOSProject/proton`。固定 FFmpeg 子模块已浅初始化，其余依赖按实际需要获取；未下载官方 x86 Steam Runtime SDK 充当原生 SDK。
+- 本机为 Loongson-3A5000、麒麟 V10 SP1，glibc 2.28，旧 ABI；原生 ELF machine 258、flags `0x3`，动态解释器 `/lib64/ld.so.1`。
+- 所有编译在任务专属 rootless Podman 中进行；工具链以只读挂载或容器内安装提供，未向宿主全局安装依赖、修改宿主库或服务。
 
-## 实际复现
+## 本体源码改动
 
-配置检查在原生 LoongArch64 的 rootless Podman 容器中执行，未修改宿主系统或上游源码。检查镜像为 `localhost/proton-native-check:11.0-2e-buster-loongarch64`，从已有 Debian buster 旧 ABI 开发镜像复用。容器禁止网络，源码以只读方式挂载。
+本地分支遵循 `upstream/main → debian10 → loong64`。通用 Wine source override 和 Steam 封装的特性检测改动位于 `debian10`；架构分支从其继承。
 
-在源码挂载为 `/src` 的容器内，分别执行：
+| 提交 | 修改及目的 |
+| --- | --- |
+| `870ca24cceecb352c4ca7d3f444fb44995cd3c0d` | `--wine-source` / `WINE_SOURCE` 支持独立 Wine 端口，并把真实外置目录挂入构建容器；默认仍使用原子模块。 |
+| `6e6d960ac4a51448b88163b3084b0d55d7e2fefc` | LoongArch 原生 Unix triple/libdir、CMake/Meson/Cargo 和组件构建规则、默认 prefix 目录。要求显式提供原生 SDK，没有虚构 LoongArch PE compiler triple。 |
+| `acba35223b1a28749af57665a38ec7100f05f86d` | 启动器选择 `bin-loongarch64/wine` 和 wineserver，缺失时明确失败；区分原生 Wine builtin 与 x86 Windows 客体 DLL 路径。 |
+| `33c3622c2beaed19c98d9f81a21a10451f328dae` | SDK 检查同时核对 uname 和 `/bin/sh` 的真实 ELF64、小端、EM_LOONGARCH=258，防止仅凭宿主架构误认 x86 容器。 |
+| `8f6efbf` | lsteamclient 的生成器和已有生成代码统一以 Wine `_WIN64` 选择 64 位结构、RTTI 和 WoW64 封装；`sysv_abi` 属性限于 x86，其他 Unix 架构使用真实本地 ABI。实际编译错误确认后，机械替换 6987 处位宽条件，未改接口内容或伪装 CPU 宏。 |
+| `47456a2` | 允许 `STEAM_COMPAT_NATIVE_CLIENT_PATH` 指定兼容的原生 Steam 库完整路径；保留既有三类 SDK 默认路径，无默认且未指定时明确返回 `STATUS_NOT_SUPPORTED`，不虚构龙芯 SDK。 |
+| `4619305` | 将上述两项通用改动从 `debian10` 合并至 `loong64`。 |
 
-```sh
-make --no-print-directory -f /src/Makefile.in SRCDIR=/src TARGET_ARCH=loongarch64 get-steamrt-image
-make --no-print-directory -f /src/Makefile.in SRCDIR=/src TARGET_ARCH=loong64 get-steamrt-image
-```
+未提交临时探针、Dockerfile、对象文件、构建缓存或本机绝对路径。尚未创建远端 fork 或推送这些源码改动；最终需要维护的本体仓库为 `ValveSoftware/Proton`。
 
-两条命令的退出码均为 `2`，原始输出分别为：
+## 实际构建与运行验证
 
-```text
-/src/Makefile.in:34: *** Unknown TARGET_ARCH=loongarch64.  Stop.
-/src/Makefile.in:34: *** Unknown TARGET_ARCH=loong64.  Stop.
-```
+专属环境 `proton-native-20261028`，工作目录 `/tmp/proton-native-port-20261029`。目录名中的日期是任务标识。
 
-此失败发生在 Makefile 的目标架构检查阶段，尚未选择或运行 SDK，更未开始编译 Wine。日志和临时检查脚本保存在 `/tmp/proton-native-check-20261028/`；上面的命令和固定源码提交可独立复现该结果。
+- 使用真实原生 SDK 和独立固定 Wine source 执行 configure，退出 0；`make test-container` 实际验证外置源码挂载。缺少 SDK 或未知架构时退出 1，不生成可误用的 Makefile。
+- 完整 Makefile 的 x86_64、ARM64、LoongArch 映射检查通过；LoongArch 的 Unix 目标为原生，Windows 客体目标仍为 i386/x86_64，未启用面向 ARM64 的 FEX。
+- 通过实际 CMake、Meson、Cargo 规则分别编译并安装原生共享库，再实际加载调用函数，均返回 261。三件均为 machine 258 / flags `0x3`，Rust 探针 GLIBC 需求最高 2.27。
+- 启动器的三架构选择、ARM opt-out、缺失原生运行时拒绝及 prefix 链接检查通过；以该环境实际执行旧 Wine 8.21 原型的 native Wine/wineserver `--version` 成功。这只证明核心路径接线，没有把旧原型当成固定 Wine 的完成版本。
+- 官方固定 FFmpeg `a77521cd5d27e955b16e8097eecefc779ffdcb6d`（4.3.3）通过真实 `ffmpeg-loongarch64-build` 配置、编译、安装；没有修改 FFmpeg 源码。七个共享库均为 machine 258、flags `0x3`，GLIBC 需求不超过 2.28。
+- 使用上述 FFmpeg 库与实际启用的 matroska demuxer，通过 custom AVIO 读取本体 `media/blank.mkv`，结果 `FFmpeg=4.3.3 streams=2 packets=305 eof=1`，退出 0、无 stderr。沿用本体原有的精简 FFmpeg 功能配置，没有以不支持的 file protocol 冒充运行验证。
+- 使用固定现代 Wine 的真实公共头文件，lsteamclient 的全部 219 个 Unix C++ 源文件原生编译退出 0；与其实际 `ntdll.so` 通过 `-Wl,-z,defs` 链接成完整 `lsteamclient.so`。共享库为 EM_LOONGARCH=258、flags `0x3`，GLIBC 需求最高 2.27；GLIBCXX 需要 3.4.29，后续交付须包含合适私有 C++ 运行库，不能直接假定宿主旧库满足。
+- 用真实动态加载器 `RTLD_NOW` 加载该库并调用初始化函数，未配置、空路径、4096 字符超长路径、缺失文件和实际麒麟 Wine8 包的 x86_64 ELF 库五类情况全部按预期失败。测试没有提供模拟 Steam SDK，也没有以失败路径测试冒充 Steam 游戏成功。
+- 对代表性完整 Windows Apps 封装使用 Clang 的真实 i686/x86_64/AArch64 Windows target 预处理，修改前后输出逐字节一致。CRT 先包含顺序的原生 Winelib 编译另发现 Wine `corecrt.h` 位宽错误，现代 Wine 已独立修复为 `6175b31`；更新真实头文件后全部 44 个 Windows 侧 C 源文件也原生编译退出 0，并把指针截断警告作为错误。全部 263 个对象和 Unix 共享库均核对为 machine 258 / flags `0x3`。Windows 侧 DLL 的完整链接/加载仍在接通。
 
-## 具体缺口
+关键证据：`logs/native-rule-abi.json`、`launcher-validation.json`、`launcher-validation.log`、`configure-wine-source.log`、`configure-sdk-elf.log`、`test-container.log`、`mapping-*.log`、`ffmpeg-native-build.log`、`ffmpeg-native-validation.json`，以及 `lsteamclient-unix-build-root.json`、`lsteamclient-unix-link-root.exit`、`lsteamclient-unix-load-root.json`、`lsteamclient-existing-arches-root.json`。初次本体交接为 `/tmp/proton-native-port-20261029/PROTON_IMPLEMENTATION_HANDOFF.md`；该交接之后的 Steam 封装修复以本报告和新提交为准。
 
-1. [Proton 固定提交的 Makefile.in](https://github.com/ValveSoftware/Proton/blob/bc896217ffcd67f892f952b010f898fe7bd0f0a1/Makefile.in) 的 `TARGET_ARCH` 分支只接受 `x86_64` 和 `arm64`。容器内外均有架构检查，不能靠变更一个目标名称获得原生支持。
-2. [该标签使用的 Wine configure.ac](https://github.com/ValveSoftware/wine/blob/e60892cc2398b0a83c332a2078c7b85e47bdb42b/configure.ac) 的 `HOST_ARCH` 识别只列出 `aarch64`、`arm`、`i386` 和 `x86_64`；PE 交叉编译目标白名单为 `i386`、`x86_64`、`arm`、`aarch64`、`arm64ec`，没有 LoongArch。
-3. [Wine ntdll 的源文件列表](https://github.com/ValveSoftware/wine/blob/e60892cc2398b0a83c332a2078c7b85e47bdb42b/dlls/ntdll/Makefile.in) 没有 LoongArch 的信号与异常处理后端。PE/Unix 调用约定、线程上下文和异常展开等仍需实际移植；仅把 Makefile 的架构白名单扩展到 LoongArch 无法补齐这些实现。
-4. Windows x86/x86_64 游戏的指令执行还需要与上述原生运行时衔接。系统已有 LATX 不代表上游 Proton 已具备原生 LoongArch 构建支持。按照用户本次选择，未将 LATX 加 x86_64 Proton 组合替代为原生交付。
+## 仍需完成的运行时条件
 
-## 校验与交付边界
+1. 固定 Wine 上游没有原生 LoongArch ntdll/信号/线程/异常后端，正在独立 Wine 仓库中实现和验证。原生 ELF builtin 的实际安装目录、placeholder 与 launcher 的 prefix 链接仍须用真实安装树验证，当前 fixture 测试不替代这一检查。
+2. `lsteamclient` Unix 模块已真正编译和加载，Windows 侧模块、与实际 Wine 安装树的接通仍需验证；尚未取得或证明可加载兼容的原生 Steam SDK。显式库路径不是跨 ISA ABI 桥。
+3. x86 Windows 游戏仍需与原生 Wine 对接的 CPU 执行后端、跨架构调用及上下文桥。目前构建规则没有提供这些实现，原生 Box64 动态翻译能力也不等于其 Windows 接口已支持龙芯。
+4. Steam 原生库或跨 ABI/进程桥仍缺失；LoongArch ELF 不能直接 dlopen x86 `steamclient.so`。当前 SDK 也尚未含全套 Windows 客体 PE 交叉工具链，未完成全量默认构建。
 
-下载并核对了上述固定 Wine 提交的两个完整源文件，SHA256 为：
-
-```text
-35478d21bce698fde9153694163022c2256b603075b20b05d82b61cf29e92248  configure.ac
-b1ef9ef4281555adaccac8172e4357224f35da5fad789a2de6a516675f17a2e9  dlls/ntdll/Makefile.in
-```
-
-此记录证明所检查的官方 Proton 标签及其 Wine 依赖没有现成的原生 LoongArch 构建路径，不对所有社区移植作穷尽性结论。本次没有修改源码伪造架构支持，也没有将 x86_64 二进制、启动脚本或仅创建好的容器标记为原生 Proton 成品。后续若继续开发，需要将其作为独立的架构移植任务，并验证原生异常/线程处理、PE 互操作以及实际 Windows 程序运行。
+初始上游障碍已实际复现：未经修改的固定版本在 `TARGET_ARCH=loongarch64` 或 `loong64` 下均于架构检查退出 2，日志 `/tmp/proton-native-check-20261028/`。这一历史失败已由上述本体规则改动推进，不能继续把“未知 TARGET_ARCH”当作当前代码的最终状态。
 
 ## 麒麟 Wine 8 软件包复用核查
 
@@ -72,3 +77,21 @@ b1ef9ef4281555adaccac8172e4357224f35da5fad789a2de6a516675f17a2e9  dlls/ntdll/Mak
 复用结论：该包的 Wine 主程序和 Unix 库均为 x86，不能直接作为原生 LoongArch Wine/Proton 后端。字体、配置和启动脚本可作架构无关资源或打包参考；已有 LATX 与 runtime 是单独外架构执行路径的材料，不补齐原生 Wine 的信号/异常/调用约定实现。包内没有可直接取用的 LoongArch 后端源码。后续若找到真正的原生社区实现，应另行核对具体源码和功能，不以本次二进制包检查否定所有社区移植。
 
 原始包、`wine8-payload-inventory.json`、`apt-evidence.json`、`installed-runtime-summary.json`、`installed-runtime-evidence.txt`、`installed-runtime-elf-scan.json` 位于 `/tmp/wine8-reuse-check-20261028/`。此次仅做下载、静态解包、只读系统检查和模拟安装。
+
+## 原生 Wine 源码路线与仓库边界
+
+除发行包外，继续核对了公开的 [loongarch-moe/la64-wine](https://github.com/loongarch-moe/la64-wine/tree/9f5367cc56defca16452a63ad253c7c49f848871)，固定 `9f5367cc56defca16452a63ad253c7c49f848871`，实际为 Wine 8.21，提交说明 `pre support`，仓库已归档。该分支包含真实 LoongArch CONTEXT、Unix signal、winebuild/winegcc 等架构代码，可作移植素材；但不能直接把它作为已完成的运行时。
+
+[其 NTDLL 用户态架构文件](https://github.com/loongarch-moe/la64-wine/blob/9f5367cc56defca16452a63ad253c7c49f848871/dlls/ntdll/signal_loongarch64.c) 的 `LdrInitializeThunk`、`RtlUserThreadStart`、`KiUser*Dispatcher`、上下文捕获和异常函数仍有 `break 1;ret` 占位，unwind 未实现；Unix 文件的 WoW64/APC/回调也有 `exit(1)`。补齐构建架构名称无法替代这些行为。原生代码正在独立 Wine 项目与专用 Podman 内验证，局部正确修复和实验结果另行归档，不生成冒充完整 Proton 的包。
+
+较新的 Wine 9.9 原生实现仅找到 [Wine-devel 公开线程](https://list.winehq.org/hyperkitty/list/wine-devel@list.winehq.org/thread/WEX5VUTZNNCXRJHVINBI3RA4UIZIOEEQ/)：作者报告内置程序可启动，线程没有公开源码 URL 或补丁。维护者提出 PE 工具链与 ARM64EC 类混合架构要求；不能将该邮件当成已经取得的完整移植源码。
+
+Proton11 的 [ARM64 构建设计](https://github.com/ValveSoftware/Proton/blob/bc896217ffcd67f892f952b010f898fe7bd0f0a1/Makefile.in) 可供借鉴：Unix Wine 原生编译，Windows CPU 执行模块独立构建。Wine11 仍有 ELF builtin 加载路径，故第一个原生 Winelib 验证目标不要求先实现完整 LoongArch COFF 工具链。现有 Clang22 的两个 LoongArch Windows target 探针虽退出 0，实际均生成 ELF64，而非 COFF/PE；仅以编译器退出成功不能认定 PE 工具链已具备。
+
+游戏指令转译层须单独适配。Box64 已有原生 LA64 dynarec，但其 [WoW64 DLL 构建接口](https://github.com/ptitSeb/box64/blob/2da641175cc2525f98f14b71427b914312184173/wine/wow64/CMakeLists.txt#L156) 当前限定 ARM64，EC 上下文也依赖 ARM64EC，不能直接作为龙芯 Windows CPU 插件使用。上述原生 host 路径与整套 x86 Unix Wine/Proton 经 LATX 执行不同。
+
+Steam 集成还有独立 ABI 问题：[lsteamclient/unixlib.cpp](https://github.com/ValveSoftware/Proton/blob/bc896217ffcd67f892f952b010f898fe7bd0f0a1/lsteamclient/unixlib.cpp#L760) 仅选择 sdk32/sdk64/sdkarm64 并直接加载 `steamclient.so`；LoongArch 本地 ELF 不能直接加载 x86 闭源客户端库，需真正的龙芯库或额外 ABI/进程桥。[Proton README](https://github.com/ValveSoftware/Proton/blob/bc896217ffcd67f892f952b010f898fe7bd0f0a1/README.md#arm64-builds) 对 ARM64 也明确要求原生构建环境，不能据该模式承诺现有 x86 Steam 能直接配合原生龙芯 Proton。
+
+后续完整移植需要维护的源码边界为 `ValveSoftware/Proton` 和 `ValveSoftware/wine`；若选用 Box64 的 LA64 执行后端，还需维护 `ptitSeb/box64` 的 Windows 接口改动。旧 la64-wine 是可固定引用的架构素材，不必因此永久把 Wine 8.21 整库替换为 Proton11 基线。LLVM/MinGW、图形和媒体依赖仅在实际验证需要改源时追加，不把所有依赖泛列为必须 fork。
+
+上述为源码能力与实现边界核查；完整原生 Wine/Proton、Windows 程序执行及 Steam 游戏验证尚未完成。静态调查证据和固定源码位置另保存在 `/tmp/proton-native-port-20261029/PROTON_NATIVE_PATH_FINDINGS.md`（目录日期为任务名称，实际检查时间为 2026-10-28）。
