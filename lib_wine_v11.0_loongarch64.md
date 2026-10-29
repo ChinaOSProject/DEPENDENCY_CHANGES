@@ -1,6 +1,6 @@
 # Valve Wine 11.0：原生 LoongArch64 核心移植
 
-更新日期：2026-10-29（Asia/Shanghai）。已编译并运行原生 ELF / Winelib 核心，且在真实安装布局中通过普通 main 测试。此为 Proton 的运行依赖核心子集；完整现代 Wine 前缀、GUI、Windows 客体执行和 Steam 游戏仍未完成，未生成冒充完整应用的 `.deb`。
+更新日期：2026-10-30（Asia/Shanghai）。已编译并运行原生 ELF / Winelib 核心，且在真实安装布局中通过普通 main 测试。此为 Proton 的运行依赖核心子集；完整现代 Wine 前缀、GUI、Windows 客体执行和 Steam 游戏仍未完成，未生成冒充完整应用的 `.deb`。
 
 实际适配上游为 <https://github.com/ValveSoftware/wine>，Proton 11.0-2e 固定提交 `e60892cc2398b0a83c332a2078c7b85e47bdb42b`，构建版本字符串 `wine-11.0`。本地目录 `/home/laevatein/ChinaOSProject/wine-proton`，最终已提交检查点为 `0fbb98ef4dcc44d035d314557ea9ce530f645fb7`；其中可复用 core 安装树保持在已实跑的 `a439a17d97357d243fe406e0e7667fe4755bbe6f`。后续提交为已验证的 CRT 平方根实现。未以 Wine8 原型替换这个固定基线；需要维护的正式 Wine fork 是 `ValveSoftware/wine`。
 
@@ -79,6 +79,7 @@ preloader 镜像基址使用本机可容纳的 `0x7d4000000`。按实际 preload
 - 继续构建现代正常前缀时，UCRT/MSVCRT 以真实 `-z defs` 链接失败，缺 `get_exception_pc`、`call_catch_handler`、`call_unwind_handler`、`handle_fpieee_flt` 四个架构接口，日志 `normal-prefix-build-05.log`。前三项涉及 MSVC funclet/nonvolatile-frame ABI，而当前 native ELF 展开不等于 PE 语言处理器或 `UNWIND_CONSOLIDATE` 已实现；没有用普通 C 调用或空实现把它算作完成。图形/安装 API 的独立标准目标在 `normal-prefix-build-06` 退出 0；没有忽略 CRT 的真实失败。
 - 对真实 C++ try/catch + destructor 做编译器对照：`loongarch64-pc-windows-msvc` 在 `cleanupret` 指令选择失败，退出 1 且无对象；`loongarch64-w64-windows-gnu` 虽退出 0，却产出带 `__gxx_personality_v0` 的 Linux ELF，与相同源码的 Linux target 对象 SHA256 完全一致。同一 Clang 的 ARM64 MSVC 正控制成功产出 COFF-ARM64、`.pdata/.xdata` 和 `__CxxFrameHandler3`。这验证当前工具链没有提供可用的原生 Loong Windows/MSVC 异常 ABI；不能用接受 target 字符串替代支持。原始命令、对象和诊断见 `probes/modern-crt-target/results.json`。
 - 七个文件的正常前缀实验（metadata、单参数 setjmp、GDI 原生路径）保存在仓库外 `normal-prefix-unverified-owner-takeover.patch`，未能进行端到端验证，已从实际 tracked 分支还原；不混入这 16 个已验证源码提交。后续完整 CRT 需要真正的 Windows EH/funclet 或其他可验证 ABI 实现，独立 native core 检查点保持可用。
+- 还原实验 shim 后，对干净 `0fbb98e` 的 `normal-prefix-crt-clean-checkpoint-07.log` 首先被 Winebuild 拒绝缺失 `_setjmp` 导出；同轮新编译 except.o 的符号检查仍有上述四个未定义 helper。build05 是包含未提交 setjmp 实验时到达的下一层真实链接失败，两项不混作同一次构建。完整复现、实验恢复清单及范围见 `MODERN_CRT_BLOCKER_HANDOFF.md`、`normal-prefix-followup-results.json`。
 - core stage 尚无 wineboot.exe 和其完整 DLL 闭包，自动初始化实际报 `c0000135`；通过的 core 程序日志保留这条错误。现代 normal prefix 未完成，旧 Wine8 正常前缀不能代替它。
 - 本机无法映射通用高段 `00007ffffe000000-00007fffffff0000`，preloader reserve 警告保留；不得宣称该高段映射已完成。
 - Win32k user callbacks、跨机器/WoW context、LoongArch PE language-specific unwind、非空 instrumentation callback 尚未实现，对应路径明确失败。Native ELF CFI 展开已实现。
