@@ -1,0 +1,302 @@
+From e1a6f6668ec8be74943752327cca44859061aefc Mon Sep 17 00:00:00 2001
+From: OpenAI Codex <codex@openai.com>
+Date: Wed, 4 Nov 2026 10:07:14 +0800
+Subject: [PATCH] fix(service): secure IPC socket permissions by inode
+
+---
+ src/core/manager.rs | 245 +++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 222 insertions(+), 23 deletions(-)
+
+diff --git a/src/core/manager.rs b/src/core/manager.rs
+index e1b14cf..c63578f 100644
+--- a/src/core/manager.rs
++++ b/src/core/manager.rs
+@@ -911,9 +911,64 @@ fn grant_core_ipc_directory_to_owner(target: &std::path::Path, uid: u32, gid: u3
+     result
+ }
+ 
++#[cfg(target_os = "linux")]
++fn open_core_ipc_socket(target: &std::path::Path, expected: &std::fs::Metadata) -> Result<std::fs::File> {
++    use std::os::unix::fs::{FileTypeExt as _, MetadataExt as _, OpenOptionsExt as _};
++
++    let socket = std::fs::OpenOptions::new()
++        .read(true)
++        .custom_flags(platform_lib::O_PATH | platform_lib::O_NOFOLLOW | platform_lib::O_CLOEXEC)
++        .open(target)
++        .context("failed to pin core IPC socket")?;
++    let metadata = socket.metadata().context("failed to inspect pinned core IPC socket")?;
++    // O_PATH | O_NOFOLLOW opens a symlink itself, so opening successfully is not enough.
++    if !metadata.file_type().is_socket() || metadata.dev() != expected.dev() || metadata.ino() != expected.ino() {
++        anyhow::bail!("core IPC socket was replaced before it could be secured");
++    }
++    Ok(socket)
++}
++
++#[cfg(target_os = "linux")]
++fn secure_core_ipc_socket_fd(socket: &std::fs::File, uid: u32, gid: u32) -> Result<()> {
++    use std::os::fd::AsRawFd as _;
++    use std::os::unix::fs::FileTypeExt as _;
++
++    if !socket.metadata()?.file_type().is_socket() {
++        anyhow::bail!("pinned core IPC entry is not a socket");
++    }
++    let fd = socket.as_raw_fd();
++    if unsafe { platform_lib::geteuid() } == 0
++        && unsafe { platform_lib::fchownat(fd, c"".as_ptr(), uid, gid, platform_lib::AT_EMPTY_PATH) } != 0
++    {
++        return Err(std::io::Error::last_os_error()).context("failed to set core IPC socket owner");
++    }
++
++    if unsafe { platform_lib::fchmodat(fd, c"".as_ptr(), 0o600, platform_lib::AT_EMPTY_PATH) } == 0 {
++        return Ok(());
++    }
++    let error = std::io::Error::last_os_error();
++    if !matches!(
++        error.raw_os_error(),
++        Some(platform_lib::EINVAL | platform_lib::ENOSYS | platform_lib::EOPNOTSUPP)
++    ) {
++        return Err(error).context("failed to make core IPC socket private");
++    }
++
++    // fchmod cannot operate on O_PATH descriptors. Like glibc's nofollow fallback,
++    // follow only this procfs magic link to the pinned inode, never the original path.
++    // Keep `socket` alive throughout; missing/inaccessible procfs must fail closed.
++    let path = std::ffi::CString::new(format!("/proc/self/fd/{fd}"))?;
++    if unsafe { platform_lib::fchmodat(platform_lib::AT_FDCWD, path.as_ptr(), 0o600, 0) } != 0 {
++        return Err(std::io::Error::last_os_error())
++            .context("failed to make pinned core IPC socket private via procfs");
++    }
++    Ok(())
++}
++
+ async fn secure_core_ipc_socket(core_ipc_path: String, owner: OwnerIdentity, expected_pid: Option<u32>) -> Result<()> {
+     #[cfg(unix)]
+     {
++        #[cfg(not(target_os = "linux"))]
+         use std::os::unix::ffi::OsStrExt as _;
+         use std::os::unix::fs::FileTypeExt as _;
+ 
+@@ -922,20 +977,18 @@ async fn secure_core_ipc_socket(core_ipc_path: String, owner: OwnerIdentity, exp
+             anyhow::bail!("Unix core IPC path received a non-Unix owner");
+         };
+         let target = std::path::PathBuf::from(core_ipc_path);
+-        let mut found = false;
+         let deadline = tokio::time::Instant::now() + CORE_IPC_READY_TIMEOUT;
+-        loop {
++        let metadata = loop {
+             match tokio::fs::symlink_metadata(&target).await {
+                 Ok(metadata) if metadata.file_type().is_socket() => {
+-                    found = true;
+-                    break;
++                    break metadata;
+                 }
+                 Ok(_) => {
+                     anyhow::bail!("core IPC path {target:?} is not a socket");
+                 }
+                 Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                     if tokio::time::Instant::now() >= deadline {
+-                        break;
++                        anyhow::bail!("core IPC socket did not appear at {target:?} within {CORE_IPC_READY_TIMEOUT:?}");
+                     }
+                     tokio::time::sleep(CORE_IPC_POLL_INTERVAL).await;
+                 }
+@@ -943,25 +996,37 @@ async fn secure_core_ipc_socket(core_ipc_path: String, owner: OwnerIdentity, exp
+                     return Err(error.into());
+                 }
+             }
++        };
++        #[cfg(target_os = "linux")]
++        {
++            use std::os::unix::fs::MetadataExt as _;
++
++            let socket = open_core_ipc_socket(&target, &metadata)?;
++            secure_core_ipc_socket_fd(&socket, uid, gid)?;
++            let current = std::fs::symlink_metadata(&target)?;
++            if current.dev() != metadata.dev() || current.ino() != metadata.ino() {
++                anyhow::bail!("core IPC socket was replaced while being secured");
++            }
+         }
+-        if !found {
+-            anyhow::bail!("core IPC socket did not appear at {target:?} within {CORE_IPC_READY_TIMEOUT:?}");
+-        }
+-        let path = std::ffi::CString::new(target.as_os_str().as_bytes())
+-            .map_err(|_| anyhow::anyhow!("core IPC socket path contains NUL"))?;
+-        let chown_ok =
+-            unsafe { platform_lib::geteuid() } != 0 || unsafe { platform_lib::lchown(path.as_ptr(), uid, gid) } == 0;
+-        let chmod_ok = unsafe {
+-            platform_lib::fchmodat(
+-                platform_lib::AT_FDCWD,
+-                path.as_ptr(),
+-                0o600 as platform_lib::mode_t,
+-                platform_lib::AT_SYMLINK_NOFOLLOW,
+-            )
+-        } == 0;
+-        let os_error = (!chown_ok || !chmod_ok).then(std::io::Error::last_os_error);
+-        if !chown_ok || !chmod_ok {
+-            return Err(os_error.unwrap_or_else(std::io::Error::last_os_error).into());
++        #[cfg(not(target_os = "linux"))]
++        {
++            let _ = metadata;
++            let path = std::ffi::CString::new(target.as_os_str().as_bytes())
++                .map_err(|_| anyhow::anyhow!("core IPC socket path contains NUL"))?;
++            let chown_ok = unsafe { platform_lib::geteuid() } != 0
++                || unsafe { platform_lib::lchown(path.as_ptr(), uid, gid) } == 0;
++            let chmod_ok = unsafe {
++                platform_lib::fchmodat(
++                    platform_lib::AT_FDCWD,
++                    path.as_ptr(),
++                    0o600 as platform_lib::mode_t,
++                    platform_lib::AT_SYMLINK_NOFOLLOW,
++                )
++            } == 0;
++            let os_error = (!chown_ok || !chmod_ok).then(std::io::Error::last_os_error);
++            if !chown_ok || !chmod_ok {
++                return Err(os_error.unwrap_or_else(std::io::Error::last_os_error).into());
++            }
+         }
+         grant_core_ipc_directory_to_owner(&target, uid, gid)?;
+         info!("Secured core IPC socket {:?} for uid {}", target, uid);
+@@ -1118,6 +1183,140 @@ mod tests {
+         std::fs::remove_dir_all(directory)?;
+         Ok(())
+     }
++
++    fn socket_test_directory(name: &str) -> anyhow::Result<std::path::PathBuf> {
++        let directory = std::env::temp_dir().join(format!("cvs-{}-{name}", std::process::id()));
++        if directory.exists() {
++            std::fs::remove_dir_all(&directory)?;
++        }
++        std::fs::create_dir(&directory)?;
++        Ok(directory)
++    }
++
++    #[tokio::test]
++    async fn core_socket_rejects_symlink() -> anyhow::Result<()> {
++        use std::os::unix::fs::{MetadataExt as _, symlink};
++
++        let directory = socket_test_directory("symlink")?;
++        let victim = directory.join("victim");
++        std::fs::write(&victim, b"unchanged")?;
++        std::fs::set_permissions(&victim, std::fs::Permissions::from_mode(0o640))?;
++        let before = std::fs::metadata(&victim)?;
++        let path = directory.join("core.sock");
++        symlink(&victim, &path)?;
++        let owner = OwnerIdentity::Unix {
++            uid: unsafe { platform_lib::geteuid() },
++            gid: unsafe { platform_lib::getegid() },
++        };
++
++        let error = secure_core_ipc_socket(path.to_string_lossy().into_owned(), owner, None)
++            .await
++            .expect_err("a symlink must not be accepted as a core socket");
++        assert!(error.to_string().contains("not a socket"));
++        let after = std::fs::metadata(&victim)?;
++        assert_eq!(
++            (after.mode(), after.uid(), after.gid()),
++            (before.mode(), before.uid(), before.gid())
++        );
++        assert_eq!(std::fs::read(&victim)?, b"unchanged");
++        std::fs::remove_dir_all(directory)?;
++        Ok(())
++    }
++
++    #[cfg(target_os = "linux")]
++    #[test]
++    fn core_socket_rejects_replacement_before_pinning() -> anyhow::Result<()> {
++        use std::os::unix::fs::{MetadataExt as _, symlink};
++        use std::os::unix::net::UnixListener;
++
++        let directory = socket_test_directory("before-pin")?;
++        let path = directory.join("core.sock");
++        let listener = UnixListener::bind(&path)?;
++        let expected = std::fs::symlink_metadata(&path)?;
++        std::fs::rename(&path, directory.join("original.sock"))?;
++        let victim = directory.join("victim");
++        std::fs::write(&victim, b"unchanged")?;
++        std::fs::set_permissions(&victim, std::fs::Permissions::from_mode(0o640))?;
++        let before = std::fs::metadata(&victim)?;
++
++        symlink(&victim, &path)?;
++        assert!(super::open_core_ipc_socket(&path, &expected).is_err());
++        std::fs::remove_file(&path)?;
++        std::fs::hard_link(&victim, &path)?;
++        assert!(super::open_core_ipc_socket(&path, &expected).is_err());
++        std::fs::remove_file(&path)?;
++        let replacement = UnixListener::bind(&path)?;
++        let replacement_mode = std::fs::metadata(&path)?.mode();
++        assert!(super::open_core_ipc_socket(&path, &expected).is_err());
++        assert_eq!(std::fs::metadata(&path)?.mode(), replacement_mode);
++        // O_PATH | O_NOFOLLOW must reject even a symlink pointing to a socket.
++        std::fs::remove_file(&path)?;
++        symlink(directory.join("original.sock"), &path)?;
++        assert!(super::open_core_ipc_socket(&path, &expected).is_err());
++
++        let after = std::fs::metadata(&victim)?;
++        assert_eq!(
++            (after.mode(), after.uid(), after.gid()),
++            (before.mode(), before.uid(), before.gid())
++        );
++        drop((listener, replacement));
++        std::fs::remove_dir_all(directory)?;
++        Ok(())
++    }
++
++    #[cfg(target_os = "linux")]
++    #[test]
++    fn core_socket_permissions_stay_on_pinned_inode() -> anyhow::Result<()> {
++        use std::os::unix::fs::{MetadataExt as _, symlink};
++        use std::os::unix::net::UnixListener;
++
++        let directory = socket_test_directory("after-pin")?;
++        let victim = directory.join("victim");
++        std::fs::write(&victim, b"unchanged")?;
++        std::fs::set_permissions(&victim, std::fs::Permissions::from_mode(0o640))?;
++        let before = std::fs::metadata(&victim)?;
++        let root = unsafe { platform_lib::geteuid() } == 0;
++        let uid = if root { 1 } else { unsafe { platform_lib::geteuid() } };
++        let gid = if root { 1 } else { unsafe { platform_lib::getegid() } };
++
++        for is_symlink in [true, false] {
++            let path = directory.join("core.sock");
++            let pinned_path = directory.join("pinned.sock");
++            let listener = UnixListener::bind(&path)?;
++            std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o666))?;
++            let expected = std::fs::symlink_metadata(&path)?;
++            let socket = super::open_core_ipc_socket(&path, &expected)?;
++            std::fs::rename(&path, &pinned_path)?;
++            if is_symlink {
++                symlink(&victim, &path)?;
++            } else {
++                std::fs::hard_link(&victim, &path)?;
++            }
++            let replacement = std::fs::symlink_metadata(&path)?;
++
++            super::secure_core_ipc_socket_fd(&socket, uid, gid)?;
++
++            let pinned = std::fs::metadata(&pinned_path)?;
++            assert_eq!(pinned.mode() & 0o7777, 0o600);
++            assert_eq!((pinned.uid(), pinned.gid()), (uid, gid));
++            let after = std::fs::metadata(&victim)?;
++            assert_eq!(
++                (after.mode(), after.uid(), after.gid()),
++                (before.mode(), before.uid(), before.gid())
++            );
++            let current = std::fs::symlink_metadata(&path)?;
++            assert_eq!(
++                (current.mode(), current.uid(), current.gid()),
++                (replacement.mode(), replacement.uid(), replacement.gid())
++            );
++            drop((socket, listener));
++            std::fs::remove_file(&path)?;
++            std::fs::remove_file(&pinned_path)?;
++        }
++        assert_eq!(std::fs::read(&victim)?, b"unchanged");
++        std::fs::remove_dir_all(directory)?;
++        Ok(())
++    }
+ }
+ 
+ #[cfg(test)]
+-- 
+2.25.1
+
