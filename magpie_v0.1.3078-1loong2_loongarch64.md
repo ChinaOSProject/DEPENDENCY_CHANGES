@@ -4,6 +4,8 @@
 
 本报告对应完整 Debian 版本 `0.1.3078-1loong2`。上游版本为 stable `v0.1.3078`，精确提交 `ef176e21f6c40e5a623709bb0e369647173964de`。2026-11-12 已保存的官方 stable API 响应为 HTTP 200、`channel=stable`、`version=0.1.3078`；原始正文 SHA256 为 `1517acfd0976b330feb58a78f144099266a7269c554fbdd040f1250acd5cfdbc`。
 
+2026-11-13 源码归档：已将对应精确构建基线的 `debian10`、`loong64` 分支推送至 https://github.com/ChinaOSProject/magpie ，并核对两分支远端提交均为 `ef176e21f6c40e5a623709bb0e369647173964de`。应用源码未修改；Wails 依赖的窗口状态修复仍以独立补丁归档，其源码提交审查要求未满足，不包含在这两个应用分支中。fork 的默认分支未改动。
+
 完整的构建、初版历史验证、Debian 分包依据及修复经过保留在 [上游版本汇总报告](magpie_v0.1.3078_loongarch64.md)。本记录只确认当前修订的交付身份和验证边界，不将初版 GUI 测试视为修复版 GUI 测试。
 
 | 项目 | 已核验内容 |

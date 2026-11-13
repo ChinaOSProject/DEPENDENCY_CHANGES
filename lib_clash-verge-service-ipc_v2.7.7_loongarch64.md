@@ -10,6 +10,8 @@ Loong64 适配提交：`eaaae99bb24c77155dbea95b3964f6d5be42b0f1` (`fix(service)
 
 分支状态：`main` 精确指向上游 v2.7.7；`debian10`、`loong64` 均在该上游提交之上。源码工作树干净。补丁只修改 `src/core/manager.rs`，包含 Linux 兼容实现和定点回归测试；v2.7.6 归档 refs 与已发布包未修改。
 
+2026-11-13 源码发布：`debian10`、`loong64` 已推送至 https://github.com/ChinaOSProject/clash-verge-service-ipc ，两分支的远端提交均核对为 `eaaae99bb24c77155dbea95b3964f6d5be42b0f1`。fork 的默认分支保持原样；本轮没有重跑既有构建或测试。
+
 ## 问题与修复
 
 目标设备为 LoongArch64、Linux `5.4.18-168-generic`、glibc `2.28`。v2.7.7 上游 `secure_core_ipc_socket` 使用 `fchmodat(..., AT_SYMLINK_NOFOLLOW)` 修改 core IPC socket 权限，在该旧基座上返回 `EOPNOTSUPP`，阻断 core 启动。原版定点复现记录在 `logs/v277-baseline-repro.log`，测试进程以预期失败码 `101` 退出，错误为 `Operation not supported (os error 95)`。

@@ -70,6 +70,6 @@ Linux 6.12 的 x86_64、aarch64、riscv64、loongarch64 四套 syscall 表均重
 
 ## 可复用交付和状态
 
-- 完整适配补丁随本报告同目录归档：[seccompiler-0.5.0-loongarch64.patch](./seccompiler-0.5.0-loongarch64.patch)，SHA256：`1e450a47751227bae98fa53ce8589590e758b2d1a7b52b01140c1d7fc9e71424`。该补丁基于可公开获取的 [官方 v0.5.0 标签](https://github.com/rust-vmm/seccompiler/tree/v0.5.0)，在原版源码上执行 `git apply` 即可复现。适配提交 `9e0a1f66e49c148ceb42b5d4b302d3ec84937236` 和 `8bb8d11bbd729d6b1a64f2aa1ca466cc802f043b` 保存在本地 `loong64` 分支，未推送；两份按提交拆分的 patch 也保留在专属源码缓存中。
+- 完整适配补丁随本报告同目录归档：[seccompiler-0.5.0-loongarch64.patch](./seccompiler-0.5.0-loongarch64.patch)，SHA256：`1e450a47751227bae98fa53ce8589590e758b2d1a7b52b01140c1d7fc9e71424`。该补丁基于可公开获取的 [官方 v0.5.0 标签](https://github.com/rust-vmm/seccompiler/tree/v0.5.0)，在原版源码上执行 `git apply` 即可复现。2026-11-13 已将 `debian10` 基线 `c3cf77d65815037931ae5bc2fca010713defdc8c` 和包含两个适配提交的 `loong64` 分支 `8bb8d11bbd729d6b1a64f2aa1ca466cc802f043b` 推送至 https://github.com/ChinaOSProject/seccompiler ，并核对远端 refs。fork 的默认分支未改动；两份按提交拆分的 patch 也保留在专属源码缓存中。
 - [本地完整源码归档](/media/laevatein/VCLIB/ChinaOSProject-cache/seccompiler/0.5.0/seccompiler-0.5.0-loongarch64.tar.gz)，SHA256：`55e884b8042af8ec1dbd54c24812438b150335862690cf317fdc6bd0fc3f0876`。
 - 本库的适配和验证已完成；按上文发行版索引证据，本次不生成 `.deb`。Codex 本体仍需选择新架构、以可复现方式集成此依赖，并完成其完整 CLI 构建与安全验证；不能将本库通过测试视为 Codex 已完成升级。

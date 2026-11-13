@@ -5,6 +5,7 @@
 - 仓库：https://github.com/clash-verge-rev/clash-verge-rev
 - 精确版本 v2.5.10，提交 `c83f7ad529c7c9cb3d2d54a0955ef8c1b22a411b`。
 - 应用源码、Cargo.lock、pnpm-lock.yaml 均未修改；canonical 工作树干净，main/debian10/loong64 先前已按规定传播到此提交。
+- 2026-11-13 已将 `debian10`、`loong64` 推送至 https://github.com/ChinaOSProject/clash-verge-rev ，远端提交均核对为 `c83f7ad529c7c9cb3d2d54a0955ef8c1b22a411b`；fork 的默认 `dev` 分支保持原样。依赖适配由各独立源码仓库和补丁归档。
 - Cargo.lock SHA256：`0d73d95386162b536ce049c0c26a40e267c021a485ddf17e3c7102f8254e9565`。
 - pnpm-lock.yaml SHA256：`b7ae85103846e101e42a62aae69c0ffeae56126d394937e92845176414124546`。
 - 两项必要依赖修复均在独立仓库完成：float16 0.1.5 的稳定 LSX 编译能力检测与既有软件 fallback；Wry 0.57.1 对 WebKit2.42 全量 cookie API 的成对可选解析与异步 NotSupported。未修改 registry/module 缓存。

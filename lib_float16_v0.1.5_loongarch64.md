@@ -3,7 +3,7 @@
 Date: 2026-11-12 (Asia/Shanghai). Repository: `https://github.com/Alexhuszagh/float16`.
 Upstream revision: `2401a40bbdeac256070324ec954bf268bc8e7be7`; upstream tree: `6bd4312db2a9163be849911b685c314b535f09f5`.
 Checkout: `/home/laevatein/ChinaOSProject/float16`, branch `debian10`.
-On 2026-11-13, the reviewed two-file adaptation was committed as `9028edc088ab4419536a5aa0b30cc227fcb5eb03` on `debian10`; `loong64` was fast-forwarded to the same commit. `main` retains the exact upstream baseline and the working tree is clean. No source push occurred: ChinaOSProject/float16 currently returns GitHub API 404 and SSH Repository not found. The report, patch and verified source-development packages are archived separately.
+On 2026-11-13, the reviewed two-file adaptation was committed as `9028edc088ab4419536a5aa0b30cc227fcb5eb03` on `debian10`; `loong64` was fast-forwarded to the same commit. `main` retains the exact upstream baseline and the working tree is clean. After the user created forks, GitHub's repository metadata identified ChinaOSProject/float16 as a fork of the unrelated Go project x448/float16, rather than this Rust crate's upstream Alexhuszagh/float16. Both atomic push attempts were rejected before creating either branch, and the unrelated fork's default branch remained unchanged. The source push therefore still requires a fork of Alexhuszagh/float16, for example under the distinct name ChinaOSProject/rust-float16. The report, patch and verified source-development packages are archived separately.
 
 ## Problem and production change
 

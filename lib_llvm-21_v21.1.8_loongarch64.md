@@ -41,6 +41,16 @@ Compatibility Impact:
 Upstream Status:
 SOP relocation 处理参考已公开的 Loongnix 源码。本次针对 LLVM 21 的适配、EH 编码转换和测试在本地维护，未提交 upstream commit 或 PR。
 
+## 2026-11-13 源码发布补充
+
+已在官方 `llvmorg-21.1.8` 精确基线 `2078da43e25a4623cab2d0d60decddf709aaea28` 上整理既有已验收修改，并推送至 https://github.com/ChinaOSProject/llvm-project 的 `debian10-llvm21`、`loong64-llvm21` 分支，最终提交均为 `de0645087733b0320e759ba7886430ae2a95c3cd`。三个独立逻辑提交为：
+
+- `070c87e0c0b1920eccd6b55737e5046c8bbdc5d7`：Clang oldworld loader 检测。
+- `9ccd465481d8a934fabca6472aaf427dbb5b8474`：LLD SOP/ABI interlink 和既有 EH 编码转换。
+- `de0645087733b0320e759ba7886430ae2a95c3cd`：LLD no-R CIE 修复及对应回归。
+
+最终14个文件内容与原已验收源码一致，工作树干净；本轮未重建或重跑既有测试。完整适配和 no-R 增量继续由同目录 `llvm-21_v21.1.8-complete-oldworld.patch`、`llvm-21_v21.1.8-no-r-cie.patch` 归档，后续验收范围见 `lib_lld-21_v21.1.8_loongarch64.md`。LLVM23 与 RustLLVM 的未修改构建输入使用独立版本线，未将21补丁移植到23，也未推送 upstream 或创建 PR。
+
 Validation:
 
 - rootless Podman 容器 zig-0.16.0-loongarch64-build，基础镜像 cr.loongnix.cn/library/debian:buster-slim，glibc 2.28。

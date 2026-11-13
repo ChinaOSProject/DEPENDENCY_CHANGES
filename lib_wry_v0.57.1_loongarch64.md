@@ -1,6 +1,6 @@
 # Wry 0.57.1：兼容 WebKitGTK 2.38–2.40 的全部 Cookie 接口探测
 
-日期：2026-11-12。被适配仓库： https://github.com/tauri-apps/wry 。精确上游提交 `2446feadae623d6f2ac8d2136e3ccef3d7197e0e`，crate `wry 0.57.1`。2026-11-13 已在 `debian10` 创建最小源码提交 `c8bb6e63fd696160609d7795bbb32566e8ed6086`，并将 `loong64` 快进至同一提交；`main` 保留上游基线，工作树干净。尚未推送源码：目标 ChinaOSProject/wry 仓库目前不可访问（GitHub API 404、SSH Repository not found）。本报告和补丁侧文件随二进制独立归档。
+日期：2026-11-12。被适配仓库： https://github.com/tauri-apps/wry 。精确上游提交 `2446feadae623d6f2ac8d2136e3ccef3d7197e0e`，crate `wry 0.57.1`。2026-11-13 已在 `debian10` 创建最小源码提交 `c8bb6e63fd696160609d7795bbb32566e8ed6086`，并将 `loong64` 快进至同一提交；本地 `main` 保留上游基线，工作树干净。用户创建 fork 后，已将 `debian10`、`loong64` 推送至 https://github.com/ChinaOSProject/wry ，并通过认证 SSH 逐项核对远端提交；fork 的默认 `dev` 分支未改动。本报告和补丁侧文件随二进制独立归档。
 
 ## 问题与结果
 
