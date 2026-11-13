@@ -1,0 +1,92 @@
+diff --git a/v3/pkg/application/linux_cgo_gtk3.go b/v3/pkg/application/linux_cgo_gtk3.go
+index e01ee38..e956b03 100644
+--- a/v3/pkg/application/linux_cgo_gtk3.go
++++ b/v3/pkg/application/linux_cgo_gtk3.go
+@@ -1435,7 +1435,13 @@ func (w *linuxWebviewWindow) windowHide() {
+ }
+ 
+ func (w *linuxWebviewWindow) isFullscreen() bool {
++	if w.window == nil {
++		return false
++	}
+ 	gdkWindow := C.gtk_widget_get_window(w.gtkWidget())
++	if gdkWindow == nil {
++		return false
++	}
+ 	state := C.gdk_window_get_state(gdkWindow)
+ 	return state&C.GDK_WINDOW_STATE_FULLSCREEN > 0
+ }
+@@ -1446,13 +1452,25 @@ func (w *linuxWebviewWindow) isFocused() bool {
+ }
+ 
+ func (w *linuxWebviewWindow) isMaximised() bool {
++	if w.window == nil {
++		return false
++	}
+ 	gdkwindow := C.gtk_widget_get_window(w.gtkWidget())
++	if gdkwindow == nil {
++		return false
++	}
+ 	state := C.gdk_window_get_state(gdkwindow)
+ 	return state&C.GDK_WINDOW_STATE_MAXIMIZED > 0 && state&C.GDK_WINDOW_STATE_FULLSCREEN == 0
+ }
+ 
+ func (w *linuxWebviewWindow) isMinimised() bool {
++	if w.window == nil {
++		return false
++	}
+ 	gdkwindow := C.gtk_widget_get_window(w.gtkWidget())
++	if gdkwindow == nil {
++		return false
++	}
+ 	state := C.gdk_window_get_state(gdkwindow)
+ 	return state&C.GDK_WINDOW_STATE_ICONIFIED > 0
+ }
+diff --git a/v3/pkg/application/linux_window_state_gtk3_test.go b/v3/pkg/application/linux_window_state_gtk3_test.go
+new file mode 100644
+index 0000000..30ce2dc
+--- /dev/null
++++ b/v3/pkg/application/linux_window_state_gtk3_test.go
+@@ -0,0 +1,42 @@
++//go:build linux && cgo && gtk3 && !android && !server
++
++package application
++
++import (
++	"context"
++	"os"
++	"os/exec"
++	"testing"
++	"time"
++)
++
++func TestGTK3WindowStateBeforeCreation(t *testing.T) {
++	if os.Getenv("WAILS_TEST_GTK3_WINDOW_STATE") != "1" {
++		// GTK normally logs invalid native calls and returns false anyway. Make
++		// criticals fatal in a fresh process so those calls fail the test.
++		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
++		defer cancel()
++		cmd := exec.CommandContext(ctx, os.Args[0], "-test.run=^TestGTK3WindowStateBeforeCreation$")
++		cmd.Env = append(os.Environ(), "WAILS_TEST_GTK3_WINDOW_STATE=1", "G_DEBUG=fatal-criticals")
++		if output, err := cmd.CombinedOutput(); err != nil {
++			t.Fatalf("window state query before creation failed: %v\n%s", err, output)
++		}
++		return
++	}
++
++	window := &linuxWebviewWindow{}
++	for _, test := range []struct {
++		name  string
++		query func() bool
++	}{
++		{"fullscreen", window.isFullscreen},
++		{"maximised", window.isMaximised},
++		{"minimised", window.isMinimised},
++	} {
++		t.Run(test.name, func(t *testing.T) {
++			if test.query() {
++				t.Fatal("window state before creation = true, want false")
++			}
++		})
++	}
++}

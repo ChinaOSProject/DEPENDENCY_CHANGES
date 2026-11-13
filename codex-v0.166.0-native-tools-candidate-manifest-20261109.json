@@ -1,0 +1,33 @@
+{
+  "manifest_version": 1,
+  "created": "2026-11-09",
+  "purpose": "Exact local review candidate pair for Codex v0.166.0 native tools: generate-ninja -3 and ninja-build -2.",
+  "state": "candidate_only_not_published",
+  "install_queue_note": "The main Agent's already queued installation pipeline retains its existing -2 GN and -2 Ninja inputs. This manifest does not change that queue; the main Agent will separately upgrade GN to -3 after that pipeline completes.",
+  "path_base": "manifest directory (DEPENDENCY_CHANGES)",
+  "packages": [
+    {
+      "package": "generate-ninja",
+      "version": "0.0~git20260722.641ace93-3",
+      "architecture": "loongarch64",
+      "depends": ["libc6 (>= 2.28)"],
+      "installed_size_kib": 12928,
+      "deb": "../binaries/generate-ninja/loongarch64/generate-ninja_v0.0~git20260722.641ace93-3_loongarch64.deb",
+      "deb_sha256": "8591aa2bcb07cfec714132b125656b03fcafb2a0131f7f8517f673adc6140383",
+      "sha256_sidecar": "../binaries/generate-ninja/loongarch64/generate-ninja_v0.0~git20260722.641ace93-3_loongarch64.deb.sha256",
+      "binary_sha256_usr_bin_gn": "117d9e609fde83d5b248516399ee1cd00d8d3ab953ebe580095ddb633400cd12",
+      "binary_unchanged_from_reviewed_minus_2": true
+    },
+    {
+      "package": "ninja-build",
+      "version": "1.12.1+chromium.4-2",
+      "architecture": "loongarch64",
+      "depends": ["libc6 (>= 2.28)"],
+      "installed_size_kib": 17016,
+      "deb": "../binaries/ninja-build/loongarch64/ninja-build_v1.12.1+chromium.4-2_loongarch64.deb",
+      "deb_sha256": "88c23ec7f5fe0a3329dcb660956c50601f8c827c5b30bc5b08883a9b13604592",
+      "sha256_sidecar": "../binaries/ninja-build/loongarch64/ninja-build_v1.12.1+chromium.4-2_loongarch64.deb.sha256",
+      "binary_sha256_usr_bin_ninja": "2ca7f92185a490b942fa1ee1feb7abc51744d59c88f2e7eb375583a7b7e30c07"
+    }
+  ]
+}

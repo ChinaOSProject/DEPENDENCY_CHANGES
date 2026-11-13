@@ -1,0 +1,2955 @@
+{
+  "date": "2026-11-13",
+  "generated_utc": "2026-11-13T06:51:59.637491+00:00",
+  "scope": "Verified LoongArch ABI1 software and source-development artifacts from the Herdr/Codex/Clash/Magpie build tasks; held candidates are excluded.",
+  "software_repository": "https://github.com/ChinaOSProject/binaries",
+  "software_commit": "2933e168c9d1ac0324c1d0505f1385c9a39f00a1",
+  "package_count": 220,
+  "total_bytes": 707332240,
+  "architecture_counts": {
+    "loongarch64": 58,
+    "all": 162
+  },
+  "group_counts": {
+    "clash-native39": 39,
+    "lightningcss110": 110,
+    "first10": 10,
+    "psm3": 3,
+    "native-c-sdk6": 6,
+    "float16-closure5": 5,
+    "llvm-scoped4": 4,
+    "magpie-repaired": 1,
+    "clash-app4": 4,
+    "frontend-tools3": 3,
+    "gn-ninja2": 2,
+    "exact33": 33
+  },
+  "remote_lfs_verification": {
+    "state": "all-selected-object-IDs-and-sizes-downloadable",
+    "observed_utc": "2026-11-13T06:47:38.572047+00:00",
+    "object_count": 220,
+    "verification_scope": "Authenticated Git LFS batch download metadata; upload hook succeeded. No second full content download. Transient credentials and signed URLs are not stored."
+  },
+  "published_source_branches": {
+    "codex": {
+      "debian10": "5577d8c9895d5d8d046e4633ba0e1c2739c527df",
+      "loong64": "4ff4a9d9aa75a4c748facdc9a286a3d10519e1fe"
+    },
+    "herdr": {
+      "debian10": "5b99272554457d1d9e29d1dce17fb2abb365f645",
+      "loong64": "ef1f4f159923fd9271391d5fc483b6c2bf806220"
+    }
+  },
+  "local_source_commits_not_pushed": {
+    "wry": "c8bb6e63fd696160609d7795bbb32566e8ed6086",
+    "float16": "9028edc088ab4419536a5aa0b30cc227fcb5eb03",
+    "clash-verge-service-ipc": "eaaae99",
+    "seccompiler": "8bb8d11"
+  },
+  "missing_source_repositories": {
+    "organization": "ChinaOSProject",
+    "repositories": [
+      "magpie",
+      "clash-verge-rev",
+      "clash-verge-service-ipc",
+      "seccompiler",
+      "wails",
+      "wry",
+      "float16",
+      "llvm-project",
+      "rusty_v8"
+    ],
+    "observed_response": "Public GitHub API 404 and authenticated SSH Repository not found; no GitHub API login is configured for repository creation."
+  },
+  "held": [
+    {
+      "item": "Wails source commit",
+      "reason": "Mandatory coderabbit --plain review unavailable; exact source/patch/build/package correspondence reviewed, but no source commit or source push."
+    },
+    {
+      "item": "Rust 1.99.1 SDK and source",
+      "reason": "ABI regression and source-review/push requirements remain unsatisfied; no SDK candidate released."
+    },
+    {
+      "item": "Codex 0.166.0 matching-helper binary pair",
+      "reason": "Actual helper build succeeded; final object/notice/package/runtime acceptance not complete. Old compatibility-helper installation is not a release substitute."
+    },
+    {
+      "item": "ordinary16, Next35, Next17 source packages",
+      "reason": "ordinary16 consumer fixture failed; Next35 assembled only and Next17 prepared only. They are absent from this published selection."
+    },
+    {
+      "item": "Zstd and additional Python/Clang/bindgen delivery drafts",
+      "reason": "Unaccepted or planning-only; excluded."
+    },
+    {
+      "item": "Withdrawn candidates",
+      "reason": "Old GLib monolith, older GN/Ninja and compiler candidates, and withdrawn Git NO_CURL package excluded."
+    }
+  ],
+  "limits": [
+    "Source-development packages were verified with their documented selected features and consumers; this is not full closure delivery for all 548 observed Rust crate versions.",
+    "No new complete upstream suites were run for publication.",
+    "Magpie was never executed, launched, stopped, restarted or signalled. Fixed GUI live-window acceptance remains intentionally pending.",
+    "No APT index or signing-key publication is claimed; the software repository is the project Git LFS binaries repository."
+  ],
+  "artifacts": [
+    {
+      "package": "clash-cpp-13",
+      "version": "13.4.0-3loong1",
+      "architecture": "loongarch64",
+      "path": "clash-cpp-13/loongarch64/clash-cpp-13_v13.4.0-3loong1_loongarch64.deb",
+      "bytes": 2073592,
+      "sha256": "90660d407d03288c0a053f8153c301503f98f06823ba572c2145c8916271126b",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-cpp-13/loongarch64/clash-cpp-13_v13.4.0-3loong1_loongarch64.deb",
+      "checksum_path": "clash-cpp-13/loongarch64/clash-cpp-13_v13.4.0-3loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-g++-13",
+      "version": "13.4.0-3loong1",
+      "architecture": "loongarch64",
+      "path": "clash-g++-13/loongarch64/clash-g++-13_v13.4.0-3loong1_loongarch64.deb",
+      "bytes": 83627696,
+      "sha256": "0024fec9ff7697555a6e2fa780ddc74df9004ef5a70c428703aaf551d7cef0f3",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-g%2B%2B-13/loongarch64/clash-g%2B%2B-13_v13.4.0-3loong1_loongarch64.deb",
+      "checksum_path": "clash-g++-13/loongarch64/clash-g++-13_v13.4.0-3loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gcc-13",
+      "version": "13.4.0-3loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gcc-13/loongarch64/clash-gcc-13_v13.4.0-3loong1_loongarch64.deb",
+      "bytes": 218940892,
+      "sha256": "5c160f9333e56edc49aa8503729f111aff19b3a75ccbaf172984b7d152cefa3b",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gcc-13/loongarch64/clash-gcc-13_v13.4.0-3loong1_loongarch64.deb",
+      "checksum_path": "clash-gcc-13/loongarch64/clash-gcc-13_v13.4.0-3loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gcc-13-dev",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gcc-13-dev/loongarch64/clash-gcc-13-dev_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 3116218,
+      "sha256": "4d0e997319fba55236cb21c5a7246464cd5b1828c7b894ec10b0366cdd15fbef",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gcc-13-dev/loongarch64/clash-gcc-13-dev_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gcc-13-dev/loongarch64/clash-gcc-13-dev_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gcc-13-doc",
+      "version": "13.4.0-1loong1",
+      "architecture": "all",
+      "path": "clash-gcc-13-doc/all/clash-gcc-13-doc_v13.4.0-1loong1_all.deb",
+      "bytes": 377496,
+      "sha256": "3120f750a33527cb3980235b5feeb5c803db60628cf8947ae010ac53fcb8658f",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gcc-13-doc/all/clash-gcc-13-doc_v13.4.0-1loong1_all.deb",
+      "checksum_path": "clash-gcc-13-doc/all/clash-gcc-13-doc_v13.4.0-1loong1_all.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-common",
+      "version": "1.22.0-1loong1",
+      "architecture": "all",
+      "path": "clash-gstreamer1.0-common/all/clash-gstreamer1.0-common_v1.22.0-1loong1_all.deb",
+      "bytes": 351626,
+      "sha256": "5f9d7983d20197452526e6555f1fe32f80d91cde114633a7d5f5ed15bcb33e23",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-common/all/clash-gstreamer1.0-common_v1.22.0-1loong1_all.deb",
+      "checksum_path": "clash-gstreamer1.0-common/all/clash-gstreamer1.0-common_v1.22.0-1loong1_all.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-dev",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gstreamer1.0-dev/loongarch64/clash-gstreamer1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 44162,
+      "sha256": "112ea4ddcc2f216c736a1a575e2a7adafe4abe17db868bedd49dce38f3309568",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-dev/loongarch64/clash-gstreamer1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gstreamer1.0-dev/loongarch64/clash-gstreamer1.0-dev_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-gl",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gstreamer1.0-gl/loongarch64/clash-gstreamer1.0-gl_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 133722,
+      "sha256": "e177435f3ae5537c4a6e356a8afcdb3c077e92e924c737dc5dad3e98d463da4c",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-gl/loongarch64/clash-gstreamer1.0-gl_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gstreamer1.0-gl/loongarch64/clash-gstreamer1.0-gl_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-plugins-base",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gstreamer1.0-plugins-base/loongarch64/clash-gstreamer1.0-plugins-base_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 551902,
+      "sha256": "a6d0ddb78907a70ef259d2bef33343bf774f7c1149c7bbcf2d2dc5b4f8387ce4",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-plugins-base/loongarch64/clash-gstreamer1.0-plugins-base_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gstreamer1.0-plugins-base/loongarch64/clash-gstreamer1.0-plugins-base_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-plugins-base-apps",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gstreamer1.0-plugins-base-apps/loongarch64/clash-gstreamer1.0-plugins-base-apps_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 60704,
+      "sha256": "a6c9c901bad9124a4a33271b1cb5f692b466c59f9353b0b6432b2129f274080d",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-plugins-base-apps/loongarch64/clash-gstreamer1.0-plugins-base-apps_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gstreamer1.0-plugins-base-apps/loongarch64/clash-gstreamer1.0-plugins-base-apps_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-tools",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gstreamer1.0-tools/loongarch64/clash-gstreamer1.0-tools_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 80696,
+      "sha256": "99f4783ed1b4be74fc0c63f550fac07fb43d0533fe9d4c9125c97b83483bcaf6",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-tools/loongarch64/clash-gstreamer1.0-tools_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gstreamer1.0-tools/loongarch64/clash-gstreamer1.0-tools_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-gstreamer1.0-x",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-gstreamer1.0-x/loongarch64/clash-gstreamer1.0-x_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 81514,
+      "sha256": "4c8a0e3bfa1a6511a3d6c8e27a42dfe902926dbe261cbb34907e0aff2c297d61",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-gstreamer1.0-x/loongarch64/clash-gstreamer1.0-x_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-gstreamer1.0-x/loongarch64/clash-gstreamer1.0-x_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libatomic1",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libatomic1/loongarch64/clash-libatomic1_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 63040,
+      "sha256": "584725bebfc38abfe289e6a009f168ba3b47ed15cd94a3544ea7b8f75ae16bfb",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libatomic1/loongarch64/clash-libatomic1_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libatomic1/loongarch64/clash-libatomic1_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgcc-s1",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgcc-s1/loongarch64/clash-libgcc-s1_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 417724,
+      "sha256": "cfaa0db7941319e71eaac285c760c821287d658caace21b0d655a60b9f161662",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgcc-s1/loongarch64/clash-libgcc-s1_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgcc-s1/loongarch64/clash-libgcc-s1_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libglib2.0-0",
+      "version": "2.70.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libglib2.0-0/loongarch64/clash-libglib2.0-0_v2.70.5-1loong1_loongarch64.deb",
+      "bytes": 1229900,
+      "sha256": "87cacfc859a341c2eae2f5e4696286a2478d874a8707f05b69ba2241249be097",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libglib2.0-0/loongarch64/clash-libglib2.0-0_v2.70.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libglib2.0-0/loongarch64/clash-libglib2.0-0_v2.70.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libglib2.0-bin",
+      "version": "2.70.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libglib2.0-bin/loongarch64/clash-libglib2.0-bin_v2.70.5-1loong1_loongarch64.deb",
+      "bytes": 86020,
+      "sha256": "2fd7cb088ca6970658e4e7b3a00da5e7a073df9f4287891a5f4b6e13a282ffca",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libglib2.0-bin/loongarch64/clash-libglib2.0-bin_v2.70.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libglib2.0-bin/loongarch64/clash-libglib2.0-bin_v2.70.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libglib2.0-data",
+      "version": "2.70.5-1loong1",
+      "architecture": "all",
+      "path": "clash-libglib2.0-data/all/clash-libglib2.0-data_v2.70.5-1loong1_all.deb",
+      "bytes": 1152938,
+      "sha256": "9ae2ff3e7bfd399574492c274a969735b79303d0f979f6a51e2029edee46fbc4",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libglib2.0-data/all/clash-libglib2.0-data_v2.70.5-1loong1_all.deb",
+      "checksum_path": "clash-libglib2.0-data/all/clash-libglib2.0-data_v2.70.5-1loong1_all.deb.sha256"
+    },
+    {
+      "package": "clash-libglib2.0-dev",
+      "version": "2.70.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libglib2.0-dev/loongarch64/clash-libglib2.0-dev_v2.70.5-1loong1_loongarch64.deb",
+      "bytes": 301454,
+      "sha256": "9e46613c6ee3f55eb1e231cd366d62f751304205d7dd005db432f707ae58c2da",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libglib2.0-dev/loongarch64/clash-libglib2.0-dev_v2.70.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libglib2.0-dev/loongarch64/clash-libglib2.0-dev_v2.70.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libglib2.0-dev-bin",
+      "version": "2.70.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libglib2.0-dev-bin/loongarch64/clash-libglib2.0-dev-bin_v2.70.5-1loong1_loongarch64.deb",
+      "bytes": 99690,
+      "sha256": "bff72577325a404eb2b373fb0a3648d72a9bd271ec1859cb6b8879da6a3d611e",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libglib2.0-dev-bin/loongarch64/clash-libglib2.0-dev-bin_v2.70.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libglib2.0-dev-bin/loongarch64/clash-libglib2.0-dev-bin_v2.70.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgstreamer-gl1.0-0",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgstreamer-gl1.0-0/loongarch64/clash-libgstreamer-gl1.0-0_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 197128,
+      "sha256": "0f35ca3103d3c68026c68420629fbdf392802126bb60e39a7da4f14783bb3ab7",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgstreamer-gl1.0-0/loongarch64/clash-libgstreamer-gl1.0-0_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgstreamer-gl1.0-0/loongarch64/clash-libgstreamer-gl1.0-0_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgstreamer-gl1.0-dev",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgstreamer-gl1.0-dev/loongarch64/clash-libgstreamer-gl1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 61120,
+      "sha256": "8fbccd5c77cd12d9e3bee1b8bee1e5d6eca13a9f6bf98800d082a78a05bb0bb6",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgstreamer-gl1.0-dev/loongarch64/clash-libgstreamer-gl1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgstreamer-gl1.0-dev/loongarch64/clash-libgstreamer-gl1.0-dev_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgstreamer-plugins-base1.0-0",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgstreamer-plugins-base1.0-0/loongarch64/clash-libgstreamer-plugins-base1.0-0_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 817096,
+      "sha256": "bf363bcda3f464123602482d67d3b47e5f05a92bb4c96cfc06e2109ede183b66",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgstreamer-plugins-base1.0-0/loongarch64/clash-libgstreamer-plugins-base1.0-0_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgstreamer-plugins-base1.0-0/loongarch64/clash-libgstreamer-plugins-base1.0-0_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgstreamer-plugins-base1.0-dev",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgstreamer-plugins-base1.0-dev/loongarch64/clash-libgstreamer-plugins-base1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 152874,
+      "sha256": "8918b1239a0d26d84570a7ee078e00f557bc828291822358bf01f716d6796fb3",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgstreamer-plugins-base1.0-dev/loongarch64/clash-libgstreamer-plugins-base1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgstreamer-plugins-base1.0-dev/loongarch64/clash-libgstreamer-plugins-base1.0-dev_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgstreamer1.0-0",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgstreamer1.0-0/loongarch64/clash-libgstreamer1.0-0_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 931910,
+      "sha256": "442ce8ac8f03936fe8facbe758ca1657b842d12ec6b9e60b2fbf8a34a4c35c1c",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgstreamer1.0-0/loongarch64/clash-libgstreamer1.0-0_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgstreamer1.0-0/loongarch64/clash-libgstreamer1.0-0_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libgstreamer1.0-dev",
+      "version": "1.22.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libgstreamer1.0-dev/loongarch64/clash-libgstreamer1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "bytes": 197370,
+      "sha256": "005aedc1623ceccf7b519186cfc65fa613c794cad6a8b2f30d2337b8e7a0a188",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libgstreamer1.0-dev/loongarch64/clash-libgstreamer1.0-dev_v1.22.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libgstreamer1.0-dev/loongarch64/clash-libgstreamer1.0-dev_v1.22.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libitm1",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libitm1/loongarch64/clash-libitm1_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 269572,
+      "sha256": "da790cfbc9338de96790dc9e80bd3adc79d50dea2fad803479a4cc43761d5b1e",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libitm1/loongarch64/clash-libitm1_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libitm1/loongarch64/clash-libitm1_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libjavascriptcoregtk-4.1-0",
+      "version": "2.40.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libjavascriptcoregtk-4.1-0/loongarch64/clash-libjavascriptcoregtk-4.1-0_v2.40.5-1loong1_loongarch64.deb",
+      "bytes": 3237706,
+      "sha256": "985c9cbfc1d9095d1c49fb0490f488004414d8aaaffc6bd4180d3eb0077dd180",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libjavascriptcoregtk-4.1-0/loongarch64/clash-libjavascriptcoregtk-4.1-0_v2.40.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libjavascriptcoregtk-4.1-0/loongarch64/clash-libjavascriptcoregtk-4.1-0_v2.40.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libjavascriptcoregtk-4.1-bin",
+      "version": "2.40.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libjavascriptcoregtk-4.1-bin/loongarch64/clash-libjavascriptcoregtk-4.1-bin_v2.40.5-1loong1_loongarch64.deb",
+      "bytes": 151916,
+      "sha256": "ad71bc3a71e0d56e15378f844670a9a5218c4d1db758ff64df3ee21bfda67cde",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libjavascriptcoregtk-4.1-bin/loongarch64/clash-libjavascriptcoregtk-4.1-bin_v2.40.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libjavascriptcoregtk-4.1-bin/loongarch64/clash-libjavascriptcoregtk-4.1-bin_v2.40.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libjavascriptcoregtk-4.1-dev",
+      "version": "2.40.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libjavascriptcoregtk-4.1-dev/loongarch64/clash-libjavascriptcoregtk-4.1-dev_v2.40.5-1loong1_loongarch64.deb",
+      "bytes": 73788,
+      "sha256": "4ba362c3312178a3981da1ad6956c67b44c9d066e20ff184f77f572687d0189c",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libjavascriptcoregtk-4.1-dev/loongarch64/clash-libjavascriptcoregtk-4.1-dev_v2.40.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libjavascriptcoregtk-4.1-dev/loongarch64/clash-libjavascriptcoregtk-4.1-dev_v2.40.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libsoup-3.0-0",
+      "version": "3.6.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libsoup-3.0-0/loongarch64/clash-libsoup-3.0-0_v3.6.5-1loong1_loongarch64.deb",
+      "bytes": 238392,
+      "sha256": "b5593bbe595fa8e6a25a82dd8eae73a5cf76ff6291cc5f478cb54d078aa1d9aa",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libsoup-3.0-0/loongarch64/clash-libsoup-3.0-0_v3.6.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libsoup-3.0-0/loongarch64/clash-libsoup-3.0-0_v3.6.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libsoup-3.0-data",
+      "version": "3.6.5-1loong1",
+      "architecture": "all",
+      "path": "clash-libsoup-3.0-data/all/clash-libsoup-3.0-data_v3.6.5-1loong1_all.deb",
+      "bytes": 71274,
+      "sha256": "40886e709d2f19a14428b51a9ee5ba74b27090bdaf30fa0a18e269796e1ea044",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libsoup-3.0-data/all/clash-libsoup-3.0-data_v3.6.5-1loong1_all.deb",
+      "checksum_path": "clash-libsoup-3.0-data/all/clash-libsoup-3.0-data_v3.6.5-1loong1_all.deb.sha256"
+    },
+    {
+      "package": "clash-libsoup-3.0-dev",
+      "version": "3.6.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libsoup-3.0-dev/loongarch64/clash-libsoup-3.0-dev_v3.6.5-1loong1_loongarch64.deb",
+      "bytes": 34944,
+      "sha256": "96e27996c40826d9017ab0350cc6353e6b0d97ea36ffbcc4d0102946f59156be",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libsoup-3.0-dev/loongarch64/clash-libsoup-3.0-dev_v3.6.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libsoup-3.0-dev/loongarch64/clash-libsoup-3.0-dev_v3.6.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libssp0",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libssp0/loongarch64/clash-libssp0_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 50912,
+      "sha256": "0dd26d236d72fa79258d84af13d87fd2e95ddcf3cfa44e108ffc3b95610b8779",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libssp0/loongarch64/clash-libssp0_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libssp0/loongarch64/clash-libssp0_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libstdc++-13-dev",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libstdc++-13-dev/loongarch64/clash-libstdc++-13-dev_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 13637186,
+      "sha256": "3d4570d420bfd45385ead85bbe817fb537929201452daf43f11a1004de9bac39",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libstdc%2B%2B-13-dev/loongarch64/clash-libstdc%2B%2B-13-dev_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libstdc++-13-dev/loongarch64/clash-libstdc++-13-dev_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libstdc++6",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libstdc++6/loongarch64/clash-libstdc++6_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 10172422,
+      "sha256": "f7349371e9b0772394d318550adc0bcf40f035b5e16a375b2cc55d781b81b44d",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libstdc%2B%2B6/loongarch64/clash-libstdc%2B%2B6_v13.4.0-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libstdc++6/loongarch64/clash-libstdc++6_v13.4.0-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libwebkit2gtk-4.1-0",
+      "version": "2.40.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libwebkit2gtk-4.1-0/loongarch64/clash-libwebkit2gtk-4.1-0_v2.40.5-1loong1_loongarch64.deb",
+      "bytes": 20724840,
+      "sha256": "36468cd95ef46ac6e44f81356bc656d6cf0c89bf8e8907c5c2a599a62527329d",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libwebkit2gtk-4.1-0/loongarch64/clash-libwebkit2gtk-4.1-0_v2.40.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libwebkit2gtk-4.1-0/loongarch64/clash-libwebkit2gtk-4.1-0_v2.40.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libwebkit2gtk-4.1-data",
+      "version": "2.40.5-1loong1",
+      "architecture": "all",
+      "path": "clash-libwebkit2gtk-4.1-data/all/clash-libwebkit2gtk-4.1-data_v2.40.5-1loong1_all.deb",
+      "bytes": 359890,
+      "sha256": "d3740b5c16c5dab06736aa4cdd6a510e763a1fab1a0ef867281113b1886060ca",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libwebkit2gtk-4.1-data/all/clash-libwebkit2gtk-4.1-data_v2.40.5-1loong1_all.deb",
+      "checksum_path": "clash-libwebkit2gtk-4.1-data/all/clash-libwebkit2gtk-4.1-data_v2.40.5-1loong1_all.deb.sha256"
+    },
+    {
+      "package": "clash-libwebkit2gtk-4.1-dev",
+      "version": "2.40.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libwebkit2gtk-4.1-dev/loongarch64/clash-libwebkit2gtk-4.1-dev_v2.40.5-1loong1_loongarch64.deb",
+      "bytes": 129552,
+      "sha256": "9c905466c9dce252722fcd894806c2bf2ad172d8030f255bd1471cf33ab2d59f",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libwebkit2gtk-4.1-dev/loongarch64/clash-libwebkit2gtk-4.1-dev_v2.40.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libwebkit2gtk-4.1-dev/loongarch64/clash-libwebkit2gtk-4.1-dev_v2.40.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-libwebkit2gtk-4.1-examples",
+      "version": "2.40.5-1loong1",
+      "architecture": "loongarch64",
+      "path": "clash-libwebkit2gtk-4.1-examples/loongarch64/clash-libwebkit2gtk-4.1-examples_v2.40.5-1loong1_loongarch64.deb",
+      "bytes": 103414,
+      "sha256": "ef253d4c45feef9b6c3f5ae3c7717e726d6c2a5c65027ebd1a483f31c6b2415c",
+      "group": "clash-native39",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-libwebkit2gtk-4.1-examples/loongarch64/clash-libwebkit2gtk-4.1-examples_v2.40.5-1loong1_loongarch64.deb",
+      "checksum_path": "clash-libwebkit2gtk-4.1-examples/loongarch64/clash-libwebkit2gtk-4.1-examples_v2.40.5-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-ahash-0.7-dev",
+      "version": "0.7.8-0chinaos1",
+      "architecture": "all",
+      "path": "librust-ahash-0.7-dev/all/librust-ahash-0.7-dev_v0.7.8-0chinaos1_all.deb",
+      "bytes": 39856,
+      "sha256": "7af3ec93db6a534d13468a31b9efbafb86000f22120d26eb599c5acdd81c7c06",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-ahash-0.7-dev/all/librust-ahash-0.7-dev_v0.7.8-0chinaos1_all.deb",
+      "checksum_path": "librust-ahash-0.7-dev/all/librust-ahash-0.7-dev_v0.7.8-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-ahash-dev",
+      "version": "0.8.12-0chinaos1",
+      "architecture": "all",
+      "path": "librust-ahash-dev/all/librust-ahash-dev_v0.8.12-0chinaos1_all.deb",
+      "bytes": 44040,
+      "sha256": "b8534ea13395e11955b467fd91cfc8423c8f02509c16417da77d27d2f15c9e6d",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-ahash-dev/all/librust-ahash-dev_v0.8.12-0chinaos1_all.deb",
+      "checksum_path": "librust-ahash-dev/all/librust-ahash-dev_v0.8.12-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-autocfg-dev",
+      "version": "1.4.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-autocfg-dev/all/librust-autocfg-dev_v1.4.0-0chinaos1_all.deb",
+      "bytes": 20772,
+      "sha256": "b08d078ebaae959e6d9178b8fd837ac48581d3900fdbd837fd5d1a50cb2b00b5",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-autocfg-dev/all/librust-autocfg-dev_v1.4.0-0chinaos1_all.deb",
+      "checksum_path": "librust-autocfg-dev/all/librust-autocfg-dev_v1.4.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-base64-simd-dev",
+      "version": "0.7.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-base64-simd-dev/all/librust-base64-simd-dev_v0.7.0-0chinaos1_all.deb",
+      "bytes": 12264,
+      "sha256": "8ac4b776fb1ed341e247431936a7a1c3c3c4b7560d54c74fe60cbfa808ff524b",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-base64-simd-dev/all/librust-base64-simd-dev_v0.7.0-0chinaos1_all.deb",
+      "checksum_path": "librust-base64-simd-dev/all/librust-base64-simd-dev_v0.7.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bitflags-dev",
+      "version": "2.6.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bitflags-dev/all/librust-bitflags-dev_v2.6.0-0chinaos1_all.deb",
+      "bytes": 47332,
+      "sha256": "d5247ad09f16b99f8464573e34fd54527acd24991fab31ee4468facfab9f3a8b",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bitflags-dev/all/librust-bitflags-dev_v2.6.0-0chinaos1_all.deb",
+      "checksum_path": "librust-bitflags-dev/all/librust-bitflags-dev_v2.6.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bitvec-dev",
+      "version": "1.0.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bitvec-dev/all/librust-bitvec-dev_v1.0.1-0chinaos1_all.deb",
+      "bytes": 211152,
+      "sha256": "983cb828b8fb943e2946f64dfac110edf9194a49ccb6667060b197d22d1cca14",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bitvec-dev/all/librust-bitvec-dev_v1.0.1-0chinaos1_all.deb",
+      "checksum_path": "librust-bitvec-dev/all/librust-bitvec-dev_v1.0.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bytecheck-derive-dev",
+      "version": "0.6.12-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bytecheck-derive-dev/all/librust-bytecheck-derive-dev_v0.6.12-0chinaos1_all.deb",
+      "bytes": 7448,
+      "sha256": "fee83d3cee27d1c6596ba8a635c747cc33d4b8f9bebf6baf126b7b26ee44c4fb",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bytecheck-derive-dev/all/librust-bytecheck-derive-dev_v0.6.12-0chinaos1_all.deb",
+      "checksum_path": "librust-bytecheck-derive-dev/all/librust-bytecheck-derive-dev_v0.6.12-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bytecheck-dev",
+      "version": "0.6.12-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bytecheck-dev/all/librust-bytecheck-dev_v0.6.12-0chinaos1_all.deb",
+      "bytes": 10400,
+      "sha256": "9b940dc47101234d9a4ce91c133dbefd693fa3f2b04457bedbe261ef3ea17cc3",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bytecheck-dev/all/librust-bytecheck-dev_v0.6.12-0chinaos1_all.deb",
+      "checksum_path": "librust-bytecheck-dev/all/librust-bytecheck-dev_v0.6.12-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bytes-dev",
+      "version": "1.9.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bytes-dev/all/librust-bytes-dev_v1.9.0-0chinaos1_all.deb",
+      "bytes": 63580,
+      "sha256": "7467f63693d8c847ab997f2c78fa4cd3e504e4792ccbdf25a64823fd83deb71f",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bytes-dev/all/librust-bytes-dev_v1.9.0-0chinaos1_all.deb",
+      "checksum_path": "librust-bytes-dev/all/librust-bytes-dev_v1.9.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-cfg-if-1-dev",
+      "version": "1.0.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-cfg-if-1-dev/all/librust-cfg-if-1-dev_v1.0.0-0chinaos1_all.deb",
+      "bytes": 10280,
+      "sha256": "0a4c69801916d7fd2ccdbb460f8cd434b26fca6faade6f7cd6d62ed9692642fe",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-cfg-if-1-dev/all/librust-cfg-if-1-dev_v1.0.0-0chinaos1_all.deb",
+      "checksum_path": "librust-cfg-if-1-dev/all/librust-cfg-if-1-dev_v1.0.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-const-str-dev",
+      "version": "1.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-const-str-dev/all/librust-const-str-dev_v1.1.0-0chinaos1_all.deb",
+      "bytes": 48024,
+      "sha256": "08cf1858abc43dd96a5d328f525e07118f47449124ecbbc6d12ef11f9df459d4",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-const-str-dev/all/librust-const-str-dev_v1.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-const-str-dev/all/librust-const-str-dev_v1.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-convert-case-dev",
+      "version": "0.6.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-convert-case-dev/all/librust-convert-case-dev_v0.6.0-0chinaos1_all.deb",
+      "bytes": 20540,
+      "sha256": "28dcfc144812d5046571a2a8a3738c2927868e333d1eb63f8ad844dff1f01938",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-convert-case-dev/all/librust-convert-case-dev_v0.6.0-0chinaos1_all.deb",
+      "checksum_path": "librust-convert-case-dev/all/librust-convert-case-dev_v0.6.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-crossbeam-deque-dev",
+      "version": "0.8.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-crossbeam-deque-dev/all/librust-crossbeam-deque-dev_v0.8.6-0chinaos1_all.deb",
+      "bytes": 24228,
+      "sha256": "06561c5d2daa5c4990d0b2457f5fe95eb56980f78afdd4d826ab3a5a135dcc0d",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-crossbeam-deque-dev/all/librust-crossbeam-deque-dev_v0.8.6-0chinaos1_all.deb",
+      "checksum_path": "librust-crossbeam-deque-dev/all/librust-crossbeam-deque-dev_v0.8.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-crossbeam-epoch-dev",
+      "version": "0.9.18-0chinaos1",
+      "architecture": "all",
+      "path": "librust-crossbeam-epoch-dev/all/librust-crossbeam-epoch-dev_v0.9.18-0chinaos1_all.deb",
+      "bytes": 47472,
+      "sha256": "e592b4ff0f957dfc5d0cc24aedabd2194221ccf7eb74ff8e166dbba62de87b51",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-crossbeam-epoch-dev/all/librust-crossbeam-epoch-dev_v0.9.18-0chinaos1_all.deb",
+      "checksum_path": "librust-crossbeam-epoch-dev/all/librust-crossbeam-epoch-dev_v0.9.18-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-crossbeam-utils-dev",
+      "version": "0.8.21-0chinaos1",
+      "architecture": "all",
+      "path": "librust-crossbeam-utils-dev/all/librust-crossbeam-utils-dev_v0.8.21-0chinaos1_all.deb",
+      "bytes": 44000,
+      "sha256": "d969ed0d71feab5fac33707a2efe8d1e4bd767449fe0a28f079d631a6ae42469",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-crossbeam-utils-dev/all/librust-crossbeam-utils-dev_v0.8.21-0chinaos1_all.deb",
+      "checksum_path": "librust-crossbeam-utils-dev/all/librust-crossbeam-utils-dev_v0.8.21-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-cssparser-color-dev",
+      "version": "0.5.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-cssparser-color-dev/all/librust-cssparser-color-dev_v0.5.0-0chinaos1_all.deb",
+      "bytes": 19328,
+      "sha256": "6bf0e6fd51b3b7af6fd0603d686e59f02eba1968a8f9f086cd25e041502de905",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-cssparser-color-dev/all/librust-cssparser-color-dev_v0.5.0-0chinaos1_all.deb",
+      "checksum_path": "librust-cssparser-color-dev/all/librust-cssparser-color-dev_v0.5.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-cssparser-dev",
+      "version": "0.37.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-cssparser-dev/all/librust-cssparser-dev_v0.37.0-0chinaos1_all.deb",
+      "bytes": 55776,
+      "sha256": "ebfb55ac83a194a613f3119903f4131bc20fb34a182a24363f00237cbc167897",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-cssparser-dev/all/librust-cssparser-dev_v0.37.0-0chinaos1_all.deb",
+      "checksum_path": "librust-cssparser-dev/all/librust-cssparser-dev_v0.37.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-cssparser-macros-dev",
+      "version": "0.7.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-cssparser-macros-dev/all/librust-cssparser-macros-dev_v0.7.0-0chinaos1_all.deb",
+      "bytes": 10152,
+      "sha256": "45ac14bab9672ae8bc1c8ca668e7a2d292fc00e35a361bc8a00c521b4cfc2ae2",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-cssparser-macros-dev/all/librust-cssparser-macros-dev_v0.7.0-0chinaos1_all.deb",
+      "checksum_path": "librust-cssparser-macros-dev/all/librust-cssparser-macros-dev_v0.7.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-dashmap-dev",
+      "version": "5.5.3-0chinaos1",
+      "architecture": "all",
+      "path": "librust-dashmap-dev/all/librust-dashmap-dev_v5.5.3-0chinaos1_all.deb",
+      "bytes": 25624,
+      "sha256": "e9895a92c636c95769590edf2b3bfffd21e17779d671fea256c67dc60a02ff68",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-dashmap-dev/all/librust-dashmap-dev_v5.5.3-0chinaos1_all.deb",
+      "checksum_path": "librust-dashmap-dev/all/librust-dashmap-dev_v5.5.3-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-data-encoding-dev",
+      "version": "2.6.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-data-encoding-dev/all/librust-data-encoding-dev_v2.6.0-0chinaos1_all.deb",
+      "bytes": 21736,
+      "sha256": "20edc9e0061f1a76761437fb58993bae7109326ef82b451748c3f76c76d20b27",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-data-encoding-dev/all/librust-data-encoding-dev_v2.6.0-0chinaos1_all.deb",
+      "checksum_path": "librust-data-encoding-dev/all/librust-data-encoding-dev_v2.6.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-data-url-dev",
+      "version": "0.1.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-data-url-dev/all/librust-data-url-dev_v0.1.1-0chinaos1_all.deb",
+      "bytes": 19044,
+      "sha256": "b581bf0b56f65aea49e1dd23c2f5f52e4c8943921812a2e9f5d30324df15ad30",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-data-url-dev/all/librust-data-url-dev_v0.1.1-0chinaos1_all.deb",
+      "checksum_path": "librust-data-url-dev/all/librust-data-url-dev_v0.1.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-dtoa-dev",
+      "version": "1.0.9-0chinaos1",
+      "architecture": "all",
+      "path": "librust-dtoa-dev/all/librust-dtoa-dev_v1.0.9-0chinaos1_all.deb",
+      "bytes": 18932,
+      "sha256": "c0ff0ce1f93953a26fd38a0d423bad07ab251dab869bd3fb2966eca168888764",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-dtoa-dev/all/librust-dtoa-dev_v1.0.9-0chinaos1_all.deb",
+      "checksum_path": "librust-dtoa-dev/all/librust-dtoa-dev_v1.0.9-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-dtoa-short-dev",
+      "version": "0.3.5-0chinaos1",
+      "architecture": "all",
+      "path": "librust-dtoa-short-dev/all/librust-dtoa-short-dev_v0.3.5-0chinaos1_all.deb",
+      "bytes": 10352,
+      "sha256": "eeb31b212c1b3642a52f86f8749f4f066d617042d92524c07c85cb54d10ab2e6",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-dtoa-short-dev/all/librust-dtoa-short-dev_v0.3.5-0chinaos1_all.deb",
+      "checksum_path": "librust-dtoa-short-dev/all/librust-dtoa-short-dev_v0.3.5-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-either-dev",
+      "version": "1.13.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-either-dev/all/librust-either-dev_v1.13.0-0chinaos1_all.deb",
+      "bytes": 21276,
+      "sha256": "99d30baf97a52a91a103cb4065649a27566194e9f319b76da69755bf746515f6",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-either-dev/all/librust-either-dev_v1.13.0-0chinaos1_all.deb",
+      "checksum_path": "librust-either-dev/all/librust-either-dev_v1.13.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-equivalent-dev",
+      "version": "1.0.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-equivalent-dev/all/librust-equivalent-dev_v1.0.1-0chinaos1_all.deb",
+      "bytes": 8784,
+      "sha256": "ee8b94ee990818320c9907cd4e9b39fdd2ba948ae14b9adc92515f761f846d4a",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-equivalent-dev/all/librust-equivalent-dev_v1.0.1-0chinaos1_all.deb",
+      "checksum_path": "librust-equivalent-dev/all/librust-equivalent-dev_v1.0.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-fastrand-dev",
+      "version": "2.3.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-fastrand-dev/all/librust-fastrand-dev_v2.3.0-0chinaos1_all.deb",
+      "bytes": 17360,
+      "sha256": "24471e4dd088d205c7fef10b42a2a0acc17afd1e3216e9b7afa0e0e30fc51795",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-fastrand-dev/all/librust-fastrand-dev_v2.3.0-0chinaos1_all.deb",
+      "checksum_path": "librust-fastrand-dev/all/librust-fastrand-dev_v2.3.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-funty-dev",
+      "version": "2.0.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-funty-dev/all/librust-funty-dev_v2.0.0-0chinaos1_all.deb",
+      "bytes": 14464,
+      "sha256": "3aa70601a2ced0a247683779d7635417f8e9f6ab9e123812b04af58e6c925db8",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-funty-dev/all/librust-funty-dev_v2.0.0-0chinaos1_all.deb",
+      "checksum_path": "librust-funty-dev/all/librust-funty-dev_v2.0.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-getrandom-0.2-dev",
+      "version": "0.2.15-0chinaos1",
+      "architecture": "all",
+      "path": "librust-getrandom-0.2-dev/all/librust-getrandom-0.2-dev_v0.2.15-0chinaos1_all.deb",
+      "bytes": 39028,
+      "sha256": "99c0c1c1796130c9c8467d1207af9103b5e020aa176a90d4fe9a4b71b76ae47e",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-getrandom-0.2-dev/all/librust-getrandom-0.2-dev_v0.2.15-0chinaos1_all.deb",
+      "checksum_path": "librust-getrandom-0.2-dev/all/librust-getrandom-0.2-dev_v0.2.15-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-getrandom-dev",
+      "version": "0.3.3-0chinaos1",
+      "architecture": "all",
+      "path": "librust-getrandom-dev/all/librust-getrandom-dev_v0.3.3-0chinaos1_all.deb",
+      "bytes": 50924,
+      "sha256": "72de4214f2adf515e7d084869298fb807cce659fc5b645866de044f9e8219d55",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-getrandom-dev/all/librust-getrandom-dev_v0.3.3-0chinaos1_all.deb",
+      "checksum_path": "librust-getrandom-dev/all/librust-getrandom-dev_v0.3.3-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-hashbrown-0.12-dev",
+      "version": "0.12.3-0chinaos1",
+      "architecture": "all",
+      "path": "librust-hashbrown-0.12-dev/all/librust-hashbrown-0.12-dev_v0.12.3-0chinaos1_all.deb",
+      "bytes": 90588,
+      "sha256": "c8a6e547460405cd1840d97b660b2ad1f3d534c14e4fdf1a090cc63bc30001d5",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-hashbrown-0.12-dev/all/librust-hashbrown-0.12-dev_v0.12.3-0chinaos1_all.deb",
+      "checksum_path": "librust-hashbrown-0.12-dev/all/librust-hashbrown-0.12-dev_v0.12.3-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-hashbrown-0.14-dev",
+      "version": "0.14.5-0chinaos1",
+      "architecture": "all",
+      "path": "librust-hashbrown-0.14-dev/all/librust-hashbrown-0.14-dev_v0.14.5-0chinaos1_all.deb",
+      "bytes": 119960,
+      "sha256": "e2f3ef9341303d9ca30a5e35b6de1f5053b27f6b36c42e48ae78dfd763e71f1a",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-hashbrown-0.14-dev/all/librust-hashbrown-0.14-dev_v0.14.5-0chinaos1_all.deb",
+      "checksum_path": "librust-hashbrown-0.14-dev/all/librust-hashbrown-0.14-dev_v0.14.5-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-hashbrown-dev",
+      "version": "0.15.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-hashbrown-dev/all/librust-hashbrown-dev_v0.15.2-0chinaos1_all.deb",
+      "bytes": 118584,
+      "sha256": "9540cb98db790b3a9a4d116e9eab60bc4028685120275e7edfb8687cff56bfe7",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-hashbrown-dev/all/librust-hashbrown-dev_v0.15.2-0chinaos1_all.deb",
+      "checksum_path": "librust-hashbrown-dev/all/librust-hashbrown-dev_v0.15.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-indexmap-dev",
+      "version": "2.7.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-indexmap-dev/all/librust-indexmap-dev_v2.7.0-0chinaos1_all.deb",
+      "bytes": 74188,
+      "sha256": "e976c1f72222e03665e2e7b4e9f680c1dadb9891899adfef68698287903a3f79",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-indexmap-dev/all/librust-indexmap-dev_v2.7.0-0chinaos1_all.deb",
+      "checksum_path": "librust-indexmap-dev/all/librust-indexmap-dev_v2.7.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-itertools-dev",
+      "version": "0.10.5-0chinaos1",
+      "architecture": "all",
+      "path": "librust-itertools-dev/all/librust-itertools-dev_v0.10.5-0chinaos1_all.deb",
+      "bytes": 111464,
+      "sha256": "82410386d7b806ccfe4dec192158121a799ae6264db76b01e01ab8265c286e6c",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-itertools-dev/all/librust-itertools-dev_v0.10.5-0chinaos1_all.deb",
+      "checksum_path": "librust-itertools-dev/all/librust-itertools-dev_v0.10.5-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-itoa-dev",
+      "version": "1.0.14-0chinaos1",
+      "architecture": "all",
+      "path": "librust-itoa-dev/all/librust-itoa-dev_v1.0.14-0chinaos1_all.deb",
+      "bytes": 13776,
+      "sha256": "106b2e3499f21d5874fdbd292ba44eaf22ebb635e9b59b203809e3fa00db334b",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-itoa-dev/all/librust-itoa-dev_v1.0.14-0chinaos1_all.deb",
+      "checksum_path": "librust-itoa-dev/all/librust-itoa-dev_v1.0.14-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-lazy-static-dev",
+      "version": "1.5.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-lazy-static-dev/all/librust-lazy-static-dev_v1.5.0-0chinaos1_all.deb",
+      "bytes": 16988,
+      "sha256": "5d2f9956a6f4313a6ccab5cb1f7ae30794dc59c8f927324e20ada83f9c1f919d",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-lazy-static-dev/all/librust-lazy-static-dev_v1.5.0-0chinaos1_all.deb",
+      "checksum_path": "librust-lazy-static-dev/all/librust-lazy-static-dev_v1.5.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-libc-dev",
+      "version": "0.2.186-0chinaos1",
+      "architecture": "all",
+      "path": "librust-libc-dev/all/librust-libc-dev_v0.2.186-0chinaos1_all.deb",
+      "bytes": 469008,
+      "sha256": "4ac40df397016ab73e56860b4fc68c859dfe8a34e7d84d071085618ff44883d2",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-libc-dev/all/librust-libc-dev_v0.2.186-0chinaos1_all.deb",
+      "checksum_path": "librust-libc-dev/all/librust-libc-dev_v0.2.186-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-lightningcss-dev",
+      "version": "1.0.0~alpha.72+1.33.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-lightningcss-dev/all/librust-lightningcss-dev_v1.0.0~alpha.72+1.33.0-0chinaos1_all.deb",
+      "bytes": 439288,
+      "sha256": "b018910e8f1ec3891b725553ad72a9d4c23e71e56a02f55cd3ed913a14bed500",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-lightningcss-dev/all/librust-lightningcss-dev_v1.0.0~alpha.72%2B1.33.0-0chinaos1_all.deb",
+      "checksum_path": "librust-lightningcss-dev/all/librust-lightningcss-dev_v1.0.0~alpha.72+1.33.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-lock-api-dev",
+      "version": "0.4.12-0chinaos1",
+      "architecture": "all",
+      "path": "librust-lock-api-dev/all/librust-lock-api-dev_v0.4.12-0chinaos1_all.deb",
+      "bytes": 24144,
+      "sha256": "c9c3ddfe5ba253af428d482fca5ad779a5649eee42f462591e8de82ba58633ab",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-lock-api-dev/all/librust-lock-api-dev_v0.4.12-0chinaos1_all.deb",
+      "checksum_path": "librust-lock-api-dev/all/librust-lock-api-dev_v0.4.12-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-log-dev",
+      "version": "0.4.22-0chinaos1",
+      "architecture": "all",
+      "path": "librust-log-dev/all/librust-log-dev_v0.4.22-0chinaos1_all.deb",
+      "bytes": 43832,
+      "sha256": "b225a91d607097e2033d9ccf1307ad6262c8ffb255c413e6f9a074bea89c185c",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-log-dev/all/librust-log-dev_v0.4.22-0chinaos1_all.deb",
+      "checksum_path": "librust-log-dev/all/librust-log-dev_v0.4.22-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-matches-dev",
+      "version": "0.1.10-0chinaos1",
+      "architecture": "all",
+      "path": "librust-matches-dev/all/librust-matches-dev_v0.1.10-0chinaos1_all.deb",
+      "bytes": 4824,
+      "sha256": "bd41428045f38e6f223ec6fb2ea3e6e6d9e279c1a38b0434c5368206f032bed7",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-matches-dev/all/librust-matches-dev_v0.1.10-0chinaos1_all.deb",
+      "checksum_path": "librust-matches-dev/all/librust-matches-dev_v0.1.10-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-memchr-dev",
+      "version": "2.7.4-0chinaos1",
+      "architecture": "all",
+      "path": "librust-memchr-dev/all/librust-memchr-dev_v2.7.4-0chinaos1_all.deb",
+      "bytes": 78520,
+      "sha256": "fa5994f5b8b8181374c4de985180cea62bef08bc7f47100e391f8172ff169afa",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-memchr-dev/all/librust-memchr-dev_v2.7.4-0chinaos1_all.deb",
+      "checksum_path": "librust-memchr-dev/all/librust-memchr-dev_v2.7.4-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-once-cell-dev",
+      "version": "1.20.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-once-cell-dev/all/librust-once-cell-dev_v1.20.2-0chinaos1_all.deb",
+      "bytes": 35456,
+      "sha256": "111725031977195b8cf3f7834c08ca487b851a6e1649173bccbbf13b1328d3a4",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-once-cell-dev/all/librust-once-cell-dev_v1.20.2-0chinaos1_all.deb",
+      "checksum_path": "librust-once-cell-dev/all/librust-once-cell-dev_v1.20.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-outref-dev",
+      "version": "0.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-outref-dev/all/librust-outref-dev_v0.1.0-0chinaos1_all.deb",
+      "bytes": 5284,
+      "sha256": "2cfbdd74136cebb24bf4c46d5f56bb4e2c57a038e02ffb261999413dbb845a0e",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-outref-dev/all/librust-outref-dev_v0.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-outref-dev/all/librust-outref-dev_v0.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-parcel-sourcemap-dev",
+      "version": "2.1.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-parcel-sourcemap-dev/all/librust-parcel-sourcemap-dev_v2.1.1-0chinaos1_all.deb",
+      "bytes": 11852,
+      "sha256": "287a9bbbcf5299739c0c8f3c699cb66a72ae868c25f8b01dca59f1ae401b3e30",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-parcel-sourcemap-dev/all/librust-parcel-sourcemap-dev_v2.1.1-0chinaos1_all.deb",
+      "checksum_path": "librust-parcel-sourcemap-dev/all/librust-parcel-sourcemap-dev_v2.1.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-parking-lot-core-dev",
+      "version": "0.9.10-0chinaos1",
+      "architecture": "all",
+      "path": "librust-parking-lot-core-dev/all/librust-parking-lot-core-dev_v0.9.10-0chinaos1_all.deb",
+      "bytes": 33996,
+      "sha256": "9f3cb9086f4745dde079b239bda49dc4667edcafa15cdccae77a1b4f8a55689d",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-parking-lot-core-dev/all/librust-parking-lot-core-dev_v0.9.10-0chinaos1_all.deb",
+      "checksum_path": "librust-parking-lot-core-dev/all/librust-parking-lot-core-dev_v0.9.10-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-pastey-dev",
+      "version": "0.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-pastey-dev/all/librust-pastey-dev_v0.1.0-0chinaos1_all.deb",
+      "bytes": 19024,
+      "sha256": "c65ecd17e5ae62d20dcadc67bb55901c68ccbcbaea5dbb7fa35c6e2f288781ca",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-pastey-dev/all/librust-pastey-dev_v0.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-pastey-dev/all/librust-pastey-dev_v0.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-pathdiff-dev",
+      "version": "0.2.3-0chinaos1",
+      "architecture": "all",
+      "path": "librust-pathdiff-dev/all/librust-pathdiff-dev_v0.2.3-0chinaos1_all.deb",
+      "bytes": 9688,
+      "sha256": "0519ed3f7fd73dcbc454108c8abb6473a5c8f0ec13596a0707c5c8f4cb72e43f",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-pathdiff-dev/all/librust-pathdiff-dev_v0.2.3-0chinaos1_all.deb",
+      "checksum_path": "librust-pathdiff-dev/all/librust-pathdiff-dev_v0.2.3-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-0.11-dev",
+      "version": "0.11.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-0.11-dev/all/librust-phf-0.11-dev_v0.11.2-0chinaos1_all.deb",
+      "bytes": 23040,
+      "sha256": "61722d198a8bbf27d7a6c2fcd334f052fe240fd688a965823313664e09e54555",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-0.11-dev/all/librust-phf-0.11-dev_v0.11.2-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-0.11-dev/all/librust-phf-0.11-dev_v0.11.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-codegen-dev",
+      "version": "0.11.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-codegen-dev/all/librust-phf-codegen-dev_v0.11.2-0chinaos1_all.deb",
+      "bytes": 14656,
+      "sha256": "90d5ba88059ee1c4b1dad772c760d7f770ea61768041eb4e61ed3db3e3d74235",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-codegen-dev/all/librust-phf-codegen-dev_v0.11.2-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-codegen-dev/all/librust-phf-codegen-dev_v0.11.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-dev",
+      "version": "0.13.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-dev/all/librust-phf-dev_v0.13.1-0chinaos1_all.deb",
+      "bytes": 25824,
+      "sha256": "c96cc3c1a2cdeec28adb4cd0a09fae2fe1932e5388dfd1c7523f3dbed55f0b5e",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-dev/all/librust-phf-dev_v0.13.1-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-dev/all/librust-phf-dev_v0.13.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-generator-0.11-dev",
+      "version": "0.11.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-generator-0.11-dev/all/librust-phf-generator-0.11-dev_v0.11.2-0chinaos1_all.deb",
+      "bytes": 16304,
+      "sha256": "5ca265f5cd8753ef1fed4298aeb7eca7e5ee8ac9a046564b40ce7c6d547004f8",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-generator-0.11-dev/all/librust-phf-generator-0.11-dev_v0.11.2-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-generator-0.11-dev/all/librust-phf-generator-0.11-dev_v0.11.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-generator-dev",
+      "version": "0.13.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-generator-dev/all/librust-phf-generator-dev_v0.13.1-0chinaos1_all.deb",
+      "bytes": 17552,
+      "sha256": "fdd63b8381f34605c667011c58515bb44b268f481f5c84c5e9705b71d7bdc2bd",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-generator-dev/all/librust-phf-generator-dev_v0.13.1-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-generator-dev/all/librust-phf-generator-dev_v0.13.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-macros-dev",
+      "version": "0.13.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-macros-dev/all/librust-phf-macros-dev_v0.13.1-0chinaos1_all.deb",
+      "bytes": 22748,
+      "sha256": "3c91194014affd6034f9d3358922ce45353c991d8b354c60d84215365672f4c2",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-macros-dev/all/librust-phf-macros-dev_v0.13.1-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-macros-dev/all/librust-phf-macros-dev_v0.13.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-shared-0.11-dev",
+      "version": "0.11.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-shared-0.11-dev/all/librust-phf-shared-0.11-dev_v0.11.2-0chinaos1_all.deb",
+      "bytes": 15932,
+      "sha256": "354e7f722357094ffc2ecd96c01031c500b6a35dec5f3c3eae5d5b2890e367f2",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-shared-0.11-dev/all/librust-phf-shared-0.11-dev_v0.11.2-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-shared-0.11-dev/all/librust-phf-shared-0.11-dev_v0.11.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-phf-shared-dev",
+      "version": "0.13.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-phf-shared-dev/all/librust-phf-shared-dev_v0.13.1-0chinaos1_all.deb",
+      "bytes": 17468,
+      "sha256": "4ebe6714a7f618752b9413a8a946b72a842869ba0a9f15a5e56249bc3d5821c4",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-phf-shared-dev/all/librust-phf-shared-dev_v0.13.1-0chinaos1_all.deb",
+      "checksum_path": "librust-phf-shared-dev/all/librust-phf-shared-dev_v0.13.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-precomputed-hash-dev",
+      "version": "0.1.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-precomputed-hash-dev/all/librust-precomputed-hash-dev_v0.1.1-0chinaos1_all.deb",
+      "bytes": 3596,
+      "sha256": "4ce6d92693c9ae2321637d62ee7c8bc6fbcff91a4d89609c8ca17944145ac9db",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-precomputed-hash-dev/all/librust-precomputed-hash-dev_v0.1.1-0chinaos1_all.deb",
+      "checksum_path": "librust-precomputed-hash-dev/all/librust-precomputed-hash-dev_v0.1.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-proc-macro2-dev",
+      "version": "1.0.106-0chinaos1",
+      "architecture": "all",
+      "path": "librust-proc-macro2-dev/all/librust-proc-macro2-dev_v1.0.106-0chinaos1_all.deb",
+      "bytes": 57992,
+      "sha256": "aa9d35039ff02de7788690a3c01c01e2c9231654e2b65a013172f501f1e68d01",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-proc-macro2-dev/all/librust-proc-macro2-dev_v1.0.106-0chinaos1_all.deb",
+      "checksum_path": "librust-proc-macro2-dev/all/librust-proc-macro2-dev_v1.0.106-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-ptr-meta-derive-dev",
+      "version": "0.1.4-0chinaos1",
+      "architecture": "all",
+      "path": "librust-ptr-meta-derive-dev/all/librust-ptr-meta-derive-dev_v0.1.4-0chinaos1_all.deb",
+      "bytes": 4348,
+      "sha256": "8ac728706d02169f9055a0a5a9caa7da96ab7922cb79db83b8c13d710258cc6b",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-ptr-meta-derive-dev/all/librust-ptr-meta-derive-dev_v0.1.4-0chinaos1_all.deb",
+      "checksum_path": "librust-ptr-meta-derive-dev/all/librust-ptr-meta-derive-dev_v0.1.4-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-ptr-meta-dev",
+      "version": "0.1.4-0chinaos1",
+      "architecture": "all",
+      "path": "librust-ptr-meta-dev/all/librust-ptr-meta-dev_v0.1.4-0chinaos1_all.deb",
+      "bytes": 7960,
+      "sha256": "16cdbd71fccfddbbf839f4fbbb98d1b0ed8e265ad1b6626dfb48da7d12d9e57d",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-ptr-meta-dev/all/librust-ptr-meta-dev_v0.1.4-0chinaos1_all.deb",
+      "checksum_path": "librust-ptr-meta-dev/all/librust-ptr-meta-dev_v0.1.4-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-quote-dev",
+      "version": "1.0.37-0chinaos1",
+      "architecture": "all",
+      "path": "librust-quote-dev/all/librust-quote-dev_v1.0.37-0chinaos1_all.deb",
+      "bytes": 31448,
+      "sha256": "269159b4f67fa9f637708f734be0c25562aa8966c0de8b4592e875cf8ab8f6aa",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-quote-dev/all/librust-quote-dev_v1.0.37-0chinaos1_all.deb",
+      "checksum_path": "librust-quote-dev/all/librust-quote-dev_v1.0.37-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-r-efi-dev",
+      "version": "5.3.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-r-efi-dev/all/librust-r-efi-dev_v5.3.0-0chinaos1_all.deb",
+      "bytes": 64652,
+      "sha256": "1c647e68e07d69973e2006f00aa8c1fe08c833f919cd3d71fdb070a08a1b0ff7",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-r-efi-dev/all/librust-r-efi-dev_v5.3.0-0chinaos1_all.deb",
+      "checksum_path": "librust-r-efi-dev/all/librust-r-efi-dev_v5.3.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-radium-dev",
+      "version": "0.7.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-radium-dev/all/librust-radium-dev_v0.7.0-0chinaos1_all.deb",
+      "bytes": 12880,
+      "sha256": "2f7d8093c1c97ea5fdb0d3c01225ef14350a0eaa3dcb7d3d718533a73e64ef8e",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-radium-dev/all/librust-radium-dev_v0.7.0-0chinaos1_all.deb",
+      "checksum_path": "librust-radium-dev/all/librust-radium-dev_v0.7.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rand-core-dev",
+      "version": "0.6.4-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rand-core-dev/all/librust-rand-core-dev_v0.6.4-0chinaos1_all.deb",
+      "bytes": 24528,
+      "sha256": "d43ef509619e5ed5c0d0c2151923a3f4fadae019b1a395096bad466b30eaabf0",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rand-core-dev/all/librust-rand-core-dev_v0.6.4-0chinaos1_all.deb",
+      "checksum_path": "librust-rand-core-dev/all/librust-rand-core-dev_v0.6.4-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rand-dev",
+      "version": "0.8.5-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rand-dev/all/librust-rand-dev_v0.8.5-0chinaos1_all.deb",
+      "bytes": 83132,
+      "sha256": "7fda95f4e852768f6e26068e5e3f37087755c72d78963a5d6b01a7f03f42fd63",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rand-dev/all/librust-rand-dev_v0.8.5-0chinaos1_all.deb",
+      "checksum_path": "librust-rand-dev/all/librust-rand-dev_v0.8.5-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rayon-core-dev",
+      "version": "1.12.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rayon-core-dev/all/librust-rayon-core-dev_v1.12.1-0chinaos1_all.deb",
+      "bytes": 67856,
+      "sha256": "9643730a994032937029b79a64f6f7192a4a798db0ba1b357e7090b6c4afc31a",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rayon-core-dev/all/librust-rayon-core-dev_v1.12.1-0chinaos1_all.deb",
+      "checksum_path": "librust-rayon-core-dev/all/librust-rayon-core-dev_v1.12.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rayon-dev",
+      "version": "1.10.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rayon-dev/all/librust-rayon-dev_v1.10.0-0chinaos1_all.deb",
+      "bytes": 166756,
+      "sha256": "e112b17034631e15b55543671599d590728d7634197fea1e6c5cb9e898221811",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rayon-dev/all/librust-rayon-dev_v1.10.0-0chinaos1_all.deb",
+      "checksum_path": "librust-rayon-dev/all/librust-rayon-dev_v1.10.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-redox-syscall-dev",
+      "version": "0.5.8-0chinaos1",
+      "architecture": "all",
+      "path": "librust-redox-syscall-dev/all/librust-redox-syscall-dev_v0.5.8-0chinaos1_all.deb",
+      "bytes": 28548,
+      "sha256": "c5bf77528afca2123c14caa597a5840319d6ab96048763ac9c616a853687dcce",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-redox-syscall-dev/all/librust-redox-syscall-dev_v0.5.8-0chinaos1_all.deb",
+      "checksum_path": "librust-redox-syscall-dev/all/librust-redox-syscall-dev_v0.5.8-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rend-dev",
+      "version": "0.4.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rend-dev/all/librust-rend-dev_v0.4.2-0chinaos1_all.deb",
+      "bytes": 11672,
+      "sha256": "14b25f8a4fac0e6e208fb15ff42c99464548c5b59aeac45e5923157855edfed4",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rend-dev/all/librust-rend-dev_v0.4.2-0chinaos1_all.deb",
+      "checksum_path": "librust-rend-dev/all/librust-rend-dev_v0.4.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rkyv-derive-dev",
+      "version": "0.7.45-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rkyv-derive-dev/all/librust-rkyv-derive-dev_v0.7.45-0chinaos1_all.deb",
+      "bytes": 19060,
+      "sha256": "77df06a30439cdb04e59bb9f4857ad4dbf7944cbd02d55dd6c695d1b0565cdb0",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rkyv-derive-dev/all/librust-rkyv-derive-dev_v0.7.45-0chinaos1_all.deb",
+      "checksum_path": "librust-rkyv-derive-dev/all/librust-rkyv-derive-dev_v0.7.45-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rkyv-dev",
+      "version": "0.7.45-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rkyv-dev/all/librust-rkyv-dev_v0.7.45-0chinaos1_all.deb",
+      "bytes": 107136,
+      "sha256": "bae6433e114b14b76230be62e4bc1232d1cf81f68365dc729e0db81be55019ac",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rkyv-dev/all/librust-rkyv-dev_v0.7.45-0chinaos1_all.deb",
+      "checksum_path": "librust-rkyv-dev/all/librust-rkyv-dev_v0.7.45-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rustc-hash-dev",
+      "version": "2.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rustc-hash-dev/all/librust-rustc-hash-dev_v2.1.0-0chinaos1_all.deb",
+      "bytes": 15732,
+      "sha256": "a4d271bd4eef3fee1cfcacf7952aa3b0731e756ea5966add7d7e07107332c0e6",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rustc-hash-dev/all/librust-rustc-hash-dev_v2.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-rustc-hash-dev/all/librust-rustc-hash-dev_v2.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-scopeguard-dev",
+      "version": "1.2.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-scopeguard-dev/all/librust-scopeguard-dev_v1.2.0-0chinaos1_all.deb",
+      "bytes": 14060,
+      "sha256": "cf7f3afa0f2d79ad877442d0535fe46fbf7a0ad56885c849e4976090094226f1",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-scopeguard-dev/all/librust-scopeguard-dev_v1.2.0-0chinaos1_all.deb",
+      "checksum_path": "librust-scopeguard-dev/all/librust-scopeguard-dev_v1.2.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-seahash-dev",
+      "version": "4.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-seahash-dev/all/librust-seahash-dev_v4.1.0-0chinaos1_all.deb",
+      "bytes": 33312,
+      "sha256": "dd82eccf6380061c1a5a472ea200a6978c7bf597361f0267c7b820195ff5dc8a",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-seahash-dev/all/librust-seahash-dev_v4.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-seahash-dev/all/librust-seahash-dev_v4.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-serde-content-dev",
+      "version": "0.1.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-serde-content-dev/all/librust-serde-content-dev_v0.1.2-0chinaos1_all.deb",
+      "bytes": 29296,
+      "sha256": "8b621d5d098b54270d6835592949092abd4a055c40dd0df35b6b79fced5bcf91",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-serde-content-dev/all/librust-serde-content-dev_v0.1.2-0chinaos1_all.deb",
+      "checksum_path": "librust-serde-content-dev/all/librust-serde-content-dev_v0.1.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-serde-core-dev",
+      "version": "1.0.228-0chinaos1",
+      "architecture": "all",
+      "path": "librust-serde-core-dev/all/librust-serde-core-dev_v1.0.228-0chinaos1_all.deb",
+      "bytes": 57796,
+      "sha256": "f8e217257359b017a2b35f89e266e5d8bde1e780572e847ec04aa54ed38d33a9",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-serde-core-dev/all/librust-serde-core-dev_v1.0.228-0chinaos1_all.deb",
+      "checksum_path": "librust-serde-core-dev/all/librust-serde-core-dev_v1.0.228-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-serde-derive-dev",
+      "version": "1.0.228-0chinaos1",
+      "architecture": "all",
+      "path": "librust-serde-derive-dev/all/librust-serde-derive-dev_v1.0.228-0chinaos1_all.deb",
+      "bytes": 58060,
+      "sha256": "9d205a5a040d517b81603ea50d1724ed54b99d3ceb1d53ff10f3f4648979b8e3",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-serde-derive-dev/all/librust-serde-derive-dev_v1.0.228-0chinaos1_all.deb",
+      "checksum_path": "librust-serde-derive-dev/all/librust-serde-derive-dev_v1.0.228-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-serde-dev",
+      "version": "1.0.228-0chinaos1",
+      "architecture": "all",
+      "path": "librust-serde-dev/all/librust-serde-dev_v1.0.228-0chinaos1_all.deb",
+      "bytes": 74952,
+      "sha256": "7d0796522c3df84b7c5ea9ec099cd9494c6f3c0df22e33efb93867461cad5899",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-serde-dev/all/librust-serde-dev_v1.0.228-0chinaos1_all.deb",
+      "checksum_path": "librust-serde-dev/all/librust-serde-dev_v1.0.228-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-serde-json-dev",
+      "version": "1.0.149-0chinaos1",
+      "architecture": "all",
+      "path": "librust-serde-json-dev/all/librust-serde-json-dev_v1.0.149-0chinaos1_all.deb",
+      "bytes": 143488,
+      "sha256": "6572a1b2104a01d9245e4ad9494fc966fb0bb4abe708156548299c61b2438c36",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-serde-json-dev/all/librust-serde-json-dev_v1.0.149-0chinaos1_all.deb",
+      "checksum_path": "librust-serde-json-dev/all/librust-serde-json-dev_v1.0.149-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-simd-abstraction-dev",
+      "version": "0.7.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-simd-abstraction-dev/all/librust-simd-abstraction-dev_v0.7.1-0chinaos1_all.deb",
+      "bytes": 11628,
+      "sha256": "12da9634895bce70f3b5af83ecbef37767e2d31b2e3c79197f9d98001acb4671",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-simd-abstraction-dev/all/librust-simd-abstraction-dev_v0.7.1-0chinaos1_all.deb",
+      "checksum_path": "librust-simd-abstraction-dev/all/librust-simd-abstraction-dev_v0.7.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-simdutf8-dev",
+      "version": "0.1.5-0chinaos1",
+      "architecture": "all",
+      "path": "librust-simdutf8-dev/all/librust-simdutf8-dev_v0.1.5-0chinaos1_all.deb",
+      "bytes": 28572,
+      "sha256": "1eeb9e42e78b075a074dc55beb9520bc8a8cee786a96ef5041284c81b868ca75",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-simdutf8-dev/all/librust-simdutf8-dev_v0.1.5-0chinaos1_all.deb",
+      "checksum_path": "librust-simdutf8-dev/all/librust-simdutf8-dev_v0.1.5-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-siphasher-0.3-dev",
+      "version": "0.3.11-0chinaos1",
+      "architecture": "all",
+      "path": "librust-siphasher-0.3-dev/all/librust-siphasher-0.3-dev_v0.3.11-0chinaos1_all.deb",
+      "bytes": 12512,
+      "sha256": "5ec3389058e0133d1ef16dbeb47ad6c7efdbe9ff54f34d57660d86d9acd692bf",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-siphasher-0.3-dev/all/librust-siphasher-0.3-dev_v0.3.11-0chinaos1_all.deb",
+      "checksum_path": "librust-siphasher-0.3-dev/all/librust-siphasher-0.3-dev_v0.3.11-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-siphasher-dev",
+      "version": "1.0.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-siphasher-dev/all/librust-siphasher-dev_v1.0.2-0chinaos1_all.deb",
+      "bytes": 13572,
+      "sha256": "b78d6aa5deb7e011fb0a5c00a93a5708bc2a16b29559157282abe9281543b357",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-siphasher-dev/all/librust-siphasher-dev_v1.0.2-0chinaos1_all.deb",
+      "checksum_path": "librust-siphasher-dev/all/librust-siphasher-dev_v1.0.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-smallvec-dev",
+      "version": "1.13.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-smallvec-dev/all/librust-smallvec-dev_v1.13.2-0chinaos1_all.deb",
+      "bytes": 36612,
+      "sha256": "be7e34359d063229c6c88d7e08a6ba333776e98c80b5a9d3c505c086212fc5d8",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-smallvec-dev/all/librust-smallvec-dev_v1.13.2-0chinaos1_all.deb",
+      "checksum_path": "librust-smallvec-dev/all/librust-smallvec-dev_v1.13.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-syn-1-dev",
+      "version": "1.0.109-0chinaos1",
+      "architecture": "all",
+      "path": "librust-syn-1-dev/all/librust-syn-1-dev_v1.0.109-0chinaos1_all.deb",
+      "bytes": 212344,
+      "sha256": "1323a82d33cba1e9d20e7e0b5f5d3bc36fb467e01a82b64bdb541b31995758e1",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-syn-1-dev/all/librust-syn-1-dev_v1.0.109-0chinaos1_all.deb",
+      "checksum_path": "librust-syn-1-dev/all/librust-syn-1-dev_v1.0.109-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-syn-dev",
+      "version": "2.0.90-0chinaos1",
+      "architecture": "all",
+      "path": "librust-syn-dev/all/librust-syn-dev_v2.0.90-0chinaos1_all.deb",
+      "bytes": 259112,
+      "sha256": "3b8469c851b23435afba5c4dc52f39f9f67e5605862a99de4aa324edc84521b5",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-syn-dev/all/librust-syn-dev_v2.0.90-0chinaos1_all.deb",
+      "checksum_path": "librust-syn-dev/all/librust-syn-dev_v2.0.90-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-tap-dev",
+      "version": "1.0.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-tap-dev/all/librust-tap-dev_v1.0.1-0chinaos1_all.deb",
+      "bytes": 13312,
+      "sha256": "2cf05343caadb6d8465927b39a0ec1223e88d7d94029bfe9e684c8c2bc9a861c",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-tap-dev/all/librust-tap-dev_v1.0.1-0chinaos1_all.deb",
+      "checksum_path": "librust-tap-dev/all/librust-tap-dev_v1.0.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-tinyvec-dev",
+      "version": "1.8.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-tinyvec-dev/all/librust-tinyvec-dev_v1.8.1-0chinaos1_all.deb",
+      "bytes": 41344,
+      "sha256": "0b82073ab47df9f87fe2b2a181449009818824430254250dcfc03c44bbf774e1",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-tinyvec-dev/all/librust-tinyvec-dev_v1.8.1-0chinaos1_all.deb",
+      "checksum_path": "librust-tinyvec-dev/all/librust-tinyvec-dev_v1.8.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-tinyvec-macros-dev",
+      "version": "0.1.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-tinyvec-macros-dev/all/librust-tinyvec-macros-dev_v0.1.1-0chinaos1_all.deb",
+      "bytes": 8056,
+      "sha256": "33a714694643f3e2057b89f8151f00622d4ed38a3455fb1b79f3302be00e196c",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-tinyvec-macros-dev/all/librust-tinyvec-macros-dev_v0.1.1-0chinaos1_all.deb",
+      "checksum_path": "librust-tinyvec-macros-dev/all/librust-tinyvec-macros-dev_v0.1.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-unicode-ident-dev",
+      "version": "1.0.14-0chinaos1",
+      "architecture": "all",
+      "path": "librust-unicode-ident-dev/all/librust-unicode-ident-dev_v1.0.14-0chinaos1_all.deb",
+      "bytes": 44736,
+      "sha256": "5a000b535f44d948ffb99ee8cf1bb0f8d805262cc188a7d11f9e47cb7a551e38",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-unicode-ident-dev/all/librust-unicode-ident-dev_v1.0.14-0chinaos1_all.deb",
+      "checksum_path": "librust-unicode-ident-dev/all/librust-unicode-ident-dev_v1.0.14-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-unicode-segmentation-dev",
+      "version": "1.12.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-unicode-segmentation-dev/all/librust-unicode-segmentation-dev_v1.12.0-0chinaos1_all.deb",
+      "bytes": 81792,
+      "sha256": "555a96dddbb971efd1030ea7b9e500b3ce4d7637ce01fe4d82e4e45cadb49ea8",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-unicode-segmentation-dev/all/librust-unicode-segmentation-dev_v1.12.0-0chinaos1_all.deb",
+      "checksum_path": "librust-unicode-segmentation-dev/all/librust-unicode-segmentation-dev_v1.12.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-uuid-dev",
+      "version": "1.11.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-uuid-dev/all/librust-uuid-dev_v1.11.0-0chinaos1_all.deb",
+      "bytes": 46060,
+      "sha256": "6017cb87430e4a261e8aeaccc742833e6906f872e76da58c4ec95725357abce8",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-uuid-dev/all/librust-uuid-dev_v1.11.0-0chinaos1_all.deb",
+      "checksum_path": "librust-uuid-dev/all/librust-uuid-dev_v1.11.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-version-check-dev",
+      "version": "0.9.5-0chinaos1",
+      "architecture": "all",
+      "path": "librust-version-check-dev/all/librust-version-check-dev_v0.9.5-0chinaos1_all.deb",
+      "bytes": 17740,
+      "sha256": "26761a003271545888d32140e4fc2bd90aeca142586770a71f42d4f3b10533e7",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-version-check-dev/all/librust-version-check-dev_v0.9.5-0chinaos1_all.deb",
+      "checksum_path": "librust-version-check-dev/all/librust-version-check-dev_v0.9.5-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-vlq-dev",
+      "version": "0.5.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-vlq-dev/all/librust-vlq-dev_v0.5.1-0chinaos1_all.deb",
+      "bytes": 11672,
+      "sha256": "b11196d1fd2a07f733d26a526c613a15d3ee8b4c4fe656ceb83c9ea0738aed06",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-vlq-dev/all/librust-vlq-dev_v0.5.1-0chinaos1_all.deb",
+      "checksum_path": "librust-vlq-dev/all/librust-vlq-dev_v0.5.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-wasi-0.11-dev",
+      "version": "0.11.0+wasi~snapshot~preview1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-wasi-0.11-dev/all/librust-wasi-0.11-dev_v0.11.0+wasi~snapshot~preview1-0chinaos1_all.deb",
+      "bytes": 29572,
+      "sha256": "52867f6cb15a562a41adacd000ad673c572925373b5e14b147f35ddba82cc332",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-wasi-0.11-dev/all/librust-wasi-0.11-dev_v0.11.0%2Bwasi~snapshot~preview1-0chinaos1_all.deb",
+      "checksum_path": "librust-wasi-0.11-dev/all/librust-wasi-0.11-dev_v0.11.0+wasi~snapshot~preview1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-wasi-dev",
+      "version": "0.14.2+wasi~0.2.4-0chinaos1",
+      "architecture": "all",
+      "path": "librust-wasi-dev/all/librust-wasi-dev_v0.14.2+wasi~0.2.4-0chinaos1_all.deb",
+      "bytes": 101860,
+      "sha256": "e00c18f46af934e16efbfc5eef8bd7ef40bba32fa4c98e8f7149d8a1bde14959",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-wasi-dev/all/librust-wasi-dev_v0.14.2%2Bwasi~0.2.4-0chinaos1_all.deb",
+      "checksum_path": "librust-wasi-dev/all/librust-wasi-dev_v0.14.2+wasi~0.2.4-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-aarch64-gnullvm-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-aarch64-gnullvm-dev/all/librust-windows-aarch64-gnullvm-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 342832,
+      "sha256": "a9103004cec8bc805d3795af8c76d449606f05c8c9daedcc1c35651be0424a35",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-aarch64-gnullvm-dev/all/librust-windows-aarch64-gnullvm-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-aarch64-gnullvm-dev/all/librust-windows-aarch64-gnullvm-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-aarch64-msvc-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-aarch64-msvc-dev/all/librust-windows-aarch64-msvc-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 594744,
+      "sha256": "9a448183e700f62d008adf0bd398f78677b7c42623227d1e3c44a85fe6b3ccc1",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-aarch64-msvc-dev/all/librust-windows-aarch64-msvc-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-aarch64-msvc-dev/all/librust-windows-aarch64-msvc-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-i686-gnu-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-i686-gnu-dev/all/librust-windows-i686-gnu-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 658012,
+      "sha256": "3256881bd8552b1317e08c6336ce9ab656024c9d4d177d68a87b676f2635ee71",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-i686-gnu-dev/all/librust-windows-i686-gnu-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-i686-gnu-dev/all/librust-windows-i686-gnu-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-i686-gnullvm-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-i686-gnullvm-dev/all/librust-windows-i686-gnullvm-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 367896,
+      "sha256": "c8b8fd55958de80e0c19ccb6604a60355ee003b37a7c6eb583c299d204c66274",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-i686-gnullvm-dev/all/librust-windows-i686-gnullvm-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-i686-gnullvm-dev/all/librust-windows-i686-gnullvm-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-i686-msvc-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-i686-msvc-dev/all/librust-windows-i686-msvc-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 634924,
+      "sha256": "11e56c68471114ede1ec2475939369511c5c71a4a303754e87d08b0b60ab9b1f",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-i686-msvc-dev/all/librust-windows-i686-msvc-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-i686-msvc-dev/all/librust-windows-i686-msvc-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-targets-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-targets-dev/all/librust-windows-targets-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 8612,
+      "sha256": "a53d940269043d3d0e5ccae6c27036a07c5b546d4a4071409a717372683d7266",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-targets-dev/all/librust-windows-targets-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-targets-dev/all/librust-windows-targets-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-x86-64-gnu-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-x86-64-gnu-dev/all/librust-windows-x86-64-gnu-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 616908,
+      "sha256": "419cb67cfacfab8a56a0dfa28bdc6230336792bdec97cfd5597bc43160765e1f",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-x86-64-gnu-dev/all/librust-windows-x86-64-gnu-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-x86-64-gnu-dev/all/librust-windows-x86-64-gnu-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-x86-64-gnullvm-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-x86-64-gnullvm-dev/all/librust-windows-x86-64-gnullvm-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 342852,
+      "sha256": "da41c57a3127ca7da73b7fa3a86bfbb229408de778118f33ed72bbd3c06b4fa5",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-x86-64-gnullvm-dev/all/librust-windows-x86-64-gnullvm-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-x86-64-gnullvm-dev/all/librust-windows-x86-64-gnullvm-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-windows-x86-64-msvc-dev",
+      "version": "0.52.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-windows-x86-64-msvc-dev/all/librust-windows-x86-64-msvc-dev_v0.52.6-0chinaos1_all.deb",
+      "bytes": 594756,
+      "sha256": "2fad1270139e28ad1549701cf36581515cd1754711a8d56a34922dec78c0b5cd",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-windows-x86-64-msvc-dev/all/librust-windows-x86-64-msvc-dev_v0.52.6-0chinaos1_all.deb",
+      "checksum_path": "librust-windows-x86-64-msvc-dev/all/librust-windows-x86-64-msvc-dev_v0.52.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-wit-bindgen-rt-dev",
+      "version": "0.39.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-wit-bindgen-rt-dev/all/librust-wit-bindgen-rt-dev_v0.39.0-0chinaos1_all.deb",
+      "bytes": 14536,
+      "sha256": "f50f26dcb7f4567d9735b4e7432ca01afec2b5e56219fa933e132419ef259712",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-wit-bindgen-rt-dev/all/librust-wit-bindgen-rt-dev_v0.39.0-0chinaos1_all.deb",
+      "checksum_path": "librust-wit-bindgen-rt-dev/all/librust-wit-bindgen-rt-dev_v0.39.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-wyz-dev",
+      "version": "0.5.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-wyz-dev/all/librust-wyz-dev_v0.5.1-0chinaos1_all.deb",
+      "bytes": 20628,
+      "sha256": "681d82c005a96f9784254d883d097dd8d6017b480b1edcfcade26a77b1d8d24e",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-wyz-dev/all/librust-wyz-dev_v0.5.1-0chinaos1_all.deb",
+      "checksum_path": "librust-wyz-dev/all/librust-wyz-dev_v0.5.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-zerocopy-derive-dev",
+      "version": "0.8.26-0chinaos1",
+      "architecture": "all",
+      "path": "librust-zerocopy-derive-dev/all/librust-zerocopy-derive-dev_v0.8.26-0chinaos1_all.deb",
+      "bytes": 70196,
+      "sha256": "d6b3471abf32ea83bc8f246ae5e67cd901ec1fa2f560839f29c8fd02c372688e",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-zerocopy-derive-dev/all/librust-zerocopy-derive-dev_v0.8.26-0chinaos1_all.deb",
+      "checksum_path": "librust-zerocopy-derive-dev/all/librust-zerocopy-derive-dev_v0.8.26-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-zerocopy-dev",
+      "version": "0.8.26-0chinaos1",
+      "architecture": "all",
+      "path": "librust-zerocopy-dev/all/librust-zerocopy-dev_v0.8.26-0chinaos1_all.deb",
+      "bytes": 216104,
+      "sha256": "87727558b2e005ecae3416be8f41728665efeff43b8a6df9eff1ca4b653747a9",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-zerocopy-dev/all/librust-zerocopy-dev_v0.8.26-0chinaos1_all.deb",
+      "checksum_path": "librust-zerocopy-dev/all/librust-zerocopy-dev_v0.8.26-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-zmij-dev",
+      "version": "1.0.21-0chinaos1",
+      "architecture": "all",
+      "path": "librust-zmij-dev/all/librust-zmij-dev_v1.0.21-0chinaos1_all.deb",
+      "bytes": 28564,
+      "sha256": "fd295a0afadbe1eb3c5dfc9640c13147430db05e577f17e196c460f1dd3d2563",
+      "group": "lightningcss110",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-zmij-dev/all/librust-zmij-dev_v1.0.21-0chinaos1_all.deb",
+      "checksum_path": "librust-zmij-dev/all/librust-zmij-dev_v1.0.21-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-dyn-clone-dev",
+      "version": "1.0.20-1",
+      "architecture": "all",
+      "path": "librust-dyn-clone-dev/all/librust-dyn-clone-dev_v1.0.20-1_all.deb",
+      "bytes": 15792,
+      "sha256": "d1bc79c68f946a1d51b9a2dc5b3ea2bb01a67bde0ce339422c5297f1e36742e7",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-dyn-clone-dev/all/librust-dyn-clone-dev_v1.0.20-1_all.deb",
+      "checksum_path": "librust-dyn-clone-dev/all/librust-dyn-clone-dev_v1.0.20-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-fnv-dev",
+      "version": "1.0.7-1",
+      "architecture": "all",
+      "path": "librust-fnv-dev/all/librust-fnv-dev_v1.0.7-1_all.deb",
+      "bytes": 13276,
+      "sha256": "df7132f1e496c8241d673bfc9f0e80f0c6999b2bf6b84642e2d961fed0b4171b",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-fnv-dev/all/librust-fnv-dev_v1.0.7-1_all.deb",
+      "checksum_path": "librust-fnv-dev/all/librust-fnv-dev_v1.0.7-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-glob-dev",
+      "version": "0.3.3-1",
+      "architecture": "all",
+      "path": "librust-glob-dev/all/librust-glob-dev_v0.3.3-1_all.deb",
+      "bytes": 24244,
+      "sha256": "560638c44e9c784c69abb1023f3aa801bafe6bcff1e4a05564d666ed5dfb2c2f",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-glob-dev/all/librust-glob-dev_v0.3.3-1_all.deb",
+      "checksum_path": "librust-glob-dev/all/librust-glob-dev_v0.3.3-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-heck-dev",
+      "version": "0.5.0-1",
+      "architecture": "all",
+      "path": "librust-heck-dev/all/librust-heck-dev_v0.5.0-1_all.deb",
+      "bytes": 14016,
+      "sha256": "10a4503cafa2c6a8ae4c9114e1f62be2d6d1540ffc79796fc85841f1e48c320c",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-heck-dev/all/librust-heck-dev_v0.5.0-1_all.deb",
+      "checksum_path": "librust-heck-dev/all/librust-heck-dev_v0.5.0-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-ident-case-dev",
+      "version": "1.0.1-1",
+      "architecture": "all",
+      "path": "librust-ident-case-dev/all/librust-ident-case-dev_v1.0.1-1_all.deb",
+      "bytes": 6432,
+      "sha256": "24775b49fb262ade05da698eef2c775cb832137dc2c4199f45ecb6d7fbbc408a",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-ident-case-dev/all/librust-ident-case-dev_v1.0.1-1_all.deb",
+      "checksum_path": "librust-ident-case-dev/all/librust-ident-case-dev_v1.0.1-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-powerfmt-dev",
+      "version": "0.2.0-1",
+      "architecture": "all",
+      "path": "librust-powerfmt-dev/all/librust-powerfmt-dev_v0.2.0-1_all.deb",
+      "bytes": 17472,
+      "sha256": "630ca93ca28a748d6a640892ddd80dba7ed134c2f8d4d2f893203550cc85a798",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-powerfmt-dev/all/librust-powerfmt-dev_v0.2.0-1_all.deb",
+      "checksum_path": "librust-powerfmt-dev/all/librust-powerfmt-dev_v0.2.0-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-static-assertions-dev",
+      "version": "1.1.0-1",
+      "architecture": "all",
+      "path": "librust-static-assertions-dev/all/librust-static-assertions-dev_v1.1.0-1_all.deb",
+      "bytes": 20204,
+      "sha256": "65aeca0720db028951d82d529103e65990bf4157bdfda782c46688641ee102c5",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-static-assertions-dev/all/librust-static-assertions-dev_v1.1.0-1_all.deb",
+      "checksum_path": "librust-static-assertions-dev/all/librust-static-assertions-dev_v1.1.0-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-strsim-dev",
+      "version": "0.11.1-1",
+      "architecture": "all",
+      "path": "librust-strsim-dev/all/librust-strsim-dev_v0.11.1-1_all.deb",
+      "bytes": 16496,
+      "sha256": "f2449af23a7c29ddf2092f59c054f2fdcf2d0be5f60ac71e802b837d954061bf",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-strsim-dev/all/librust-strsim-dev_v0.11.1-1_all.deb",
+      "checksum_path": "librust-strsim-dev/all/librust-strsim-dev_v0.11.1-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-typeid-dev",
+      "version": "1.0.3-1",
+      "architecture": "all",
+      "path": "librust-typeid-dev/all/librust-typeid-dev_v1.0.3-1_all.deb",
+      "bytes": 11944,
+      "sha256": "f0d0eeca31c0ceb0a5425ac311cfd20eabd965154eb5cb7fa67af80be6097225",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-typeid-dev/all/librust-typeid-dev_v1.0.3-1_all.deb",
+      "checksum_path": "librust-typeid-dev/all/librust-typeid-dev_v1.0.3-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-utf8-iter-dev",
+      "version": "1.0.4-1",
+      "architecture": "all",
+      "path": "librust-utf8-iter-dev/all/librust-utf8-iter-dev_v1.0.4-1_all.deb",
+      "bytes": 13088,
+      "sha256": "3e3db8e44518fe7c7cd131c22e70bd554c22b9028aee297a18fb4fe76ea8fe74",
+      "group": "first10",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-utf8-iter-dev/all/librust-utf8-iter-dev_v1.0.4-1_all.deb",
+      "checksum_path": "librust-utf8-iter-dev/all/librust-utf8-iter-dev_v1.0.4-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-psm-dev",
+      "version": "0.1.26-1",
+      "architecture": "all",
+      "path": "librust-psm-dev/all/librust-psm-dev_v0.1.26-1_all.deb",
+      "bytes": 26192,
+      "sha256": "da582c00d0c8a5803bb041df84e2c8125011bb810c099115f0574652d0339ba9",
+      "group": "psm3",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-psm-dev/all/librust-psm-dev_v0.1.26-1_all.deb",
+      "checksum_path": "librust-psm-dev/all/librust-psm-dev_v0.1.26-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-cc-dev",
+      "version": "1.2.16-1",
+      "architecture": "all",
+      "path": "librust-cc-dev/all/librust-cc-dev_v1.2.16-1_all.deb",
+      "bytes": 90984,
+      "sha256": "6df66f92595e4ef6e0bc231954bc785afa541005ffce027f93885437da424d2e",
+      "group": "psm3",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-cc-dev/all/librust-cc-dev_v1.2.16-1_all.deb",
+      "checksum_path": "librust-cc-dev/all/librust-cc-dev_v1.2.16-1_all.deb.sha256"
+    },
+    {
+      "package": "librust-shlex-dev",
+      "version": "1.3.0-1",
+      "architecture": "all",
+      "path": "librust-shlex-dev/all/librust-shlex-dev_v1.3.0-1_all.deb",
+      "bytes": 20632,
+      "sha256": "91f700e306cc7ec33f08fe401b68fa470de88b000121efa7e961c42387c5b560",
+      "group": "psm3",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-shlex-dev/all/librust-shlex-dev_v1.3.0-1_all.deb",
+      "checksum_path": "librust-shlex-dev/all/librust-shlex-dev_v1.3.0-1_all.deb.sha256"
+    },
+    {
+      "package": "rust-libssl-dev",
+      "version": "3.6.3-1",
+      "architecture": "loongarch64",
+      "path": "rust-libssl-dev/loongarch64/rust-libssl-dev_v3.6.3-1_loongarch64.deb",
+      "bytes": 3522844,
+      "sha256": "27b419feb85b55b8916675d3f05d3eb0709a5152adf9e05747f59ec539440968",
+      "group": "native-c-sdk6",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/rust-libssl-dev/loongarch64/rust-libssl-dev_v3.6.3-1_loongarch64.deb",
+      "checksum_path": "rust-libssl-dev/loongarch64/rust-libssl-dev_v3.6.3-1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "rust-libnghttp2-dev",
+      "version": "1.68.1-1",
+      "architecture": "loongarch64",
+      "path": "rust-libnghttp2-dev/loongarch64/rust-libnghttp2-dev_v1.68.1-1_loongarch64.deb",
+      "bytes": 147712,
+      "sha256": "ccdf8718da81d7dcf4eea4bba06159f27eca737afe881e439959ef0074f70048",
+      "group": "native-c-sdk6",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/rust-libnghttp2-dev/loongarch64/rust-libnghttp2-dev_v1.68.1-1_loongarch64.deb",
+      "checksum_path": "rust-libnghttp2-dev/loongarch64/rust-libnghttp2-dev_v1.68.1-1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "rust-libssh2-1-dev",
+      "version": "1.11.1~dev+crate0.3.2-2",
+      "architecture": "loongarch64",
+      "path": "rust-libssh2-1-dev/loongarch64/rust-libssh2-1-dev_v1.11.1~dev+crate0.3.2-2_loongarch64.deb",
+      "bytes": 248728,
+      "sha256": "0ab72d82a74cc2db2bed4011a641c01b7d1f5428634154f42b027d34fc77fb84",
+      "group": "native-c-sdk6",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/rust-libssh2-1-dev/loongarch64/rust-libssh2-1-dev_v1.11.1~dev%2Bcrate0.3.2-2_loongarch64.deb",
+      "checksum_path": "rust-libssh2-1-dev/loongarch64/rust-libssh2-1-dev_v1.11.1~dev+crate0.3.2-2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "rust-libcurl4-openssl-dev",
+      "version": "8.21.0~dev+crate0.4.90-1",
+      "architecture": "loongarch64",
+      "path": "rust-libcurl4-openssl-dev/loongarch64/rust-libcurl4-openssl-dev_v8.21.0~dev+crate0.4.90-1_loongarch64.deb",
+      "bytes": 662212,
+      "sha256": "6a82af0c08993e057b4065c90fc03474af46c5c856c396839ced61ef68d8045c",
+      "group": "native-c-sdk6",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/rust-libcurl4-openssl-dev/loongarch64/rust-libcurl4-openssl-dev_v8.21.0~dev%2Bcrate0.4.90-1_loongarch64.deb",
+      "checksum_path": "rust-libcurl4-openssl-dev/loongarch64/rust-libcurl4-openssl-dev_v8.21.0~dev+crate0.4.90-1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "rust-libgit2-dev",
+      "version": "1.9.6-2",
+      "architecture": "loongarch64",
+      "path": "rust-libgit2-dev/loongarch64/rust-libgit2-dev_v1.9.6-2_loongarch64.deb",
+      "bytes": 1512092,
+      "sha256": "734f8200cfc175b630d4310d8280bb749d92bbcecec33a6b33e4d02591bd6ed9",
+      "group": "native-c-sdk6",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/rust-libgit2-dev/loongarch64/rust-libgit2-dev_v1.9.6-2_loongarch64.deb",
+      "checksum_path": "rust-libgit2-dev/loongarch64/rust-libgit2-dev_v1.9.6-2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "rust-libsqlite3-dev",
+      "version": "3.53.2-1",
+      "architecture": "loongarch64",
+      "path": "rust-libsqlite3-dev/loongarch64/rust-libsqlite3-dev_v3.53.2-1_loongarch64.deb",
+      "bytes": 1437460,
+      "sha256": "3d8fea9ef313a44abe93981ced3a87257a2bb1b26401a3904ca6214642668c9f",
+      "group": "native-c-sdk6",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/rust-libsqlite3-dev/loongarch64/rust-libsqlite3-dev_v3.53.2-1_loongarch64.deb",
+      "checksum_path": "rust-libsqlite3-dev/loongarch64/rust-libsqlite3-dev_v3.53.2-1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-float16-dev",
+      "version": "0.1.5-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "librust-float16-dev/loongarch64/librust-float16-dev_v0.1.5-0chinaos1_loongarch64.deb",
+      "bytes": 46796,
+      "sha256": "b3251840b3f2a15e45436c5538eface52dda2e9bbefa9b9b49656e792a921602",
+      "group": "float16-closure5",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-float16-dev/loongarch64/librust-float16-dev_v0.1.5-0chinaos1_loongarch64.deb",
+      "checksum_path": "librust-float16-dev/loongarch64/librust-float16-dev_v0.1.5-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-cfg-if-dev",
+      "version": "1.0.4-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "librust-cfg-if-dev/loongarch64/librust-cfg-if-dev_v1.0.4-0chinaos1_loongarch64.deb",
+      "bytes": 10872,
+      "sha256": "45b3f17883b409f1c4e0718892cf4ef5f7d851680f465565a04cfc727e754dca",
+      "group": "float16-closure5",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-cfg-if-dev/loongarch64/librust-cfg-if-dev_v1.0.4-0chinaos1_loongarch64.deb",
+      "checksum_path": "librust-cfg-if-dev/loongarch64/librust-cfg-if-dev_v1.0.4-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-rustc-version-dev",
+      "version": "0.2.3-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "librust-rustc-version-dev/loongarch64/librust-rustc-version-dev_v0.2.3-0chinaos1_loongarch64.deb",
+      "bytes": 11388,
+      "sha256": "488067d10d79e6b94195b83aacf91e4c1db857ca0350a35e6a9fe6884764e0cf",
+      "group": "float16-closure5",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rustc-version-dev/loongarch64/librust-rustc-version-dev_v0.2.3-0chinaos1_loongarch64.deb",
+      "checksum_path": "librust-rustc-version-dev/loongarch64/librust-rustc-version-dev_v0.2.3-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-semver-dev",
+      "version": "0.9.0-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "librust-semver-dev/loongarch64/librust-semver-dev_v0.9.0-0chinaos1_loongarch64.deb",
+      "bytes": 17932,
+      "sha256": "eff26144a2c43e47ff361293fa5c4fda770ce56a919f5477fa2dfdf86be188a5",
+      "group": "float16-closure5",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-semver-dev/loongarch64/librust-semver-dev_v0.9.0-0chinaos1_loongarch64.deb",
+      "checksum_path": "librust-semver-dev/loongarch64/librust-semver-dev_v0.9.0-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-semver-parser-dev",
+      "version": "0.7.0-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "librust-semver-parser-dev/loongarch64/librust-semver-parser-dev_v0.7.0-0chinaos1_loongarch64.deb",
+      "bytes": 11456,
+      "sha256": "e5e098a374f0fa541fdf3a229f10bb94ede6b507bbd410802918d5abe30c5b6e",
+      "group": "float16-closure5",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-semver-parser-dev/loongarch64/librust-semver-parser-dev_v0.7.0-0chinaos1_loongarch64.deb",
+      "checksum_path": "librust-semver-parser-dev/loongarch64/librust-semver-parser-dev_v0.7.0-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "lld-21",
+      "version": "21.1.8-0chinaos2",
+      "architecture": "loongarch64",
+      "path": "lld-21/loongarch64/lld-21_v21.1.8-0chinaos2_loongarch64.deb",
+      "bytes": 3048380,
+      "sha256": "380f842770feec6bb13aa2bc283b3f032fa02c8ebfc0bfe311fffb1b88c18a94",
+      "group": "llvm-scoped4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/lld-21/loongarch64/lld-21_v21.1.8-0chinaos2_loongarch64.deb",
+      "checksum_path": "lld-21/loongarch64/lld-21_v21.1.8-0chinaos2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "libllvm21",
+      "version": "21.1.8-0chinaos2",
+      "architecture": "loongarch64",
+      "path": "libllvm21/loongarch64/libllvm21_v21.1.8-0chinaos2_loongarch64.deb",
+      "bytes": 60617642,
+      "sha256": "e54242653a1ff5b100d8ccf7dc2c7c5633a20280eb19deefe48c428ab84cb6f0",
+      "group": "llvm-scoped4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/libllvm21/loongarch64/libllvm21_v21.1.8-0chinaos2_loongarch64.deb",
+      "checksum_path": "libllvm21/loongarch64/libllvm21_v21.1.8-0chinaos2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "libllvm23",
+      "version": "23.1.1+rust1b9c0d5ff9bb-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "libllvm23/loongarch64/libllvm23_v23.1.1+rust1b9c0d5ff9bb-0chinaos1_loongarch64.deb",
+      "bytes": 46218492,
+      "sha256": "82ca9868f11a410fcbc063e952de520c7952b48d68aaae49462ec9834585e959",
+      "group": "llvm-scoped4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/libllvm23/loongarch64/libllvm23_v23.1.1%2Brust1b9c0d5ff9bb-0chinaos1_loongarch64.deb",
+      "checksum_path": "libllvm23/loongarch64/libllvm23_v23.1.1+rust1b9c0d5ff9bb-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "llvm-23-dev",
+      "version": "23.1.1+rust1b9c0d5ff9bb-0chinaos1",
+      "architecture": "loongarch64",
+      "path": "llvm-23-dev/loongarch64/llvm-23-dev_v23.1.1+rust1b9c0d5ff9bb-0chinaos1_loongarch64.deb",
+      "bytes": 107018822,
+      "sha256": "9ea6c59f4194c3e142e7a4e7d24390d13258f56245425b13108ff486ae3b4905",
+      "group": "llvm-scoped4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/llvm-23-dev/loongarch64/llvm-23-dev_v23.1.1%2Brust1b9c0d5ff9bb-0chinaos1_loongarch64.deb",
+      "checksum_path": "llvm-23-dev/loongarch64/llvm-23-dev_v23.1.1+rust1b9c0d5ff9bb-0chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "magpie",
+      "version": "0.1.3078-1loong2",
+      "architecture": "loongarch64",
+      "path": "magpie/loongarch64/magpie_v0.1.3078-1loong2_loongarch64.deb",
+      "bytes": 22418572,
+      "sha256": "a4ce6cd81c6f7734b8af515da2d4581683fd307b7401808716e88cda49eb7691",
+      "group": "magpie-repaired",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/magpie/loongarch64/magpie_v0.1.3078-1loong2_loongarch64.deb",
+      "checksum_path": "magpie/loongarch64/magpie_v0.1.3078-1loong2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-verge",
+      "version": "2.5.10-1loong2",
+      "architecture": "loongarch64",
+      "path": "clash-verge/loongarch64/clash-verge_v2.5.10-1loong2_loongarch64.deb",
+      "bytes": 15043488,
+      "sha256": "31926a6dafc97b6810986ad0ac80faca01ea7e306a687b943c2ebc68d9e8559b",
+      "group": "clash-app4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-verge/loongarch64/clash-verge_v2.5.10-1loong2_loongarch64.deb",
+      "checksum_path": "clash-verge/loongarch64/clash-verge_v2.5.10-1loong2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "pnpm",
+      "version": "12.16.1-1",
+      "architecture": "loongarch64",
+      "path": "pnpm/loongarch64/pnpm_v12.16.1-1_loongarch64.deb",
+      "bytes": 15528264,
+      "sha256": "dcedc5997fbb580acf515d1cb93cb8f355c543303ad287844025b19e94b5456f",
+      "group": "frontend-tools3",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/pnpm/loongarch64/pnpm_v12.16.1-1_loongarch64.deb",
+      "checksum_path": "pnpm/loongarch64/pnpm_v12.16.1-1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "esbuild",
+      "version": "0.28.2-1",
+      "architecture": "loongarch64",
+      "path": "esbuild/loongarch64/esbuild_v0.28.2-1_loongarch64.deb",
+      "bytes": 3374940,
+      "sha256": "2630da0d80ecefc40eb82d4c82d5b26d93a4ea87326f2b3d437077186f28fe6b",
+      "group": "frontend-tools3",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/esbuild/loongarch64/esbuild_v0.28.2-1_loongarch64.deb",
+      "checksum_path": "esbuild/loongarch64/esbuild_v0.28.2-1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "tsrs",
+      "version": "0.20.0+ts7.1.0~beta-1chinaos1",
+      "architecture": "loongarch64",
+      "path": "tsrs/loongarch64/tsrs_v0.20.0+ts7.1.0~beta-1chinaos1_loongarch64.deb",
+      "bytes": 6511140,
+      "sha256": "71bec09c9ff5fe99a95ca646bc2df01b8b76cf71f633c27c7ef4f72326c52284",
+      "group": "frontend-tools3",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/tsrs/loongarch64/tsrs_v0.20.0%2Bts7.1.0~beta-1chinaos1_loongarch64.deb",
+      "checksum_path": "tsrs/loongarch64/tsrs_v0.20.0+ts7.1.0~beta-1chinaos1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "mihomo",
+      "version": "1.19.33-1loong1",
+      "architecture": "loongarch64",
+      "path": "mihomo/loongarch64/mihomo_v1.19.33-1loong1_loongarch64.deb",
+      "bytes": 14476792,
+      "sha256": "911b7afb42ec2863d27f40d91b67f31f819fcd7c66304ccd71394e1d5f4eeeb5",
+      "group": "clash-app4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/mihomo/loongarch64/mihomo_v1.19.33-1loong1_loongarch64.deb",
+      "checksum_path": "mihomo/loongarch64/mihomo_v1.19.33-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "mihomo-alpha",
+      "version": "1.19.34.alpha.0455d0d-1loong1",
+      "architecture": "loongarch64",
+      "path": "mihomo-alpha/loongarch64/mihomo-alpha_v1.19.34.alpha.0455d0d-1loong1_loongarch64.deb",
+      "bytes": 14361776,
+      "sha256": "f27d32d4d562a30a781a267fa294f1f217027355d9a72cf2e116b58e19edeeb2",
+      "group": "clash-app4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/mihomo-alpha/loongarch64/mihomo-alpha_v1.19.34.alpha.0455d0d-1loong1_loongarch64.deb",
+      "checksum_path": "mihomo-alpha/loongarch64/mihomo-alpha_v1.19.34.alpha.0455d0d-1loong1_loongarch64.deb.sha256"
+    },
+    {
+      "package": "clash-verge-data",
+      "version": "2.5.10-1loong1",
+      "architecture": "all",
+      "path": "clash-verge-data/all/clash-verge-data_v2.5.10-1loong1_all.deb",
+      "bytes": 8041896,
+      "sha256": "ca905ab2e16bc71745fdd8e720d3747f50a448044cc8d7abe8e50e2100a2e4a3",
+      "group": "clash-app4",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/clash-verge-data/all/clash-verge-data_v2.5.10-1loong1_all.deb",
+      "checksum_path": "clash-verge-data/all/clash-verge-data_v2.5.10-1loong1_all.deb.sha256"
+    },
+    {
+      "package": "generate-ninja",
+      "version": "0.0~git20260722.641ace93-3",
+      "architecture": "loongarch64",
+      "path": "generate-ninja/loongarch64/generate-ninja_v0.0~git20260722.641ace93-3_loongarch64.deb",
+      "bytes": 3294792,
+      "sha256": "8591aa2bcb07cfec714132b125656b03fcafb2a0131f7f8517f673adc6140383",
+      "group": "gn-ninja2",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/generate-ninja/loongarch64/generate-ninja_v0.0~git20260722.641ace93-3_loongarch64.deb",
+      "checksum_path": "generate-ninja/loongarch64/generate-ninja_v0.0~git20260722.641ace93-3_loongarch64.deb.sha256"
+    },
+    {
+      "package": "ninja-build",
+      "version": "1.12.1+chromium.4-2",
+      "architecture": "loongarch64",
+      "path": "ninja-build/loongarch64/ninja-build_v1.12.1+chromium.4-2_loongarch64.deb",
+      "bytes": 4222556,
+      "sha256": "88c23ec7f5fe0a3329dcb660956c50601f8c827c5b30bc5b08883a9b13604592",
+      "group": "gn-ninja2",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/ninja-build/loongarch64/ninja-build_v1.12.1%2Bchromium.4-2_loongarch64.deb",
+      "checksum_path": "ninja-build/loongarch64/ninja-build_v1.12.1+chromium.4-2_loongarch64.deb.sha256"
+    },
+    {
+      "package": "librust-anstyle-1.0.10-dev",
+      "version": "1.0.10-0chinaos1",
+      "architecture": "all",
+      "path": "librust-anstyle-1.0.10-dev/all/librust-anstyle-1.0.10-dev_v1.0.10-0chinaos1_all.deb",
+      "bytes": 17664,
+      "sha256": "12be6fb9d5e86a147ca06b8435d243cadb595fa600870302e3249f279a7a9396",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-anstyle-1.0.10-dev/all/librust-anstyle-1.0.10-dev_v1.0.10-0chinaos1_all.deb",
+      "checksum_path": "librust-anstyle-1.0.10-dev/all/librust-anstyle-1.0.10-dev_v1.0.10-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-anstyle-1.0.13-dev",
+      "version": "1.0.13-0chinaos1",
+      "architecture": "all",
+      "path": "librust-anstyle-1.0.13-dev/all/librust-anstyle-1.0.13-dev_v1.0.13-0chinaos1_all.deb",
+      "bytes": 19132,
+      "sha256": "12ec43d889e90406c362c004f083a58d45894002f71e64a8692b6a7e3ff91d51",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-anstyle-1.0.13-dev/all/librust-anstyle-1.0.13-dev_v1.0.13-0chinaos1_all.deb",
+      "checksum_path": "librust-anstyle-1.0.13-dev/all/librust-anstyle-1.0.13-dev_v1.0.13-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-anstyle-1.0.14-dev",
+      "version": "1.0.14-0chinaos1",
+      "architecture": "all",
+      "path": "librust-anstyle-1.0.14-dev/all/librust-anstyle-1.0.14-dev_v1.0.14-0chinaos1_all.deb",
+      "bytes": 19232,
+      "sha256": "9e406d151d035714b570dcd16946a380720dcbe555c8e2b740bb8009b8aed94f",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-anstyle-1.0.14-dev/all/librust-anstyle-1.0.14-dev_v1.0.14-0chinaos1_all.deb",
+      "checksum_path": "librust-anstyle-1.0.14-dev/all/librust-anstyle-1.0.14-dev_v1.0.14-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-anyhow-1.0.102-dev",
+      "version": "1.0.102-0chinaos1",
+      "architecture": "all",
+      "path": "librust-anyhow-1.0.102-dev/all/librust-anyhow-1.0.102-dev_v1.0.102-0chinaos1_all.deb",
+      "bytes": 46804,
+      "sha256": "6716ad17d6212561d27fb9cfbe5a84988abb5a3ae34efad7fff2ecdf5fec93a0",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-anyhow-1.0.102-dev/all/librust-anyhow-1.0.102-dev_v1.0.102-0chinaos1_all.deb",
+      "checksum_path": "librust-anyhow-1.0.102-dev/all/librust-anyhow-1.0.102-dev_v1.0.102-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-anyhow-1.0.103-dev",
+      "version": "1.0.103-0chinaos1",
+      "architecture": "all",
+      "path": "librust-anyhow-1.0.103-dev/all/librust-anyhow-1.0.103-dev_v1.0.103-0chinaos1_all.deb",
+      "bytes": 46908,
+      "sha256": "ecc99b308abe109be7b9448c5c662601697c11c3ab45170351541b6eb7246a8b",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-anyhow-1.0.103-dev/all/librust-anyhow-1.0.103-dev_v1.0.103-0chinaos1_all.deb",
+      "checksum_path": "librust-anyhow-1.0.103-dev/all/librust-anyhow-1.0.103-dev_v1.0.103-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-autocfg-1.5.1-dev",
+      "version": "1.5.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-autocfg-1.5.1-dev/all/librust-autocfg-1.5.1-dev_v1.5.1-0chinaos1_all.deb",
+      "bytes": 21432,
+      "sha256": "21fca8ef8e3466e2d3af8d55ba59e6b72b29f8ae39cbe9d1aa0bb97afb0b965b",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-autocfg-1.5.1-dev/all/librust-autocfg-1.5.1-dev_v1.5.1-0chinaos1_all.deb",
+      "checksum_path": "librust-autocfg-1.5.1-dev/all/librust-autocfg-1.5.1-dev_v1.5.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-base64-0.21.7-dev",
+      "version": "0.21.7-0chinaos1",
+      "architecture": "all",
+      "path": "librust-base64-0.21.7-dev/all/librust-base64-0.21.7-dev_v0.21.7-0chinaos1_all.deb",
+      "bytes": 74316,
+      "sha256": "d7e70b341549698bb62933abaf6f5d3bb8021c6935da6156b9f57e0c31bd6860",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-base64-0.21.7-dev/all/librust-base64-0.21.7-dev_v0.21.7-0chinaos1_all.deb",
+      "checksum_path": "librust-base64-0.21.7-dev/all/librust-base64-0.21.7-dev_v0.21.7-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-base64-0.22.1-dev",
+      "version": "0.22.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-base64-0.22.1-dev/all/librust-base64-0.22.1-dev_v0.22.1-0chinaos1_all.deb",
+      "bytes": 73552,
+      "sha256": "cd26ed2f75a8d22eac98c67d58f9c0b9084a33a5a8a81d3730c56fa2d1b7c753",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-base64-0.22.1-dev/all/librust-base64-0.22.1-dev_v0.22.1-0chinaos1_all.deb",
+      "checksum_path": "librust-base64-0.22.1-dev/all/librust-base64-0.22.1-dev_v0.22.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bitflags-2.10.0-dev",
+      "version": "2.10.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bitflags-2.10.0-dev/all/librust-bitflags-2.10.0-dev_v2.10.0-0chinaos1_all.deb",
+      "bytes": 47396,
+      "sha256": "bcc63bc7c48d9deb7947c953e63ec6428f03f96c44afad0b35c6dc030ab00918",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bitflags-2.10.0-dev/all/librust-bitflags-2.10.0-dev_v2.10.0-0chinaos1_all.deb",
+      "checksum_path": "librust-bitflags-2.10.0-dev/all/librust-bitflags-2.10.0-dev_v2.10.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-bitflags-2.13.0-dev",
+      "version": "2.13.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-bitflags-2.13.0-dev/all/librust-bitflags-2.13.0-dev_v2.13.0-0chinaos1_all.deb",
+      "bytes": 49784,
+      "sha256": "704d6ae07a1d0b7cbfc575f071d6f02a707643755b77a73a9bbdebe5a167f99a",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-bitflags-2.13.0-dev/all/librust-bitflags-2.13.0-dev_v2.13.0-0chinaos1_all.deb",
+      "checksum_path": "librust-bitflags-2.13.0-dev/all/librust-bitflags-2.13.0-dev_v2.13.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-clap-lex-0.7.2-dev",
+      "version": "0.7.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-clap-lex-0.7.2-dev/all/librust-clap-lex-0.7.2-dev_v0.7.2-0chinaos1_all.deb",
+      "bytes": 14960,
+      "sha256": "3b09f6b6bfaffada222b4f2e8c9b7d36a56522f79cdbb129edeab0b595050725",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-clap-lex-0.7.2-dev/all/librust-clap-lex-0.7.2-dev_v0.7.2-0chinaos1_all.deb",
+      "checksum_path": "librust-clap-lex-0.7.2-dev/all/librust-clap-lex-0.7.2-dev_v0.7.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-clap-lex-1.1.0-dev",
+      "version": "1.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-clap-lex-1.1.0-dev/all/librust-clap-lex-1.1.0-dev_v1.1.0-0chinaos1_all.deb",
+      "bytes": 15528,
+      "sha256": "899c9767aae8d5f891b3d2926275616e1d482d85d395854af914bec17cab7126",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-clap-lex-1.1.0-dev/all/librust-clap-lex-1.1.0-dev_v1.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-clap-lex-1.1.0-dev/all/librust-clap-lex-1.1.0-dev_v1.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-crossbeam-utils-0.8.20-dev",
+      "version": "0.8.20-0chinaos1",
+      "architecture": "all",
+      "path": "librust-crossbeam-utils-0.8.20-dev/all/librust-crossbeam-utils-0.8.20-dev_v0.8.20-0chinaos1_all.deb",
+      "bytes": 41600,
+      "sha256": "6bdc46a3d7fcad056b4d0d3c28af0e8bae5a5abfbb1a699ccc6237756f4da46b",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-crossbeam-utils-0.8.20-dev/all/librust-crossbeam-utils-0.8.20-dev_v0.8.20-0chinaos1_all.deb",
+      "checksum_path": "librust-crossbeam-utils-0.8.20-dev/all/librust-crossbeam-utils-0.8.20-dev_v0.8.20-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-either-1.15.0-dev",
+      "version": "1.15.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-either-1.15.0-dev/all/librust-either-1.15.0-dev_v1.15.0-0chinaos1_all.deb",
+      "bytes": 21744,
+      "sha256": "7ad1772fae6a233939a90f2f5868bbf3cc13ef91d2e56dd61389ae7cbf2d11b3",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-either-1.15.0-dev/all/librust-either-1.15.0-dev_v1.15.0-0chinaos1_all.deb",
+      "checksum_path": "librust-either-1.15.0-dev/all/librust-either-1.15.0-dev_v1.15.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-either-1.16.0-dev",
+      "version": "1.16.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-either-1.16.0-dev/all/librust-either-1.16.0-dev_v1.16.0-0chinaos1_all.deb",
+      "bytes": 22748,
+      "sha256": "2c553f18556204d0496edbf5fa36fff59918bf048cdd3f9df8a59235ac5950bf",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-either-1.16.0-dev/all/librust-either-1.16.0-dev_v1.16.0-0chinaos1_all.deb",
+      "checksum_path": "librust-either-1.16.0-dev/all/librust-either-1.16.0-dev_v1.16.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-equivalent-1.0.2-dev",
+      "version": "1.0.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-equivalent-1.0.2-dev/all/librust-equivalent-1.0.2-dev_v1.0.2-0chinaos1_all.deb",
+      "bytes": 10052,
+      "sha256": "5d6a5dc2a9f2e6ee06d14dd829a925a029071cc451251abb4c133778d892e4bb",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-equivalent-1.0.2-dev/all/librust-equivalent-1.0.2-dev_v1.0.2-0chinaos1_all.deb",
+      "checksum_path": "librust-equivalent-1.0.2-dev/all/librust-equivalent-1.0.2-dev_v1.0.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-fastrand-2.4.1-dev",
+      "version": "2.4.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-fastrand-2.4.1-dev/all/librust-fastrand-2.4.1-dev_v2.4.1-0chinaos1_all.deb",
+      "bytes": 21940,
+      "sha256": "559b0f6c93cd4d2985cce4d07f41778864f88cf39bfd7968c05a0d078cd83848",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-fastrand-2.4.1-dev/all/librust-fastrand-2.4.1-dev_v2.4.1-0chinaos1_all.deb",
+      "checksum_path": "librust-fastrand-2.4.1-dev/all/librust-fastrand-2.4.1-dev_v2.4.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-itoa-1.0.11-dev",
+      "version": "1.0.11-0chinaos1",
+      "architecture": "all",
+      "path": "librust-itoa-1.0.11-dev/all/librust-itoa-1.0.11-dev_v1.0.11-0chinaos1_all.deb",
+      "bytes": 13140,
+      "sha256": "288787413e626592acd886106b9a3cc42edbc328660670467531148f3d53f34d",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-itoa-1.0.11-dev/all/librust-itoa-1.0.11-dev_v1.0.11-0chinaos1_all.deb",
+      "checksum_path": "librust-itoa-1.0.11-dev/all/librust-itoa-1.0.11-dev_v1.0.11-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-itoa-1.0.15-dev",
+      "version": "1.0.15-0chinaos1",
+      "architecture": "all",
+      "path": "librust-itoa-1.0.15-dev/all/librust-itoa-1.0.15-dev_v1.0.15-0chinaos1_all.deb",
+      "bytes": 13776,
+      "sha256": "20765a87fb8333e880c5b38f1c69817632a49199c41cfa9a907ee3368507e7ac",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-itoa-1.0.15-dev/all/librust-itoa-1.0.15-dev_v1.0.15-0chinaos1_all.deb",
+      "checksum_path": "librust-itoa-1.0.15-dev/all/librust-itoa-1.0.15-dev_v1.0.15-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-itoa-1.0.18-dev",
+      "version": "1.0.18-0chinaos1",
+      "architecture": "all",
+      "path": "librust-itoa-1.0.18-dev/all/librust-itoa-1.0.18-dev_v1.0.18-0chinaos1_all.deb",
+      "bytes": 17736,
+      "sha256": "3e5e1ad5e88f602f6f986db3fc8794076e34918c7b57b8a829081b9780f6611f",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-itoa-1.0.18-dev/all/librust-itoa-1.0.18-dev_v1.0.18-0chinaos1_all.deb",
+      "checksum_path": "librust-itoa-1.0.18-dev/all/librust-itoa-1.0.18-dev_v1.0.18-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-log-0.4.28-dev",
+      "version": "0.4.28-0chinaos1",
+      "architecture": "all",
+      "path": "librust-log-0.4.28-dev/all/librust-log-0.4.28-dev_v0.4.28-0chinaos1_all.deb",
+      "bytes": 47464,
+      "sha256": "c106a2b0fdce6fb0a9a7713dd942b415c8939892985f27b20c04f8aa87d78f7a",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-log-0.4.28-dev/all/librust-log-0.4.28-dev_v0.4.28-0chinaos1_all.deb",
+      "checksum_path": "librust-log-0.4.28-dev/all/librust-log-0.4.28-dev_v0.4.28-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-log-0.4.33-dev",
+      "version": "0.4.33-0chinaos1",
+      "architecture": "all",
+      "path": "librust-log-0.4.33-dev/all/librust-log-0.4.33-dev_v0.4.33-0chinaos1_all.deb",
+      "bytes": 48940,
+      "sha256": "3e6eb2f5eacc219a7c06f8bf0dc07280bfc87557eedb833f0ceb304d0eeb5516",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-log-0.4.33-dev/all/librust-log-0.4.33-dev_v0.4.33-0chinaos1_all.deb",
+      "checksum_path": "librust-log-0.4.33-dev/all/librust-log-0.4.33-dev_v0.4.33-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-memchr-2.7.6-dev",
+      "version": "2.7.6-0chinaos1",
+      "architecture": "all",
+      "path": "librust-memchr-2.7.6-dev/all/librust-memchr-2.7.6-dev_v2.7.6-0chinaos1_all.deb",
+      "bytes": 73740,
+      "sha256": "5b8fb82fa840c37bdb5f017e3d4679b6041b42a35915fd0b929c1686082bec27",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-memchr-2.7.6-dev/all/librust-memchr-2.7.6-dev_v2.7.6-0chinaos1_all.deb",
+      "checksum_path": "librust-memchr-2.7.6-dev/all/librust-memchr-2.7.6-dev_v2.7.6-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-memchr-2.8.0-dev",
+      "version": "2.8.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-memchr-2.8.0-dev/all/librust-memchr-2.8.0-dev_v2.8.0-0chinaos1_all.deb",
+      "bytes": 73872,
+      "sha256": "5a09471888f9f564b950d67fead31f8cd599b7c48fd64905c400fcea6c3d8e9a",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-memchr-2.8.0-dev/all/librust-memchr-2.8.0-dev_v2.8.0-0chinaos1_all.deb",
+      "checksum_path": "librust-memchr-2.8.0-dev/all/librust-memchr-2.8.0-dev_v2.8.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-memchr-2.8.2-dev",
+      "version": "2.8.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-memchr-2.8.2-dev/all/librust-memchr-2.8.2-dev_v2.8.2-0chinaos1_all.deb",
+      "bytes": 75124,
+      "sha256": "b479efe3324bf81dd7cadb76bfac9daf99c0775d25909f4e857609471fc51683",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-memchr-2.8.2-dev/all/librust-memchr-2.8.2-dev_v2.8.2-0chinaos1_all.deb",
+      "checksum_path": "librust-memchr-2.8.2-dev/all/librust-memchr-2.8.2-dev_v2.8.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rustc-hash-1.1.0-dev",
+      "version": "1.1.0-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rustc-hash-1.1.0-dev/all/librust-rustc-hash-1.1.0-dev_v1.1.0-0chinaos1_all.deb",
+      "bytes": 11740,
+      "sha256": "70f8381e9c1093dd409d3931d6154e67c3fbca9b43b00d265326369d3baa0d00",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rustc-hash-1.1.0-dev/all/librust-rustc-hash-1.1.0-dev_v1.1.0-0chinaos1_all.deb",
+      "checksum_path": "librust-rustc-hash-1.1.0-dev/all/librust-rustc-hash-1.1.0-dev_v1.1.0-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rustc-hash-2.1.1-dev",
+      "version": "2.1.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rustc-hash-2.1.1-dev/all/librust-rustc-hash-2.1.1-dev_v2.1.1-0chinaos1_all.deb",
+      "bytes": 16428,
+      "sha256": "5e7a1606dd597cfa27e51586a7c2dbc6dd632a8b9dedab72ff58dab827dbd5b6",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rustc-hash-2.1.1-dev/all/librust-rustc-hash-2.1.1-dev_v2.1.1-0chinaos1_all.deb",
+      "checksum_path": "librust-rustc-hash-2.1.1-dev/all/librust-rustc-hash-2.1.1-dev_v2.1.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-rustc-hash-2.1.2-dev",
+      "version": "2.1.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-rustc-hash-2.1.2-dev/all/librust-rustc-hash-2.1.2-dev_v2.1.2-0chinaos1_all.deb",
+      "bytes": 16904,
+      "sha256": "0864105d6a64563f82588812559d041196d46ddc9ac05977a29e43aef7ddbaa1",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-rustc-hash-2.1.2-dev/all/librust-rustc-hash-2.1.2-dev_v2.1.2-0chinaos1_all.deb",
+      "checksum_path": "librust-rustc-hash-2.1.2-dev/all/librust-rustc-hash-2.1.2-dev_v2.1.2-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-shlex-2.0.1-dev",
+      "version": "2.0.1-0chinaos1",
+      "architecture": "all",
+      "path": "librust-shlex-2.0.1-dev/all/librust-shlex-2.0.1-dev_v2.0.1-0chinaos1_all.deb",
+      "bytes": 21204,
+      "sha256": "65e3aeb480f00191ad11b9c39644cf5d44dedd62e9ded595f06c573805fef824",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-shlex-2.0.1-dev/all/librust-shlex-2.0.1-dev_v2.0.1-0chinaos1_all.deb",
+      "checksum_path": "librust-shlex-2.0.1-dev/all/librust-shlex-2.0.1-dev_v2.0.1-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-unicode-ident-1.0.13-dev",
+      "version": "1.0.13-0chinaos1",
+      "architecture": "all",
+      "path": "librust-unicode-ident-1.0.13-dev/all/librust-unicode-ident-1.0.13-dev_v1.0.13-0chinaos1_all.deb",
+      "bytes": 38196,
+      "sha256": "b93021440f83cc7a557dc24f483cacbce47ff1c02a029b0837a7cfadbfbc313e",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-unicode-ident-1.0.13-dev/all/librust-unicode-ident-1.0.13-dev_v1.0.13-0chinaos1_all.deb",
+      "checksum_path": "librust-unicode-ident-1.0.13-dev/all/librust-unicode-ident-1.0.13-dev_v1.0.13-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-unicode-ident-1.0.24-dev",
+      "version": "1.0.24-0chinaos1",
+      "architecture": "all",
+      "path": "librust-unicode-ident-1.0.24-dev/all/librust-unicode-ident-1.0.24-dev_v1.0.24-0chinaos1_all.deb",
+      "bytes": 43028,
+      "sha256": "93d3e679d56f3da86e1584270e3f0cd422c674f9fa3b4b4731b7dad298c851b2",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-unicode-ident-1.0.24-dev/all/librust-unicode-ident-1.0.24-dev_v1.0.24-0chinaos1_all.deb",
+      "checksum_path": "librust-unicode-ident-1.0.24-dev/all/librust-unicode-ident-1.0.24-dev_v1.0.24-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-unicode-width-0.1.14-dev",
+      "version": "0.1.14-0chinaos1",
+      "architecture": "all",
+      "path": "librust-unicode-width-0.1.14-dev/all/librust-unicode-width-0.1.14-dev_v0.1.14-0chinaos1_all.deb",
+      "bytes": 143812,
+      "sha256": "94122ff4588f0fd520243d3f085f806bb24b6512af66fa185aff8ecdeede0245",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-unicode-width-0.1.14-dev/all/librust-unicode-width-0.1.14-dev_v0.1.14-0chinaos1_all.deb",
+      "checksum_path": "librust-unicode-width-0.1.14-dev/all/librust-unicode-width-0.1.14-dev_v0.1.14-0chinaos1_all.deb.sha256"
+    },
+    {
+      "package": "librust-unicode-width-0.2.2-dev",
+      "version": "0.2.2-0chinaos1",
+      "architecture": "all",
+      "path": "librust-unicode-width-0.2.2-dev/all/librust-unicode-width-0.2.2-dev_v0.2.2-0chinaos1_all.deb",
+      "bytes": 151760,
+      "sha256": "b93a661dcb92117d6e8160a7fc26ebdf0937c732dab0475dcd069fac326e5e56",
+      "group": "exact33",
+      "download_url": "https://media.githubusercontent.com/media/ChinaOSProject/binaries/2933e168c9d1ac0324c1d0505f1385c9a39f00a1/librust-unicode-width-0.2.2-dev/all/librust-unicode-width-0.2.2-dev_v0.2.2-0chinaos1_all.deb",
+      "checksum_path": "librust-unicode-width-0.2.2-dev/all/librust-unicode-width-0.2.2-dev_v0.2.2-0chinaos1_all.deb.sha256"
+    }
+  ],
+  "report_patch_and_index_files": [
+    {
+      "path": "clash-native-family_v2.5.10_artifacts.json",
+      "bytes": 33684,
+      "sha256": "f5327e996f93b7cdb5c09492db64041fa3f7c9f37dc68f437da255505c19d23b"
+    },
+    {
+      "path": "clash-native-family_v2.5.10_artifacts.md",
+      "bytes": 10576,
+      "sha256": "81d84d66b3ff31059d09caad36edef27c20d477490827f43d3dfa67b283e6b9f"
+    },
+    {
+      "path": "clash-verge-data_v2.5.10-1loong1_all.md",
+      "bytes": 2862,
+      "sha256": "94348fcfc8f4ef8a8f68ef89d80317bfc94ed7cecdd45d2eea9db0e97825416e"
+    },
+    {
+      "path": "clash-verge_v2.5.10-1loong2_loongarch64.md",
+      "bytes": 8496,
+      "sha256": "9fb4c3d1a6d76e1b414866f50ca5b888895650234b5f1170162318f1539a140f"
+    },
+    {
+      "path": "codex-v0.166.0-native-tools-candidate-manifest-20261109.json",
+      "bytes": 1848,
+      "sha256": "ea7661ae676e4408b6ce4b34fd8014a39b22db744dd515fcfe779f633de21aac"
+    },
+    {
+      "path": "codex-v0.166.0-native-tools-candidate-manifest-20261109.json.sha256",
+      "bytes": 127,
+      "sha256": "4866ecd5896f05cc2e7cfbaebcb3ba936533b101f735cc8ac0a7d1a67502d998"
+    },
+    {
+      "path": "esbuild_v0.28.2_loongarch64.md",
+      "bytes": 2191,
+      "sha256": "785244ba44ae99bab6fc064122ba7066a722c9ed40bebadf3ddc7fc58264d3e5"
+    },
+    {
+      "path": "generate-ninja_v0.0~git20260722.641ace93_loongarch64.md",
+      "bytes": 7997,
+      "sha256": "d350dc50647503066af10fba290d0aeb504543ae45021bef31f2f9e68f98a863"
+    },
+    {
+      "path": "lib_cc_v1.2.16_all.md",
+      "bytes": 5860,
+      "sha256": "f4fd538093348926f5b187d4f59be49c9622eca4fc4d40bc531d312800ca87dd"
+    },
+    {
+      "path": "lib_dyn-clone_v1.0.20_all.md",
+      "bytes": 8929,
+      "sha256": "c3cbbb7c74b9b3b721d67d9341a75926644ff0b6a77d289ca48d6a8f8c9dcdd3"
+    },
+    {
+      "path": "lib_float16_v0.1.5_loongarch64.md",
+      "bytes": 14838,
+      "sha256": "bf554ad68b8a9e5520b0d2bf909046585523374853f28b745cbac44e4381d64f"
+    },
+    {
+      "path": "lib_float16_v0.1.5_loongarch64.patch",
+      "bytes": 3205,
+      "sha256": "5746f43722544ae07e343ad29bcb950f2143272d68d3ec00de6df51f33e6c5ae"
+    },
+    {
+      "path": "lib_fnv_v1.0.7_all.md",
+      "bytes": 8908,
+      "sha256": "f9f6b4af05c4a7cd4e2409160a3b9768a0ed161eb53c351c44ff7ae43533812f"
+    },
+    {
+      "path": "lib_gcc_v13.4.0_loongarch64.md",
+      "bytes": 13379,
+      "sha256": "ecba7a20e43b42990ca9ac1626adc80d5a4d991e3e624a9aefb68773f85f0dae"
+    },
+    {
+      "path": "lib_glib_v2.70.5_loongarch64.md",
+      "bytes": 7766,
+      "sha256": "663cad4358d5798bc8f9a1c9d4f22b1a52fc15e156ebc9026e38f3bcba0add1c"
+    },
+    {
+      "path": "lib_glob_v0.3.3_all.md",
+      "bytes": 8789,
+      "sha256": "12b7fd06366a033c5a20ac5e24a5da55a9c6f1ed91169fe6605099129e1d20eb"
+    },
+    {
+      "path": "lib_gstreamer_v1.22.0_loongarch64.md",
+      "bytes": 11092,
+      "sha256": "32dbb7d93b00a2cf0e659627aa8fb2757e283a421620d8a0cd9291ca07dae973"
+    },
+    {
+      "path": "lib_heck_v0.5.0_all.md",
+      "bytes": 8838,
+      "sha256": "611575097efd40e8707d10ee1b280a4700ff1b002ac9cf0f210046988f437ad9"
+    },
+    {
+      "path": "lib_ident_case_v1.0.1_all.md",
+      "bytes": 9033,
+      "sha256": "b19f71b482e356d8c164993ab7836c24a4a47759e8e1ceff867ec5d414b7d918"
+    },
+    {
+      "path": "lib_libsoup_v3.6.5_loongarch64.md",
+      "bytes": 6181,
+      "sha256": "cc9dea7b503c824acd8741cefdc15868e16848074928b407330c26d0e5920f40"
+    },
+    {
+      "path": "lib_lightningcss_v1.33.0_loongarch64.md",
+      "bytes": 10873,
+      "sha256": "dbccff1a8a6136a090a79b2ae5571dd11e60f2212fc08fb77e6010015bf0e7a1"
+    },
+    {
+      "path": "lib_lld-21_v21.1.8_loongarch64.md",
+      "bytes": 6975,
+      "sha256": "98ba19bb3fa06d2d78f5088c41a78a3f65ad73d65a63be0adc6bdf17a8edd7b9"
+    },
+    {
+      "path": "lib_llvm-23-dev_v23.1.1+rust1b9c0d5ff9bb-0chinaos1_loongarch64.md",
+      "bytes": 8624,
+      "sha256": "2a1b3c1d0bacf9f69f154e808504e1d9e3913f337a1f4b4625f0046ec6f267f4"
+    },
+    {
+      "path": "lib_llvm-runtime-packages_v23.1.1+rust1b9c0d5ff9bb_loongarch64.md",
+      "bytes": 9442,
+      "sha256": "c1423b8e83dbbf65edde9aa398fa181a3851a23a44a4634ff0baeff444ad445a"
+    },
+    {
+      "path": "lib_powerfmt_v0.2.0_all.md",
+      "bytes": 9081,
+      "sha256": "91056809b746f29b0e5f79ddde688cf58345e8bd944c866fc03bffb970199755"
+    },
+    {
+      "path": "lib_psm_v0.1.26_all.md",
+      "bytes": 5774,
+      "sha256": "6915ca6aea50e4d03954f589ed47ff48ffca52bf40d97c3f1ebba93602f37923"
+    },
+    {
+      "path": "lib_rolldown_v1.2.9_loongarch64.md",
+      "bytes": 3332,
+      "sha256": "60ff825c6dbe63924f4b82578384f7e5a6c9e73a837618754b3c5529375670a7"
+    },
+    {
+      "path": "lib_rust-libcurl4-openssl-dev_v8.21.0~dev+crate0.4.90-1_loongarch64.md",
+      "bytes": 5630,
+      "sha256": "93829e80f4770ba65f69aa94b7fed7594f11d34c746cf380599c77658834dcda"
+    },
+    {
+      "path": "lib_rust-libgit2-dev_v1.9.6-2_loongarch64.md",
+      "bytes": 5594,
+      "sha256": "5d560ae4ffd956324fd02b198bf0ba1e940639b238ebf6948a52921a578b6d9b"
+    },
+    {
+      "path": "lib_rust-libnghttp2-dev_v1.68.1-1_loongarch64.md",
+      "bytes": 4898,
+      "sha256": "2594003f67a09a26727b1406e3ff9adcc13cd2f0548e70e49bc59adf3a22c05d"
+    },
+    {
+      "path": "lib_rust-libsqlite3-dev_v3.53.2-1_loongarch64.md",
+      "bytes": 4888,
+      "sha256": "70b588f207bf8a532d742369543ecbdd5cc19d4bf4829b4dcc5879cfcbeb652c"
+    },
+    {
+      "path": "lib_rust-libssh2-1-dev_v1.11.1~dev+crate0.3.2-2_loongarch64.md",
+      "bytes": 6858,
+      "sha256": "a54b7297614e72b9dabb66f0786508ad720d9dca35fcb2657abcca777322e536"
+    },
+    {
+      "path": "lib_rust-libssl-dev_v3.6.3-1_loongarch64.md",
+      "bytes": 5697,
+      "sha256": "02d7bdf0b3549b599da0b1e3f34c7b6f12b0bfec3892eeac3c77f54af9026796"
+    },
+    {
+      "path": "lib_shlex_v1.3.0_all.md",
+      "bytes": 5310,
+      "sha256": "6ff70d8523285c7feb9b1bdd9414499b2eea6d21504e98bdb8dd8eb9b5cb983d"
+    },
+    {
+      "path": "lib_static_assertions_v1.1.0_all.md",
+      "bytes": 9248,
+      "sha256": "18e1db48a2a2812ba482f0c360ccb8c9e2cc03967fa49cf8a91d22205377ac2d"
+    },
+    {
+      "path": "lib_strsim_v0.11.1_all.md",
+      "bytes": 8767,
+      "sha256": "8f3854f915d71382fd2ad074809a88a625222e02d1ad7e4fee8752a6e2f2d00d"
+    },
+    {
+      "path": "lib_typeid_v1.0.3_all.md",
+      "bytes": 8838,
+      "sha256": "9ed172172a47d7b96260a2d314ebf8b165afaa1aefde138f3fa68450ab0ad7ae"
+    },
+    {
+      "path": "lib_utf8_iter_v1.0.4_all.md",
+      "bytes": 9075,
+      "sha256": "192934d2d65a0b76137e5763d3bd21ae2d82b1c92992bbaba48f80ba038ac554"
+    },
+    {
+      "path": "lib_wails_v3.0.0-beta.24_loongarch64.md",
+      "bytes": 13566,
+      "sha256": "4b3dd5204ae8217f744fd66701387e3a1339be67627da7163dd2c6a64d8984fa"
+    },
+    {
+      "path": "lib_webkitgtk_v2.40.5_loongarch64.md",
+      "bytes": 9892,
+      "sha256": "2138442e71ef9ae12206372be55f3db432f40e97475addc4b4b13faf0fb306af"
+    },
+    {
+      "path": "lib_wry_v0.57.1_loongarch64.md",
+      "bytes": 8280,
+      "sha256": "cb4f448bb150be9617adf04e822193861e3fc5c13330cc804fd987ab17252275"
+    },
+    {
+      "path": "lightningcss-1.33.0-source-dev-features.json",
+      "bytes": 27052,
+      "sha256": "eeb282fdb6647f34862ea50b0d5b2d873f6a9bc9357061485496f9bd30637451"
+    },
+    {
+      "path": "lightningcss-1.33.0-source-dev-packages.json",
+      "bytes": 206522,
+      "sha256": "9e5d484ab87c2a3cb9cfce4e05746b170993839e39d2bbfc25a21aee3649fc25"
+    },
+    {
+      "path": "magpie_v0.1.3078-1loong2_loongarch64.md",
+      "bytes": 3749,
+      "sha256": "36015a8dd2faa09dae1d75a718c3c51345ccf78d1330344fc3081fd1cbdd74fd"
+    },
+    {
+      "path": "magpie_v0.1.3078_loongarch64.md",
+      "bytes": 9897,
+      "sha256": "4ae364d2f0c304b1f3eb9bd2fbd5d8e5fab30b2e1546fd6a12d32ed99840a049"
+    },
+    {
+      "path": "mihomo-alpha_v1.19.34.alpha.0455d0d-1loong1_loongarch64.md",
+      "bytes": 3439,
+      "sha256": "473e2a3b56079cc4862307a563b79cc480438a3f5f9d5737d064456e84f44593"
+    },
+    {
+      "path": "mihomo_v1.19.33-1loong1_loongarch64.md",
+      "bytes": 3361,
+      "sha256": "59df117157f08098bd59078ba64c4b38efc42f6de778f846dd224861a156d09c"
+    },
+    {
+      "path": "ninja-build_v1.12.1+chromium.4_loongarch64.md",
+      "bytes": 6137,
+      "sha256": "e78d2294b794c18cabc279cb60b27cdfb78cf20d95a41e168b33bf08ac17cc43"
+    },
+    {
+      "path": "pnpm_v12.16.1_loongarch64.md",
+      "bytes": 2498,
+      "sha256": "0d403f6f2df2159bfa628894635baf371a49da2fb867992ac951f19e2276d161"
+    },
+    {
+      "path": "tsrs_v0.20.0-ts7.1.0-beta_loongarch64.md",
+      "bytes": 5208,
+      "sha256": "8cc9241547bd90c4a2d715448b07048c42aa9b20af96bcb44672940dce7e9906"
+    },
+    {
+      "path": "wails-3.0.0-beta.24-gtk3-window-state.patch",
+      "bytes": 2741,
+      "sha256": "e6711d9422ad6eb4b5be2bb3c352967f656b30ead01cfd25da77513b456a0325"
+    },
+    {
+      "path": "wry-0.57.1-optional-all-cookies.patch",
+      "bytes": 5454,
+      "sha256": "b87a9756f14cc949fdea2ac09d4352bcc6e54454c767e58e0df0b62535ef6fc0"
+    },
+    {
+      "path": "lib_anstyle_v1.0.10_all.md",
+      "bytes": 11038,
+      "sha256": "8d3d8ec2514b3c1bf05108a0d77b9a292232f5a1837bb30e7d333abe65979954"
+    },
+    {
+      "path": "lib_anstyle_v1.0.13_all.md",
+      "bytes": 11042,
+      "sha256": "20722e5dd13c3af41c65d5d5693f51a1f4af963863336ddfbb0f5be2829b1c23"
+    },
+    {
+      "path": "lib_anstyle_v1.0.14_all.md",
+      "bytes": 11042,
+      "sha256": "6cb76f3238aec37bd8a9db0623268575efa49edbd4937cb7cf24e3a7dbe8b1a7"
+    },
+    {
+      "path": "lib_anyhow_v1.0.102_all.md",
+      "bytes": 11062,
+      "sha256": "af38a285b12182aa07038a3f955a4ec4fc807876014426b1767a3d7a4e53f410"
+    },
+    {
+      "path": "lib_anyhow_v1.0.103_all.md",
+      "bytes": 11062,
+      "sha256": "0c885bee441739fe3a5c3b46cf2ad926527b72dc07cc5101b07d55a0be61640c"
+    },
+    {
+      "path": "lib_autocfg_v1.5.1_all.md",
+      "bytes": 11046,
+      "sha256": "82a04ab34fb40880e6d65b314f169a51c06fce098dc8cdb52befe4f070ae006c"
+    },
+    {
+      "path": "lib_base64_v0.21.7_all.md",
+      "bytes": 11057,
+      "sha256": "cdf3faf9b46af64e55dc47e40e1854bd3c819256a40d64209e607f88cb5c5015"
+    },
+    {
+      "path": "lib_base64_v0.22.1_all.md",
+      "bytes": 11057,
+      "sha256": "e49dcbca4b81f520a4df553419c9d6f49d48b2d1961d77b6c483a290d05da699"
+    },
+    {
+      "path": "lib_bitflags_v2.10.0_all.md",
+      "bytes": 11073,
+      "sha256": "359b9ea13da33741fa523014666e58e5a560d45a05b73b99d47a4fb479b0c498"
+    },
+    {
+      "path": "lib_bitflags_v2.13.0_all.md",
+      "bytes": 11073,
+      "sha256": "6f7af9afe8c85f9234f15047bfe809fda24675c5eda61202238442796c38f5de"
+    },
+    {
+      "path": "lib_clap_lex_v0.7.2_all.md",
+      "bytes": 11016,
+      "sha256": "44998c3b2b166ea81ec65e0412e523f8c2e4bfc528101f8c4df8a058386849ad"
+    },
+    {
+      "path": "lib_clap_lex_v1.1.0_all.md",
+      "bytes": 11016,
+      "sha256": "204189ff001cdc54514ed5265fd1bf5e7fd63ad74c3ca122e24ed5bb630f4dbb"
+    },
+    {
+      "path": "lib_crossbeam-utils_v0.8.20_all.md",
+      "bytes": 11256,
+      "sha256": "7158178095c63d0d30bf83b9010bdf661918db1b8fcd446a60735188d6bf3dba"
+    },
+    {
+      "path": "lib_either_v1.15.0_all.md",
+      "bytes": 11028,
+      "sha256": "7ab4b7f1a64e04681cce9bab9fd838b5ecfefb73f1130141db8fece09d415ec8"
+    },
+    {
+      "path": "lib_either_v1.16.0_all.md",
+      "bytes": 11019,
+      "sha256": "6771d971673af79ab964090f77b88056f3117c54d07e12508e7b13253a967636"
+    },
+    {
+      "path": "lib_equivalent_v1.0.2_all.md",
+      "bytes": 11091,
+      "sha256": "05bf5256e5d382d4bba742a764ae86e9bed5bd55eea13ff413c650f6dac778dc"
+    },
+    {
+      "path": "lib_fastrand_v2.4.1_all.md",
+      "bytes": 11074,
+      "sha256": "ee1d1023dd5192b7576a8220b8f340dc9f677cde7ebc91dfd1638002b6248f9b"
+    },
+    {
+      "path": "lib_itoa_v1.0.11_all.md",
+      "bytes": 10937,
+      "sha256": "eeff34ab30b3912bc69397028b52c7d8495678b44cc035eff9505b86dae8fdea"
+    },
+    {
+      "path": "lib_itoa_v1.0.15_all.md",
+      "bytes": 10937,
+      "sha256": "a378a3474dea10336d9fe8fe78fd27d4b1df3dd560572d2990a08080fae5a765"
+    },
+    {
+      "path": "lib_itoa_v1.0.18_all.md",
+      "bytes": 10937,
+      "sha256": "cb23989c5da44027008022e1671795dd045454da02b8ed26e54da213c01b870c"
+    },
+    {
+      "path": "lib_log_v0.4.28_all.md",
+      "bytes": 10937,
+      "sha256": "c1f302113ab7a9cd581320447c4e2345090996463c37b7802143d56ba83841af"
+    },
+    {
+      "path": "lib_log_v0.4.33_all.md",
+      "bytes": 10937,
+      "sha256": "11a16307a66c4351ecfa65b34bd6f878757c7f19147c94b325309d8398d13dd0"
+    },
+    {
+      "path": "lib_memchr_v2.7.6_all.md",
+      "bytes": 11096,
+      "sha256": "d1a864e01cb2e16a42476d4c26732c09b7697dce0cf00e67242b36d745b9ef03"
+    },
+    {
+      "path": "lib_memchr_v2.8.0_all.md",
+      "bytes": 11096,
+      "sha256": "1c2b4ccf63d8f850b8b1353c4e4e1d9d184cfec970290ea9d363cbc11dba9bec"
+    },
+    {
+      "path": "lib_memchr_v2.8.2_all.md",
+      "bytes": 11096,
+      "sha256": "228a938a74412436b0e0e214fcb46069ac5917b69a688c9502f1e5398f0fb51c"
+    },
+    {
+      "path": "lib_rustc-hash_v1.1.0_all.md",
+      "bytes": 11123,
+      "sha256": "2cba88c96b98a2d24f5a9ef064496ffb690deeeb5b4c38d0ba06638368714856"
+    },
+    {
+      "path": "lib_rustc-hash_v2.1.1_all.md",
+      "bytes": 11111,
+      "sha256": "4309edfee873246e766c95b7b273cbdfd2a52c6a608026a535886fd5458241ce"
+    },
+    {
+      "path": "lib_rustc-hash_v2.1.2_all.md",
+      "bytes": 11111,
+      "sha256": "953535d51ba57b07d3176f309801f8a16ce09835324cea42e381edadec254439"
+    },
+    {
+      "path": "lib_shlex_v2.0.1_all.md",
+      "bytes": 10965,
+      "sha256": "4661706dc45ff119ae4fcd63257c6471cbe2a88b5b56206f2a9c84d945163b16"
+    },
+    {
+      "path": "lib_unicode-ident_v1.0.13_all.md",
+      "bytes": 11290,
+      "sha256": "47d767db73db2e89ce51e61dd61e4fa4987313bcbe3074d9d91908c2af6a97e9"
+    },
+    {
+      "path": "lib_unicode-ident_v1.0.24_all.md",
+      "bytes": 11285,
+      "sha256": "0aba60c95cd66a1e12df57e82d5e85be744bfe3c3cb5fec8e8c9b618652584bd"
+    },
+    {
+      "path": "lib_unicode-width_v0.1.14_all.md",
+      "bytes": 11283,
+      "sha256": "79e549a53bdbe84b14af1890196903afb1c9ccf18048f31280dc6ade6f77e36b"
+    },
+    {
+      "path": "lib_unicode-width_v0.2.2_all.md",
+      "bytes": 11265,
+      "sha256": "f03db168a96fcc0cbd873f8200b9f302c2c1ceca25f473289998f9b79af34c04"
+    },
+    {
+      "path": "llvm-21_v21.1.8-no-r-cie.patch",
+      "bytes": 22611,
+      "sha256": "52cef35c105bd2a9bd0ef123b209e5a26f809003e6cf73e74d9a2fdf8d4785a5"
+    },
+    {
+      "path": "llvm-21_v21.1.8-complete-oldworld.patch",
+      "bytes": 47892,
+      "sha256": "1f10982e79f454adeaf21b007b1a6c3c52efed0fa91c2c6c6269e316f33e4ef6"
+    }
+  ]
+}

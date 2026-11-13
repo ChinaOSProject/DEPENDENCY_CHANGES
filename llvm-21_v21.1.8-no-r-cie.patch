@@ -1,0 +1,696 @@
+diff --git a/lld/ELF/EhFrame.cpp b/lld/ELF/EhFrame.cpp
+--- a/lld/ELF/EhFrame.cpp
++++ b/lld/ELF/EhFrame.cpp
+@@ -191,6 +191,10 @@
+ uint8_t EhReader::getFdeEncoding(CieEncodings *encodings) {
+   // 读取地址编码，需要元数据时同时记录各字段的位置。
+   StringRef aug = getAugmentation();
++  if (encodings) {
++    encodings->augmentation = aug;
++    encodings->augmentationSizeOffset = d.data() - start;
++  }
+   uint8_t fdeEncoding = DW_EH_PE_absptr;
+   for (char c : aug) {
+     if (c == 'R') {
+@@ -199,9 +203,21 @@
+       encodings->fdeEncodingOffset = d.data() - start;
+       fdeEncoding = readByte();
+       encodings->fdeEncoding = fdeEncoding;
+-    } else if (c == 'z')
+-      skipLeb128();
+-    else if (c == 'L') {
++    } else if (c == 'z') {
++      DataExtractor data(d, isec->getCtx().arg.isLE, 0);
++      DataExtractor::Cursor cursor(0);
++      uint64_t size = data.getULEB128(cursor);
++      if (Error error = cursor.takeError()) {
++        errOn(d.data(), "invalid CIE augmentation size");
++        consumeError(std::move(error));
++        return fdeEncoding;
++      }
++      skipBytes(cursor.tell());
++      if (encodings) {
++        encodings->augmentationSize = size;
++        encodings->augmentationDataOffset = d.data() - start;
++      }
++    } else if (c == 'L') {
+       uint32_t encodingOffset = d.data() - start;
+       uint8_t encoding = readByte();
+       if (encodings) {
+diff --git a/lld/ELF/EhFrame.h b/lld/ELF/EhFrame.h
+--- a/lld/ELF/EhFrame.h
++++ b/lld/ELF/EhFrame.h
+@@ -23,6 +23,10 @@
+   uint32_t lsdaEncodingOffset = 0;
+   uint32_t personalityEncodingOffset = 0;
+   uint32_t personalityOffset = 0;
++  llvm::StringRef augmentation;
++  uint32_t augmentationSizeOffset = 0;
++  uint32_t augmentationDataOffset = 0;
++  uint64_t augmentationSize = 0;
+ };
+ 
+ uint8_t getFdeEncoding(EhSectionPiece *p, CieEncodings *encodings = nullptr);
+diff --git a/lld/ELF/InputSection.cpp b/lld/ELF/InputSection.cpp
+--- a/lld/ELF/InputSection.cpp
++++ b/lld/ELF/InputSection.cpp
+@@ -1420,7 +1420,7 @@
+   }
+   if (it[-1].outputOff == -1) // invalid piece
+     return offset - it[-1].inputOff;
+-  return it[-1].outputOff + (offset - it[-1].inputOff);
++  return it[-1].outputOff + it[-1].getOutputOffset(offset - it[-1].inputOff);
+ }
+ 
+ static size_t findNull(StringRef s, size_t entSize) {
+diff --git a/lld/ELF/InputSection.h b/lld/ELF/InputSection.h
+--- a/lld/ELF/InputSection.h
++++ b/lld/ELF/InputSection.h
+@@ -388,6 +388,20 @@
+   InputSectionBase *sec;
+   uint32_t size;
+   unsigned firstRelocation;
++  // Insertions into an old CIE/FDE, expressed in input-record coordinates.
++  SmallVector<std::pair<uint32_t, uint32_t>, 0> insertedBytes;
++  uint32_t getOutputOffset(uint32_t offset) const {
++    uint32_t result = offset;
++    for (auto [pos, count] : insertedBytes)
++      if (offset >= pos)
++        result += count;
++    return result;
++  }
++  uint32_t getOutputSize() const {
++    if (insertedBytes.empty())
++      return size;
++    return (getOutputOffset(size) + 7) & ~7U;
++  }
+   bool fdePcRelative = false;
+   uint32_t personalityPcRelativeOffset = 0;
+   uint32_t lsdaPcRelativeOffset = 0;
+diff --git a/lld/ELF/Relocations.cpp b/lld/ELF/Relocations.cpp
+--- a/lld/ELF/Relocations.cpp
++++ b/lld/ELF/Relocations.cpp
+@@ -438,7 +438,7 @@
+     // Offset -1 means that the piece is dead (i.e. garbage collected).
+     if (it[-1].outputOff == -1)
+       return -1;
+-    return it[-1].outputOff + (off - it[-1].inputOff);
++    return it[-1].outputOff + it[-1].getOutputOffset(off - it[-1].inputOff);
+   }
+ 
+ private:
+diff --git a/lld/ELF/SyntheticSections.cpp b/lld/ELF/SyntheticSections.cpp
+--- a/lld/ELF/SyntheticSections.cpp
++++ b/lld/ELF/SyntheticSections.cpp
+@@ -400,6 +400,56 @@
+ EhFrameSection::EhFrameSection(Ctx &ctx)
+     : SyntheticSection(ctx, ".eh_frame", SHT_PROGBITS, SHF_ALLOC, 1) {}
+ 
++// Supply an explicit encoding for old CIEs whose FDE addresses are implicitly
++// absolute. Preserve the input coordinates used by relocation scanning while
++// accounting for inserted augmentation bytes in the output records.
++static void addFdeEncoding(CieRecord &rec, const CieEncodings &enc) {
++  EhSectionPiece &cie = *rec.cie;
++  auto data = cie.data();
++  SmallVector<std::pair<uint32_t, SmallVector<uint8_t, 2>>, 3> insertions;
++  bool hasZ = enc.augmentation.starts_with("z");
++  uint32_t stringEnd = 9 + enc.augmentation.size();
++  if (!hasZ)
++    insertions.push_back({9, {'z'}});
++  insertions.push_back({stringEnd, {'R'}});
++
++  uint32_t headerEnd = enc.augmentationSizeOffset;
++  SmallVector<uint8_t, 0> original(data);
++  if (hasZ) {
++    uint32_t oldSize = enc.augmentationDataOffset - headerEnd;
++    uint32_t end = enc.augmentationDataOffset + enc.augmentationSize;
++    if (enc.augmentationSize > data.size() - enc.augmentationDataOffset)
++      Fatal(cie.sec->getCtx()) << cie.sec << ": invalid CIE augmentation size";
++    SmallString<16> sizeBytes;
++    raw_svector_ostream os(sizeBytes);
++    encodeULEB128(enc.augmentationSize + 1, os, oldSize);
++    llvm::copy(ArrayRef<uint8_t>((const uint8_t *)sizeBytes.data(), oldSize),
++               original.begin() + headerEnd);
++    if (sizeBytes.size() > oldSize)
++      insertions.push_back(
++          {enc.augmentationDataOffset,
++           SmallVector<uint8_t, 2>(sizeBytes.begin() + oldSize, sizeBytes.end())});
++    insertions.push_back({end, {DW_EH_PE_pcrel | DW_EH_PE_sdata8}});
++  } else {
++    insertions.push_back(
++        {headerEnd, {1, DW_EH_PE_pcrel | DW_EH_PE_sdata8}});
++    rec.addedAugmentationSize = true;
++  }
++  llvm::stable_sort(insertions, [](const auto &a, const auto &b) {
++    return a.first < b.first;
++  });
++  uint32_t pos = 0;
++  for (const auto &insertion : insertions) {
++    uint32_t next = insertion.first;
++    rec.convertedCie.append(original.begin() + pos, original.begin() + next);
++    rec.convertedCie.append(insertion.second);
++    cie.insertedBytes.push_back({next, insertion.second.size()});
++    pos = next;
++  }
++  rec.convertedCie.append(original.begin() + pos, original.end());
++  rec.convertedCie.resize(cie.getOutputSize(), 0); // DW_CFA_nop padding.
++}
++
+ // Search for an existing CIE record or create a new one.
+ // CIE records from input object files are uniquified by their contents
+ // and where their relocations point to.
+@@ -429,6 +479,8 @@
+       return format == DW_EH_PE_absptr || format == DW_EH_PE_udata8 ||
+              format == DW_EH_PE_sdata8;
+     };
++    if (!encodings.fdeEncodingOffset && rec->convertedCie.empty())
++      addFdeEncoding(*rec, encodings);
+     if (encodings.fdeEncodingOffset != 0 &&
+         encodings.fdeEncodingOffset < cie.size &&
+         !(encodings.fdeEncoding & DW_EH_PE_indirect) &&
+@@ -586,17 +638,20 @@
+   for (CieRecord *rec : cieRecords) {
+     rec->cie->personalityPcRelativeOffset = rec->convertedPersonalityOffset;
+     rec->cie->outputOff = off;
+-    off += rec->cie->size;
++    off += rec->cie->getOutputSize();
+ 
+     uint8_t fdeEncoding = rec->convertedLsdaEncodingOffset
+                               ? getFdeEncoding(rec->cie)
+                               : static_cast<uint8_t>(DW_EH_PE_absptr);
+     for (EhSectionPiece *fde : rec->fdes) {
+-      fde->fdePcRelative = rec->convertedEncodingOffset != 0;
++      fde->fdePcRelative = rec->convertedEncodingOffset != 0 ||
++                           !rec->convertedCie.empty();
++      if (rec->addedAugmentationSize)
++        fde->insertedBytes.push_back({24, 1});
+       if (rec->convertedLsdaEncodingOffset)
+         fde->lsdaPcRelativeOffset = getFdeLsdaOffset(fde, fdeEncoding);
+       fde->outputOff = off;
+-      off += fde->size;
++      off += fde->getOutputSize();
+     }
+   }
+ 
+@@ -618,7 +673,7 @@
+ 
+   uint64_t va = getPartition(ctx).ehFrameHdr->getVA();
+   for (CieRecord *rec : cieRecords) {
+-    uint8_t enc = rec->convertedEncodingOffset
++    uint8_t enc = (rec->convertedEncodingOffset || !rec->convertedCie.empty())
+                       ? DW_EH_PE_pcrel | DW_EH_PE_sdata8
+                       : getFdeEncoding(rec->cie);
+     for (EhSectionPiece *fde : rec->fdes) {
+@@ -689,20 +744,34 @@
+   // Write CIE and FDE records.
+   for (CieRecord *rec : cieRecords) {
+     size_t cieOffset = rec->cie->outputOff;
+-    writeCieFde(ctx, buf + cieOffset, rec->cie->data());
++    writeCieFde(ctx, buf + cieOffset,
++                rec->convertedCie.empty() ? rec->cie->data()
++                                          : rec->convertedCie);
+     if (rec->convertedEncodingOffset)
+       buf[cieOffset + rec->convertedEncodingOffset] =
+           DW_EH_PE_pcrel | DW_EH_PE_sdata8;
+     if (rec->convertedLsdaEncodingOffset)
+-      buf[cieOffset + rec->convertedLsdaEncodingOffset] =
++      buf[cieOffset + rec->cie->getOutputOffset(
++                          rec->convertedLsdaEncodingOffset)] =
+           rec->convertedLsdaEncoding;
+     if (rec->convertedPersonalityEncodingOffset)
+-      buf[cieOffset + rec->convertedPersonalityEncodingOffset] =
++      buf[cieOffset + rec->cie->getOutputOffset(
++                          rec->convertedPersonalityEncodingOffset)] =
+           rec->convertedPersonalityEncoding;
+ 
+     for (EhSectionPiece *fde : rec->fdes) {
+       size_t off = fde->outputOff;
+-      writeCieFde(ctx, buf + off, fde->data());
++      if (rec->addedAugmentationSize) {
++        auto data = fde->data();
++        memcpy(buf + off, data.data(), 24);
++        buf[off + 24] = 0; // Empty FDE augmentation data.
++        memcpy(buf + off + 25, data.data() + 24, data.size() - 24);
++        memset(buf + off + data.size() + 1, 0,
++               fde->getOutputSize() - data.size() - 1);
++        write32(ctx, buf + off, fde->getOutputSize() - 4);
++      } else {
++        writeCieFde(ctx, buf + off, fde->data());
++      }
+ 
+       // FDE's second word should have the offset to an associated CIE.
+       // Write it.
+diff --git a/lld/ELF/SyntheticSections.h b/lld/ELF/SyntheticSections.h
+--- a/lld/ELF/SyntheticSections.h
++++ b/lld/ELF/SyntheticSections.h
+@@ -45,6 +45,8 @@
+ struct CieRecord {
+   EhSectionPiece *cie = nullptr;
+   SmallVector<EhSectionPiece *, 0> fdes;
++  SmallVector<uint8_t, 0> convertedCie;
++  bool addedAugmentationSize = false;
+   uint32_t convertedEncodingOffset = 0;
+   uint32_t convertedLsdaEncodingOffset = 0;
+   uint32_t convertedPersonalityEncodingOffset = 0;
+diff --git a/lld/test/ELF/loongarch-old-eh-no-r.test b/lld/test/ELF/loongarch-old-eh-no-r.test
+--- /dev/null
++++ b/lld/test/ELF/loongarch-old-eh-no-r.test
+@@ -0,0 +1,438 @@
++# REQUIRES: loongarch
++# RUN: split-file %s %t
++# Old LP64D objects may omit R entirely, implying absolute FDE addresses.
++# PIC links must add a real encoding, preserving CFI and augmentation pointers.
++# RUN: yaml2obj %t/empty.yaml -o %t/empty.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/empty.o -o %t/empty.so
++# RUN: llvm-readobj --relocations %t/empty.so | FileCheck %s --check-prefix=RELOCS
++# RUN: llvm-dwarfdump --eh-frame %t/empty.so | FileCheck %s --check-prefix=FRAME
++# RUN: yaml2obj %t/z.yaml -o %t/z.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/z.o -o %t/z.so
++# RUN: llvm-readobj --relocations %t/z.so | FileCheck %s --check-prefix=RELOCS
++# RUN: llvm-dwarfdump --eh-frame %t/z.so | FileCheck %s --check-prefix=FRAME
++# RUN: yaml2obj %t/zPL.yaml -o %t/zPL.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/zPL.o -o %t/zPL.so
++# RUN: llvm-readobj --relocations %t/zPL.so | FileCheck %s --check-prefix=RELOCS
++# RUN: llvm-dwarfdump --eh-frame %t/zPL.so | FileCheck %s --check-prefix=FRAME
++# RUN: yaml2obj %t/zR.yaml -o %t/zR.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/zR.o -o %t/zR.so
++# RUN: llvm-readobj --relocations %t/zR.so | FileCheck %s --check-prefix=RELOCS
++# RUN: llvm-dwarfdump --eh-frame %t/zR.so | FileCheck %s --check-prefix=FRAME
++# RUN: yaml2obj %t/zPLR.yaml -o %t/zPLR.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/zPLR.o -o %t/zPLR.so
++# RUN: llvm-readobj --relocations %t/zPLR.so | FileCheck %s --check-prefix=RELOCS
++# RUN: llvm-dwarfdump --eh-frame %t/zPLR.so | FileCheck %s --check-prefix=FRAME
++# RUN: yaml2obj %t/zS.yaml -o %t/zS.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/zS.o -o %t/zS.so
++# RUN: llvm-readobj --relocations %t/zS.so | FileCheck %s --check-prefix=RELOCS
++# RUN: llvm-dwarfdump --eh-frame %t/zS.so | FileCheck %s --check-prefix=FRAME
++# RUN: yaml2obj %t/empty2.yaml -o %t/empty2.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/empty.o %t/empty2.o -o %t/empty-dedup.so
++# RUN: llvm-dwarfdump --eh-frame %t/empty-dedup.so | FileCheck %s --check-prefix=DEDUP
++# RUN: yaml2obj %t/zPL2.yaml -o %t/zPL2.o
++# RUN: ld.lld -shared --eh-frame-hdr %t/zPL.o %t/zPL2.o -o %t/zPL-dedup.so
++# RUN: llvm-dwarfdump --eh-frame %t/zPL-dedup.so | FileCheck %s --check-prefix=DEDUP
++# DEDUP: CIE
++# DEDUP: FDE
++# DEDUP-NOT: CIE
++# DEDUP: FDE
++# DEDUP-NOT: CIE
++# RELOCS:      Relocations [
++# RELOCS-NEXT: ]
++# FRAME: CIE
++# FRAME: Augmentation: {{.*}}R
++# FRAME: DW_CFA_def_cfa: R3 +0
++# FRAME: FDE
++
++#--- empty.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '0c0000000000000003000178010c03001c00000014000000000000000000000004000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 24
++        Symbol: function
++        Type: R_LARCH_64
++Symbols:
++  - Name: function
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- z.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '1400000000000000037a00017801000c03000000000000001c0000001c000000000000000000000004000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 32
++        Symbol: function
++        Type: R_LARCH_64
++Symbols:
++  - Name: function
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- zPL.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '1c00000000000000037a504c000178010a000000000000000000000c0300000024000000240000000000000000000000040000000000000008000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 18
++        Symbol: personality
++        Type: R_LARCH_64
++      - Offset: 40
++        Symbol: function
++        Type: R_LARCH_64
++      - Offset: 57
++        Symbol: lsda
++        Type: R_LARCH_64
++Symbols:
++  - Name: function
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- zR.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '1400000000000000037a520001780101000c0300000000001c0000001c000000000000000000000004000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 32
++        Symbol: function
++        Type: R_LARCH_64
++Symbols:
++  - Name: function
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- zPLR.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '1c00000000000000037a504c52000178010b00000000000000000000000c030024000000240000000000000000000000040000000000000008000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 19
++        Symbol: personality
++        Type: R_LARCH_64
++      - Offset: 40
++        Symbol: function
++        Type: R_LARCH_64
++      - Offset: 57
++        Symbol: lsda
++        Type: R_LARCH_64
++Symbols:
++  - Name: function
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- zS.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '1400000000000000037a5300017801000c030000000000001c0000001c000000000000000000000004000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 32
++        Symbol: function
++        Type: R_LARCH_64
++Symbols:
++  - Name: function
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- empty2.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '0c0000000000000003000178010c03001c00000014000000000000000000000004000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 24
++        Symbol: function2
++        Type: R_LARCH_64
++Symbols:
++  - Name: function2
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality2
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda2
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++
++#--- zPL2.yaml
++--- !ELF
++FileHeader:
++  Class: ELFCLASS64
++  Data: ELFDATA2LSB
++  Type: ET_REL
++  Machine: EM_LOONGARCH
++  Flags: [ EF_LOONGARCH_ABI_DOUBLE_FLOAT ]
++Sections:
++  - Name: .text
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_EXECINSTR ]
++    AddressAlign: 4
++    Content: '2000004c'
++  - Name: .gcc_except_table
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC ]
++    Content: '0000000000000000'
++  - Name: .eh_frame
++    Type: SHT_PROGBITS
++    Flags: [ SHF_ALLOC, SHF_WRITE ]
++    AddressAlign: 8
++    Content: '1c00000000000000037a504c000178010a000000000000000000000c0300000024000000240000000000000000000000040000000000000008000000000000000000000000000000'
++  - Name: .rela.eh_frame
++    Type: SHT_RELA
++    Info: .eh_frame
++    Relocations:
++      - Offset: 18
++        Symbol: personality
++        Type: R_LARCH_64
++      - Offset: 40
++        Symbol: function2
++        Type: R_LARCH_64
++      - Offset: 57
++        Symbol: lsda2
++        Type: R_LARCH_64
++Symbols:
++  - Name: function2
++    Section: .text
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++    Size: 4
++  - Name: personality
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]
++    Type: STT_FUNC
++  - Name: lsda2
++    Section: .gcc_except_table
++    Binding: STB_GLOBAL
++    Other: [ STV_HIDDEN ]

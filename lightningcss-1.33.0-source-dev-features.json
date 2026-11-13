@@ -1,0 +1,1393 @@
+[
+  {
+    "name": "ahash",
+    "version": "0.7.8",
+    "compiled_native": true,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "atomic-polyfill",
+      "compile-time-rng",
+      "default",
+      "std"
+    ]
+  },
+  {
+    "name": "ahash",
+    "version": "0.8.12",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "getrandom",
+      "runtime-rng",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "atomic-polyfill",
+      "compile-time-rng",
+      "nightly-arm-aes",
+      "no-rng"
+    ]
+  },
+  {
+    "name": "autocfg",
+    "version": "1.4.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "base64-simd",
+    "version": "0.7.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "default",
+      "detect",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "unstable"
+    ]
+  },
+  {
+    "name": "bitflags",
+    "version": "2.6.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "serde"
+    ],
+    "unadvertised_declared_features": [
+      "example_generated",
+      "rustc-dep-of-std",
+      "std"
+    ]
+  },
+  {
+    "name": "bitvec",
+    "version": "1.0.1",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "alloc",
+      "atomic",
+      "default",
+      "std",
+      "testing"
+    ]
+  },
+  {
+    "name": "bytecheck",
+    "version": "0.6.12",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "std",
+      "verbose"
+    ]
+  },
+  {
+    "name": "bytecheck_derive",
+    "version": "0.6.12",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "std"
+    ]
+  },
+  {
+    "name": "bytes",
+    "version": "1.9.0",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "std"
+    ]
+  },
+  {
+    "name": "cfg-if",
+    "version": "1.0.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "rustc-dep-of-std"
+    ]
+  },
+  {
+    "name": "const-str",
+    "version": "1.1.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "all",
+      "case",
+      "http",
+      "proc",
+      "regex",
+      "std",
+      "unstable"
+    ]
+  },
+  {
+    "name": "convert_case",
+    "version": "0.6.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "random"
+    ]
+  },
+  {
+    "name": "crossbeam-deque",
+    "version": "0.8.6",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "crossbeam-epoch",
+    "version": "0.9.18",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "default",
+      "loom",
+      "nightly"
+    ]
+  },
+  {
+    "name": "crossbeam-utils",
+    "version": "0.8.21",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "nightly"
+    ]
+  },
+  {
+    "name": "cssparser",
+    "version": "0.37.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "fast_match_byte",
+      "fast_match_color",
+      "serde"
+    ],
+    "unadvertised_declared_features": [
+      "bench",
+      "skip_long_tests"
+    ]
+  },
+  {
+    "name": "cssparser-color",
+    "version": "0.5.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "serde"
+    ]
+  },
+  {
+    "name": "cssparser-macros",
+    "version": "0.7.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "dashmap",
+    "version": "5.5.3",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "inline",
+      "raw-api"
+    ]
+  },
+  {
+    "name": "data-encoding",
+    "version": "2.6.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "data-url",
+    "version": "0.1.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "dtoa",
+    "version": "1.0.9",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "dtoa-short",
+    "version": "0.3.5",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "either",
+    "version": "1.13.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "use_std"
+    ],
+    "unadvertised_declared_features": [
+      "default"
+    ]
+  },
+  {
+    "name": "equivalent",
+    "version": "1.0.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "fastrand",
+    "version": "2.3.0",
+    "compiled_native": true,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "alloc",
+      "default",
+      "js",
+      "std"
+    ]
+  },
+  {
+    "name": "funty",
+    "version": "2.0.0",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "std"
+    ]
+  },
+  {
+    "name": "getrandom",
+    "version": "0.2.15",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "custom",
+      "js",
+      "linux_disable_fallback",
+      "rdrand",
+      "rustc-dep-of-std",
+      "std",
+      "test-in-browser"
+    ]
+  },
+  {
+    "name": "getrandom",
+    "version": "0.3.3",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "rustc-dep-of-std",
+      "std",
+      "wasm_js"
+    ]
+  },
+  {
+    "name": "hashbrown",
+    "version": "0.12.3",
+    "compiled_native": true,
+    "advertised_features": [
+      "ahash",
+      "default",
+      "inline-more"
+    ],
+    "unadvertised_declared_features": [
+      "ahash-compile-time-rng",
+      "nightly",
+      "raw",
+      "rustc-dep-of-std",
+      "rustc-internal-api"
+    ]
+  },
+  {
+    "name": "hashbrown",
+    "version": "0.14.5",
+    "compiled_native": true,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "inline-more",
+      "nightly",
+      "raw",
+      "rustc-dep-of-std",
+      "rustc-internal-api"
+    ]
+  },
+  {
+    "name": "hashbrown",
+    "version": "0.15.2",
+    "compiled_native": true,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "default-hasher",
+      "inline-more",
+      "nightly",
+      "raw-entry",
+      "rustc-dep-of-std",
+      "rustc-internal-api"
+    ]
+  },
+  {
+    "name": "indexmap",
+    "version": "2.7.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "serde",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "test_debug"
+    ]
+  },
+  {
+    "name": "itertools",
+    "version": "0.10.5",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "use_alloc",
+      "use_std"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "itoa",
+    "version": "1.0.14",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "lazy_static",
+    "version": "1.5.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "spin_no_std"
+    ]
+  },
+  {
+    "name": "libc",
+    "version": "0.2.186",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "align",
+      "const-extern-fn",
+      "extra_traits",
+      "rustc-dep-of-std",
+      "use_std"
+    ]
+  },
+  {
+    "name": "lightningcss",
+    "version": "1.0.0-alpha.72",
+    "compiled_native": true,
+    "advertised_features": [
+      "bundler",
+      "dashmap",
+      "default",
+      "into_owned",
+      "nodejs",
+      "parcel_sourcemap",
+      "rayon",
+      "serde",
+      "sourcemap",
+      "static-self",
+      "visitor"
+    ],
+    "unadvertised_declared_features": [
+      "browserslist",
+      "cli",
+      "jsonschema",
+      "substitute_variables"
+    ]
+  },
+  {
+    "name": "lightningcss-derive",
+    "version": "1.0.0-alpha.43",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "lock_api",
+    "version": "0.4.12",
+    "compiled_native": true,
+    "advertised_features": [
+      "atomic_usize",
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "arc_lock",
+      "nightly"
+    ]
+  },
+  {
+    "name": "log",
+    "version": "0.4.22",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "kv",
+      "kv_serde",
+      "kv_std",
+      "kv_sval",
+      "kv_unstable",
+      "kv_unstable_serde",
+      "kv_unstable_std",
+      "kv_unstable_sval",
+      "max_level_debug",
+      "max_level_error",
+      "max_level_info",
+      "max_level_off",
+      "max_level_trace",
+      "max_level_warn",
+      "release_max_level_debug",
+      "release_max_level_error",
+      "release_max_level_info",
+      "release_max_level_off",
+      "release_max_level_trace",
+      "release_max_level_warn",
+      "std"
+    ]
+  },
+  {
+    "name": "matches",
+    "version": "0.1.10",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "memchr",
+    "version": "2.7.4",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "default",
+      "libc",
+      "logging",
+      "rustc-dep-of-std",
+      "use_std"
+    ]
+  },
+  {
+    "name": "once_cell",
+    "version": "1.20.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "default",
+      "race",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "atomic-polyfill",
+      "critical-section",
+      "parking_lot",
+      "portable-atomic",
+      "unstable"
+    ]
+  },
+  {
+    "name": "outref",
+    "version": "0.1.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "parcel_selectors",
+    "version": "0.28.3",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "into_owned",
+      "serde",
+      "static-self"
+    ],
+    "unadvertised_declared_features": [
+      "bench",
+      "jsonschema",
+      "smallvec"
+    ]
+  },
+  {
+    "name": "parcel_sourcemap",
+    "version": "2.1.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "base64-simd",
+      "data-url",
+      "default",
+      "json",
+      "serde",
+      "serde_json"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "parking_lot_core",
+    "version": "0.9.10",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "deadlock_detection",
+      "nightly"
+    ]
+  },
+  {
+    "name": "pastey",
+    "version": "0.1.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "pathdiff",
+    "version": "0.2.3",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "phf",
+    "version": "0.11.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "macros",
+      "uncased",
+      "unicase"
+    ]
+  },
+  {
+    "name": "phf",
+    "version": "0.13.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "macros",
+      "phf_macros",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "uncased",
+      "unicase"
+    ]
+  },
+  {
+    "name": "phf_codegen",
+    "version": "0.11.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "phf_generator",
+    "version": "0.11.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "phf_generator",
+    "version": "0.13.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "phf_macros",
+    "version": "0.13.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "uncased",
+      "unicase"
+    ]
+  },
+  {
+    "name": "phf_shared",
+    "version": "0.11.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "phf_shared",
+    "version": "0.13.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "default"
+    ]
+  },
+  {
+    "name": "precomputed-hash",
+    "version": "0.1.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "proc-macro2",
+    "version": "1.0.106",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "proc-macro"
+    ],
+    "unadvertised_declared_features": [
+      "nightly",
+      "span-locations"
+    ]
+  },
+  {
+    "name": "ptr_meta",
+    "version": "0.1.4",
+    "compiled_native": true,
+    "advertised_features": [
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "default"
+    ]
+  },
+  {
+    "name": "ptr_meta_derive",
+    "version": "0.1.4",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "quote",
+    "version": "1.0.37",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "proc-macro"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "r-efi",
+    "version": "5.3.0",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "efiapi",
+      "examples",
+      "native",
+      "rustc-dep-of-std"
+    ]
+  },
+  {
+    "name": "radium",
+    "version": "0.7.0",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "rand",
+    "version": "0.8.5",
+    "compiled_native": true,
+    "advertised_features": [
+      "small_rng"
+    ],
+    "unadvertised_declared_features": [
+      "alloc",
+      "default",
+      "getrandom",
+      "min_const_gen",
+      "nightly",
+      "serde1",
+      "simd_support",
+      "std",
+      "std_rng"
+    ]
+  },
+  {
+    "name": "rand_core",
+    "version": "0.6.4",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "alloc",
+      "serde1",
+      "std"
+    ]
+  },
+  {
+    "name": "rayon",
+    "version": "1.10.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "web_spin_lock"
+    ]
+  },
+  {
+    "name": "rayon-core",
+    "version": "1.12.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "web_spin_lock"
+    ]
+  },
+  {
+    "name": "redox_syscall",
+    "version": "0.5.8",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "rustc-dep-of-std",
+      "std",
+      "userspace"
+    ]
+  },
+  {
+    "name": "rend",
+    "version": "0.4.2",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "std",
+      "validation"
+    ]
+  },
+  {
+    "name": "rkyv",
+    "version": "0.7.45",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "default",
+      "hashbrown",
+      "size_32",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "arbitrary_enum_discriminant",
+      "archive_be",
+      "archive_le",
+      "copy",
+      "copy_unsafe",
+      "size_16",
+      "size_64",
+      "strict",
+      "uuid",
+      "validation"
+    ]
+  },
+  {
+    "name": "rkyv_derive",
+    "version": "0.7.45",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "arbitrary_enum_discriminant",
+      "archive_be",
+      "archive_le",
+      "copy",
+      "strict"
+    ]
+  },
+  {
+    "name": "rustc-hash",
+    "version": "2.1.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "nightly",
+      "rand"
+    ]
+  },
+  {
+    "name": "scopeguard",
+    "version": "1.2.0",
+    "compiled_native": true,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "use_std"
+    ]
+  },
+  {
+    "name": "seahash",
+    "version": "4.1.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "use_std"
+    ]
+  },
+  {
+    "name": "serde",
+    "version": "1.0.228",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "default",
+      "derive",
+      "serde_derive",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "rc",
+      "unstable"
+    ]
+  },
+  {
+    "name": "serde-content",
+    "version": "0.1.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "derive",
+      "serde",
+      "std"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "serde_core",
+    "version": "1.0.228",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "result",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "default",
+      "rc",
+      "unstable"
+    ]
+  },
+  {
+    "name": "serde_derive",
+    "version": "1.0.228",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "deserialize_in_place"
+    ]
+  },
+  {
+    "name": "serde_json",
+    "version": "1.0.149",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "alloc",
+      "arbitrary_precision",
+      "float_roundtrip",
+      "preserve_order",
+      "raw_value",
+      "unbounded_depth"
+    ]
+  },
+  {
+    "name": "simd-abstraction",
+    "version": "0.7.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "alloc",
+      "default",
+      "detect",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "unstable"
+    ]
+  },
+  {
+    "name": "simdutf8",
+    "version": "0.1.5",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "aarch64_neon",
+      "aarch64_neon_prefetch",
+      "default",
+      "hints",
+      "public_imp",
+      "std"
+    ]
+  },
+  {
+    "name": "siphasher",
+    "version": "0.3.11",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "serde_no_std",
+      "serde_std"
+    ]
+  },
+  {
+    "name": "siphasher",
+    "version": "1.0.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "std"
+    ],
+    "unadvertised_declared_features": [
+      "serde_no_std",
+      "serde_std"
+    ]
+  },
+  {
+    "name": "smallvec",
+    "version": "1.13.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "serde",
+      "union"
+    ],
+    "unadvertised_declared_features": [
+      "const_generics",
+      "const_new",
+      "debugger_visualizer",
+      "drain_filter",
+      "drain_keep_rest",
+      "may_dangle",
+      "specialization",
+      "write"
+    ]
+  },
+  {
+    "name": "static-self",
+    "version": "0.1.2",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "indexmap",
+      "smallvec"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "static-self-derive",
+    "version": "0.1.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "syn",
+    "version": "1.0.109",
+    "compiled_native": true,
+    "advertised_features": [
+      "clone-impls",
+      "default",
+      "derive",
+      "extra-traits",
+      "full",
+      "parsing",
+      "printing",
+      "proc-macro",
+      "quote"
+    ],
+    "unadvertised_declared_features": [
+      "fold",
+      "test",
+      "visit",
+      "visit-mut"
+    ]
+  },
+  {
+    "name": "syn",
+    "version": "2.0.90",
+    "compiled_native": true,
+    "advertised_features": [
+      "clone-impls",
+      "default",
+      "derive",
+      "extra-traits",
+      "fold",
+      "full",
+      "parsing",
+      "printing",
+      "proc-macro"
+    ],
+    "unadvertised_declared_features": [
+      "test",
+      "visit",
+      "visit-mut"
+    ]
+  },
+  {
+    "name": "tap",
+    "version": "1.0.1",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "tinyvec",
+    "version": "1.8.1",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "alloc",
+      "debugger_visualizer",
+      "default",
+      "experimental_write_impl",
+      "grab_spare_slice",
+      "nightly_slice_partition_dedup",
+      "real_blackbox",
+      "rustc_1_40",
+      "rustc_1_55",
+      "rustc_1_57",
+      "rustc_1_61",
+      "std"
+    ]
+  },
+  {
+    "name": "tinyvec_macros",
+    "version": "0.1.1",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "unicode-ident",
+    "version": "1.0.14",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "unicode-segmentation",
+    "version": "1.12.0",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": [
+      "no_std"
+    ]
+  },
+  {
+    "name": "uuid",
+    "version": "1.11.0",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "atomic",
+      "borsh",
+      "default",
+      "fast-rng",
+      "js",
+      "macro-diagnostics",
+      "md5",
+      "rng",
+      "sha1",
+      "std",
+      "v1",
+      "v3",
+      "v4",
+      "v5",
+      "v6",
+      "v7",
+      "v8"
+    ]
+  },
+  {
+    "name": "version_check",
+    "version": "0.9.5",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "vlq",
+    "version": "0.5.1",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "wasi",
+    "version": "0.11.0+wasi-snapshot-preview1",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "rustc-dep-of-std",
+      "std"
+    ]
+  },
+  {
+    "name": "wasi",
+    "version": "0.14.2+wasi-0.2.4",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "default",
+      "rustc-dep-of-std",
+      "std"
+    ]
+  },
+  {
+    "name": "windows-targets",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_aarch64_gnullvm",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_aarch64_msvc",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_i686_gnu",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_i686_gnullvm",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_i686_msvc",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_x86_64_gnu",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_x86_64_gnullvm",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "windows_x86_64_msvc",
+    "version": "0.52.6",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "wit-bindgen-rt",
+    "version": "0.39.0",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "async"
+    ]
+  },
+  {
+    "name": "wyz",
+    "version": "0.5.1",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": [
+      "alloc",
+      "default",
+      "garbage",
+      "std"
+    ]
+  },
+  {
+    "name": "zerocopy",
+    "version": "0.8.26",
+    "compiled_native": true,
+    "advertised_features": [
+      "default",
+      "simd"
+    ],
+    "unadvertised_declared_features": [
+      "__internal_use_only_features_that_work_on_stable",
+      "alloc",
+      "derive",
+      "float-nightly",
+      "simd-nightly",
+      "std"
+    ]
+  },
+  {
+    "name": "zerocopy-derive",
+    "version": "0.8.26",
+    "compiled_native": false,
+    "advertised_features": [],
+    "unadvertised_declared_features": []
+  },
+  {
+    "name": "zmij",
+    "version": "1.0.21",
+    "compiled_native": true,
+    "advertised_features": [
+      "default"
+    ],
+    "unadvertised_declared_features": []
+  }
+]

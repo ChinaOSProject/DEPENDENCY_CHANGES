@@ -1,0 +1,155 @@
+diff --git a/src/webkitgtk/mod.rs b/src/webkitgtk/mod.rs
+index 1cf0f85..a51e02c 100644
+--- a/src/webkitgtk/mod.rs
++++ b/src/webkitgtk/mod.rs
+@@ -1302,6 +1302,69 @@ mod ffi {
+   use webkit2gtk::CookieManager;
+   use webkit2gtk_sys::WebKitCookieManager;
+ 
++  type GetAllCookies = unsafe extern "C" fn(
++    *mut WebKitCookieManager,
++    *mut GCancellable,
++    GAsyncReadyCallback,
++    glib::ffi::gpointer,
++  );
++  type GetAllCookiesFinish = unsafe extern "C" fn(
++    *mut WebKitCookieManager,
++    *mut gio::ffi::GAsyncResult,
++    *mut *mut glib::ffi::GError,
++  ) -> *mut glib::ffi::GList;
++
++  struct AllCookiesApi {
++    module: glib::ffi::gpointer,
++    get: GetAllCookies,
++    finish: GetAllCookiesFinish,
++  }
++
++  impl AllCookiesApi {
++    fn load() -> Option<Self> {
++      unsafe {
++        // A null filename opens the main program and its linked modules. Keep the
++        // handle alive until the asynchronous operation and its finish call end.
++        let module = g_module_open(std::ptr::null(), 0);
++        if module.is_null() {
++          return None;
++        }
++        let mut get = std::ptr::null_mut();
++        let mut finish = std::ptr::null_mut();
++        if g_module_symbol(
++          module,
++          c"webkit_cookie_manager_get_all_cookies".as_ptr(),
++          &mut get,
++        ) == 0
++          || get.is_null()
++          || g_module_symbol(
++            module,
++            c"webkit_cookie_manager_get_all_cookies_finish".as_ptr(),
++            &mut finish,
++          ) == 0
++          || finish.is_null()
++        {
++          g_module_close(module);
++          return None;
++        }
++        // SAFETY: Both symbols use the exact C signatures documented by
++        // WebKitCookieManager's get_all_cookies / get_all_cookies_finish API.
++        // GModule supports converting resolved symbols to function pointers.
++        Some(Self {
++          module,
++          get: std::mem::transmute::<glib::ffi::gpointer, GetAllCookies>(get),
++          finish: std::mem::transmute::<glib::ffi::gpointer, GetAllCookiesFinish>(finish),
++        })
++      }
++    }
++  }
++
++  impl Drop for AllCookiesApi {
++    fn drop(&mut self) {
++      unsafe { g_module_close(self.module) };
++    }
++  }
++
+   pub trait CookieManageExt: IsA<CookieManager> + 'static {
+     fn all_cookies<P: FnOnce(std::result::Result<Vec<soup::Cookie>, glib::Error>) + 'static>(
+       &self,
+@@ -1318,8 +1381,18 @@ mod ffi {
+         "Async operations only allowed if the thread is owning the MainContext"
+       );
+ 
+-      let user_data: Box<glib::thread_guard::ThreadGuard<P>> =
+-        Box::new(glib::thread_guard::ThreadGuard::new(callback));
++      let Some(api) = AllCookiesApi::load() else {
++        main_context.spawn_local(async move {
++          callback(Err(glib::Error::new(
++            gio::IOErrorEnum::NotSupported,
++            "Getting all cookies requires WebKitGTK 2.42 or newer",
++          )));
++        });
++        return;
++      };
++
++      let get = api.get;
++      let user_data = Box::new((glib::thread_guard::ThreadGuard::new(callback), api));
+       unsafe extern "C" fn cookies_trampoline<
+         P: FnOnce(std::result::Result<Vec<soup::Cookie>, glib::Error>) + 'static,
+       >(
+@@ -1328,16 +1401,16 @@ mod ffi {
+         user_data: glib::ffi::gpointer,
+       ) {
+         unsafe {
++          let user_data: Box<(glib::thread_guard::ThreadGuard<P>, AllCookiesApi)> =
++            Box::from_raw(user_data as *mut _);
++          let (callback, api) = *user_data;
+           let mut error = std::ptr::null_mut();
+-          let ret =
+-            webkit_cookie_manager_get_all_cookies_finish(_source_object as *mut _, res, &mut error);
++          let ret = (api.finish)(_source_object as *mut _, res, &mut error);
+           let result = if error.is_null() {
+             Ok(FromGlibPtrContainer::from_glib_full(ret))
+           } else {
+             Err(glib::translate::from_glib_full(error))
+           };
+-          let callback: Box<glib::thread_guard::ThreadGuard<P>> =
+-            Box::from_raw(user_data as *mut _);
+           let callback: P = callback.into_inner();
+           callback(result);
+         }
+@@ -1345,7 +1418,7 @@ mod ffi {
+       let callback = cookies_trampoline::<P>;
+ 
+       unsafe {
+-        webkit_cookie_manager_get_all_cookies(
++        get(
+           self.as_ref().to_glib_none().0,
+           cancellable.map(|p| p.as_ref()).to_glib_none().0,
+           Some(callback),
+@@ -1357,18 +1430,17 @@ mod ffi {
+ 
+   impl CookieManageExt for CookieManager {}
+ 
++  #[link(name = "gmodule-2.0")]
+   unsafe extern "C" {
+-    pub fn webkit_cookie_manager_get_all_cookies(
+-      cookie_manager: *mut webkit2gtk_sys::WebKitCookieManager,
+-      cancellable: *mut GCancellable,
+-      callback: GAsyncReadyCallback,
+-      user_data: glib::ffi::gpointer,
+-    );
+-
+-    pub fn webkit_cookie_manager_get_all_cookies_finish(
+-      cookie_manager: *mut WebKitCookieManager,
+-      result: *mut gio::ffi::GAsyncResult,
+-      error: *mut *mut glib::ffi::GError,
+-    ) -> *mut glib::ffi::GList;
++    fn g_module_open(
++      file_name: *const std::ffi::c_char,
++      flags: std::ffi::c_uint,
++    ) -> glib::ffi::gpointer;
++    fn g_module_symbol(
++      module: glib::ffi::gpointer,
++      symbol_name: *const std::ffi::c_char,
++      symbol: *mut glib::ffi::gpointer,
++    ) -> glib::ffi::gboolean;
++    fn g_module_close(module: glib::ffi::gpointer) -> glib::ffi::gboolean;
+   }
+ }
