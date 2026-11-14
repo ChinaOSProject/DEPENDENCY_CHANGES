@@ -144,3 +144,15 @@ go test -tags gtk3 ./pkg/application \
 提交身份已从上游 Wails 提交 `035f5c8d76ffb81fc62c3cae7ada3fbe43fad0e5` 核实为 `taliesin-ai <bot@taliesin.ai>`，无需编造邮箱。未更改 Git 配置或创建提交。SSH 远端查询确认 ChinaOSProject/wails 现已可访问，默认 `master` 为 `293269ad9decdd85ccc051321fc6a7624bf5aae0`，本轮未修改任何远端分支；可访问性不替代 CodeRabbit 要求。
 
 本轮证据位于 `/mnt/chinaos-cache/ChinaOSProject-cache/publication-20261113/`：`wails-readonly-review-20261114.md`、同名 JSON、`wails-required-review-gates-20261114.json` 及 `coderabbit-review-tool/` 内的签名、校验和实际执行日志。Wails 源码仍未 stage、commit、传播或 push；强制审查尚未完成。
+
+## 2026-11-14 适配仓库归档
+
+用户随后明确指示 Rust 和 Wails 只提交到用于记录适配的 ChinaOSProject 仓库，不合并上游，并跳过审阅要求。本次归档按该指令执行，没有把未运行的 CodeRabbit 审查记为通过。
+
+Wails 提交为 `f190670b6a3a5fd5ac8a77d881dcdce22f051218`，父提交仍为冻结的 beta.24 基线 `f5457ed12f5c53883c4820437d106d48f4340f1e`，身份为 `taliesin-ai <bot@taliesin.ai>`。提交仅包含本报告所述的生产文件和回归测试两个文件；其内容与已测试快照、完整补丁保持一致，未新增源码改动或重复运行构建、测试。
+
+该提交先进入 `debian10`，再快进至 `loong64`，两分支均已推送到 `git@github.com:ChinaOSProject/wails.git` 并逐项核对远端提交号。本地工作树干净；远端默认 `master` 仍为 `293269ad9decdd85ccc051321fc6a7624bf5aae0`。没有创建上游合并请求，也没有向上游推送。
+
+此前的 Bun 调用错误已通过任务专用启动器的 `BUN_FEATURE_FLAG_DISABLE_STANDALONE_MADVISE=1` 设置解决，签名核验过的 CodeRabbit 和现有 LATX 二进制均未修改。真实认证状态调用成功返回 `authenticated:false`，实际代码审查没有运行。本次仅按用户指令取消该项对适配归档的门禁，原测试覆盖边界和未验证场景保持有效。
+
+提交前后的文件校验、提交身份、分支传播、推送输出与远端复核记录位于 `/mnt/chinaos-cache/ChinaOSProject-cache/repair-20261114/publication-rust-wails-20261114/`。本轮没有执行、重启、停止 Magpie 或向其发送信号，没有改动已交付软件包。
