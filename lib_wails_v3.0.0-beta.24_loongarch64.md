@@ -131,4 +131,16 @@ go test -tags gtk3 ./pkg/application \
 
 ## 2026-11-13 源码提交状态
 
-本轮重新核对最小 diff、已有失败/成功回归、构建输入、补丁及最终 Magpie 包的字节对应关系，没有重复运行成功测试。Wails 源码仍未提交或推送：仓库 AGENTS.md 要求提交前运行 `coderabbit --plain`，当前环境没有该命令，也没有本次 diff 已完成该审查的记录。人工发布授权已收到，但没有将其视为自动完成 CodeRabbit 审查。ChinaOSProject/wails 目标仓库也尚不可访问。报告和已验证二进制归档不表示 Wails 源码提交门禁已经通过。
+当日重新核对最小 diff、已有失败/成功回归、构建输入、补丁及最终 Magpie 包的字节对应关系，没有重复运行成功测试。源码仍未提交或推送：仓库 AGENTS.md 要求提交前运行 `coderabbit --plain`，当时环境没有该命令，也没有本次 diff 已完成该审查的记录。人工发布授权已收到，但没有将其视为自动完成 CodeRabbit 审查。当时 ChinaOSProject/wails 目标仓库也尚不可访问；后续状态见下节。报告和已验证二进制归档不表示 Wails 源码提交门禁已经通过。
+
+## 2026-11-14 审查补充
+
+按用户要求对当前完整差异再次进行只读静态审查。生产文件、新回归测试及既有补丁均与原测试快照逐字节一致；`git diff --check` 通过，未发现阻断性代码问题。原测试覆盖边界保持不变：直接覆盖 nil GTK widget，未直接覆盖非空 widget 但无 GDK window、销毁集成或真实窗口管理器状态转换。没有重新运行测试、构建或 Magpie。
+
+已取得官方 CodeRabbit CLI 0.9.5 的 x64 包，并使用官方安装脚本内的公钥核验发布清单签名、版本及归档 SHA256。归档为 52,728,629 字节，SHA256 `53f5d822019e6f7316ffcc2604199d94c2a39ad5216030804e3f12f1e4711818`。该发布只提供 Linux x64/arm64，未提供 LoongArch 包。工具仅解包到外接 ext4 缓存，没有安装到系统。
+
+经现有 LATX 的版本与帮助探测均返回 SIGSEGV。显式指定现有 `/run/wine` x64 运行根后，在 Wails 工作区实际执行 `coderabbit --plain`，返回退出码 7，错误为 `SyntaxError: Invalid character: '\0'`，位置 `/$bunfs/root/coderabbit:1922:4258`。审查未开始，认证状态也未确认，不能将运行尝试或静态审查记为 CodeRabbit 通过。该次执行禁用了 core dump。
+
+提交身份已从上游 Wails 提交 `035f5c8d76ffb81fc62c3cae7ada3fbe43fad0e5` 核实为 `taliesin-ai <bot@taliesin.ai>`，无需编造邮箱。未更改 Git 配置或创建提交。SSH 远端查询确认 ChinaOSProject/wails 现已可访问，默认 `master` 为 `293269ad9decdd85ccc051321fc6a7624bf5aae0`，本轮未修改任何远端分支；可访问性不替代 CodeRabbit 要求。
+
+本轮证据位于 `/mnt/chinaos-cache/ChinaOSProject-cache/publication-20261113/`：`wails-readonly-review-20261114.md`、同名 JSON、`wails-required-review-gates-20261114.json` 及 `coderabbit-review-tool/` 内的签名、校验和实际执行日志。Wails 源码仍未 stage、commit、传播或 push；强制审查尚未完成。

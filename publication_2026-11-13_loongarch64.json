@@ -1,6 +1,6 @@
 {
   "date": "2026-11-13",
-  "generated_utc": "2026-11-13T08:02:43.192997+00:00",
+  "generated_utc": "2026-11-14T00:59:55.275764+00:00",
   "scope": "Verified LoongArch ABI1 software and source-development artifacts from the Herdr/Codex/Clash/Magpie build tasks; held candidates are excluded.",
   "software_repository": "https://github.com/ChinaOSProject/binaries",
   "software_commit": "2933e168c9d1ac0324c1d0505f1385c9a39f00a1",
@@ -70,25 +70,27 @@
     "rusty_v8": {
       "debian10": "350c5a859a9b3c84ab8701b3ad51e3b7699b30c0",
       "loong64": "350c5a859a9b3c84ab8701b3ad51e3b7699b30c0"
+    },
+    "rust-float16": {
+      "debian10": "9028edc088ab4419536a5aa0b30cc227fcb5eb03",
+      "loong64": "9028edc088ab4419536a5aa0b30cc227fcb5eb03"
     }
   },
-  "local_source_commits_not_pushed": {
-    "float16": "9028edc088ab4419536a5aa0b30cc227fcb5eb03"
-  },
+  "local_source_commits_not_pushed": {},
   "missing_source_repositories": {
     "organization": "ChinaOSProject",
     "repositories": [],
-    "observed_response": "All ten intended fork names now accessible through authenticated SSH; the float16 name is an unrelated Go fork. Source gates are recorded separately.",
-    "observed_utc": "2026-11-13T08:00:51.743082+00:00"
+    "observed_response": "All required fork targets are available. ChinaOSProject/rust-float16 has verified parent/source Alexhuszagh/float16 and received both accepted adaptation branches. The unrelated Go ChinaOSProject/float16 fork was preserved. Source gates are recorded separately.",
+    "observed_utc": "2026-11-14T00:53:40.668269+00:00"
   },
   "held": [
     {
       "item": "Wails source commit",
-      "reason": "Mandatory coderabbit --plain review unavailable; exact source/patch/build/package correspondence reviewed, but no source commit or source push."
+      "reason": "2026-11-14 static review found no blocking correctness issue and matched existing tested inputs. Mandatory CodeRabbit 0.9.5 --plain execution via existing LATX failed with Bun SyntaxError, exit 7, before review/authentication; no source commit or push. Required taliesin-ai identity verified from an upstream Wails commit."
     },
     {
       "item": "Rust 1.99.1 SDK and source",
-      "reason": "ABI regression and source-review/push requirements remain unsatisfied; no SDK candidate released."
+      "reason": "2026-11-14 read-only review completed: preserved source ABI regression failed in a mixed producer/linker configuration; the option is not a universal ELF ABI switch; SDK development archives retain 0x43 code; the archive regression omits lib.rmeta-link. Source/SDK acceptance and Rust policy/push gates remain unsatisfied. No new implementation, test rerun, source commit or SDK release."
     },
     {
       "item": "Codex 0.166.0 matching-helper binary pair",
@@ -105,10 +107,6 @@
     {
       "item": "Withdrawn candidates",
       "reason": "Old GLib monolith, older GN/Ninja and compiler candidates, and withdrawn Git NO_CURL package excluded."
-    },
-    {
-      "item": "float16 source repository push",
-      "reason": "ChinaOSProject/float16 forks Go x448/float16. The accepted Rust source commit requires a fork of Alexhuszagh/float16, for example ChinaOSProject/rust-float16. The unrelated repository was preserved."
     }
   ],
   "limits": [
@@ -2592,8 +2590,8 @@
     },
     {
       "path": "lib_float16_v0.1.5_loongarch64.md",
-      "bytes": 15200,
-      "sha256": "c4fefbd85f8bf6080c783da75c6d9d52d3b519c19a1b3c19c729fb2ee28b3d3b"
+      "bytes": 15121,
+      "sha256": "563d9aae85d1607845f68b1b5f3135c40247667ff9bb9e45ffd5035b46b1b5b4"
     },
     {
       "path": "lib_float16_v0.1.5_loongarch64.patch",
@@ -2732,8 +2730,8 @@
     },
     {
       "path": "lib_wails_v3.0.0-beta.24_loongarch64.md",
-      "bytes": 13566,
-      "sha256": "4b3dd5204ae8217f744fd66701387e3a1339be67627da7163dd2c6a64d8984fa"
+      "bytes": 15576,
+      "sha256": "92358065cc3a8df2229e9dbef0a95e84aa539ae64da3995dc30419854016723b"
     },
     {
       "path": "lib_webkitgtk_v2.40.5_loongarch64.md",
@@ -3075,7 +3073,9 @@
       "required_upstream": "Alexhuszagh/float16",
       "suggested_fork_name": "rust-float16",
       "both_atomic_pushes_rejected_no_refs_created": true,
-      "wrong_origin_added_this_turn_removed": true
+      "wrong_origin_added_this_turn_removed": true,
+      "resolved_utc": "2026-11-14T00:46:05.692495+00:00",
+      "resolved_by": "source_publication_followup_20261114"
     },
     "updated_source_reports": [
       {
@@ -3124,5 +3124,55 @@
         "sha256": "89a77ecd0a954491f428e8ac16b8c1676c8dea9bc3f2735fea5b4966e46ed5a3"
       }
     ]
+  },
+  "source_publication_followup_20261114": {
+    "completed_utc": "2026-11-14T00:46:05.692495+00:00",
+    "repository": "ChinaOSProject/rust-float16",
+    "parent_source": "Alexhuszagh/float16",
+    "branches": {
+      "debian10": "9028edc088ab4419536a5aa0b30cc227fcb5eb03",
+      "loong64": "9028edc088ab4419536a5aa0b30cc227fcb5eb03"
+    },
+    "remote_refs_verified": true,
+    "fork_default_branch_preserved": true,
+    "fork_default_main": "6066be1922fb528a23aacb4da5880160378c758c",
+    "prior_wrong_fork_hold_resolved": true,
+    "no_source_or_artifact_changes": true,
+    "no_build_or_tests_rerun": true,
+    "updated_reports": [
+      {
+        "path": "lib_float16_v0.1.5_loongarch64.md",
+        "bytes": 15121,
+        "sha256": "563d9aae85d1607845f68b1b5f3135c40247667ff9bb9e45ffd5035b46b1b5b4"
+      },
+      {
+        "path": "lib_wails_v3.0.0-beta.24_loongarch64.md",
+        "bytes": 15576,
+        "sha256": "92358065cc3a8df2229e9dbef0a95e84aa539ae64da3995dc30419854016723b"
+      }
+    ],
+    "wails_static_review": "completed without a blocking correctness finding; scope and coverage limits preserved",
+    "wails_required_tool_review": "execution failed before review: Bun SyntaxError Invalid character \\0, exit 7; mandatory gate not satisfied",
+    "wails_identity": "taliesin-ai <bot@taliesin.ai> verified from upstream commit 035f5c8d76ffb81fc62c3cae7ada3fbe43fad0e5",
+    "magpie_executed_or_controlled": false,
+    "review_completed_utc": "2026-11-14T00:59:55.275764+00:00",
+    "rust_readonly_review": {
+      "outcome": "HOLD",
+      "finding_ids": [
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "source_diff_full_index_sha256": "f83e1d4e8bbd9f17f34119c42a1746ba3f47a2433420f845a7dfac1456e38c9a",
+      "source_diff_abbreviated_sha256": "ef49f59485b157f1f7072d745148041bf855f3d84e48477d55e75f8f9556bf21",
+      "review_md_sha256": "790c26a66c65e4c9dd1b0ecb4b4f63a2e8f3af1f19425cae4766c11088992dc3",
+      "review_json_sha256": "940fa30c7e7dd10094ba4cffc7f98dd748071868d9a94ae6b4b912060c4b09a9",
+      "source_committed_or_pushed": false,
+      "tests_rerun": false,
+      "llm_policy_remains_in_force": true
+    },
+    "wails_static_review_json_sha256": "523662504745b82b76932728d91aaa433228ab96b4ead8167a8928363689eeba",
+    "source_files_unchanged_in_review": true
   }
 }

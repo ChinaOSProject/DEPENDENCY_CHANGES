@@ -30,10 +30,11 @@
 | [service-ipc 2.7.7](https://github.com/ChinaOSProject/clash-verge-service-ipc/tree/loong64) | `eaaae99bb24c77155dbea95b3964f6d5be42b0f1` | `eaaae99bb24c77155dbea95b3964f6d5be42b0f1` |
 | [seccompiler 0.5.0](https://github.com/ChinaOSProject/seccompiler/tree/loong64) | `c3cf77d65815037931ae5bc2fca010713defdc8c` | `8bb8d11bbd729d6b1a64f2aa1ca466cc802f043b` |
 | [Wry 0.57.1](https://github.com/ChinaOSProject/wry/tree/loong64) | `c8bb6e63fd696160609d7795bbb32566e8ed6086` | `c8bb6e63fd696160609d7795bbb32566e8ed6086` |
+| [Rust float16 0.1.5](https://github.com/ChinaOSProject/rust-float16/tree/loong64) | `9028edc088ab4419536a5aa0b30cc227fcb5eb03` | `9028edc088ab4419536a5aa0b30cc227fcb5eb03` |
 
 以上分支均已通过实际远端 refs 精确核验。用户创建 fork 后新增的分支均通过普通原子推送发布，未改动 fork 默认分支。Magpie、Clash 应用源码未修改；应用分支归档精确构建基线，依赖源码修改由各独立仓库承载。Herdr 0.9.5 的正式包与历史完整测试记录已在此前归档，本次未重建或重复上传该包。
 
-Wry 的 `c8bb6e63fd696160609d7795bbb32566e8ed6086` 已推送至用户 fork。float16 的 `9028edc088ab4419536a5aa0b30cc227fcb5eb03` 已在本地 debian10 提交并快进到 loong64，main 保留上游基线；对应补丁、报告及实际源码包一致。用户新建的 ChinaOSProject/float16 经 GitHub API 核对为 **Go 项目 x448/float16** 的 fork，所需 Rust crate 上游是 **Alexhuszagh/float16**。两次原子推送均被远端拒绝，远端未创建适配分支，默认 master 未改动；本地本轮新增的错误目标 origin 已移除，保留正确 upstream。需将正确 Rust 项目另行 fork，例如命名为 ChinaOSProject/rust-float16。本次没有向任何上游仓库推送。
+Wry 的 `c8bb6e63fd696160609d7795bbb32566e8ed6086` 已推送至用户 fork。2026-11-14 已确认用户新建的 ChinaOSProject/rust-float16 的 parent/source 均为正确的 **Alexhuszagh/float16**，并将已审阅的 `9028edc088ab4419536a5aa0b30cc227fcb5eb03` 原子推送至 debian10 和 loong64；远端引用精确核验通过。默认 main 保持 `6066be1922fb528a23aacb4da5880160378c758c`，本地 main 保留原构建基线；源码、补丁及实际源码包均未改动，未重跑测试。原先误配的 Go fork ChinaOSProject/float16 保持原样。本次没有向任何上游仓库推送。
 
 LLVM 与 RustyV8 的版本线分别归档如下，不把不同构建输入或版本的修改混合：
 
@@ -48,9 +49,13 @@ LLVM21 的三个逻辑提交依次为 loader 检测 `070c87e0c0b1920eccd6b55737e
 
 ## 保留项与验证边界
 
-先前不存在或不可访问的源码 fork 现均已可访问，并已核对 parent/source。已完成推送的精确分支见上表及 LLVM/RustyV8 版本记录；float16 的同名项目误配问题见上段。Wails 和 Rust 的源码审查要求与验证失败仍独立保留，用户创建 fork 不代表这些门禁已经通过。
+先前不存在或不可访问的源码 fork 现均已可访问，并已核对 parent/source。已完成推送的精确分支见上表及 LLVM/RustyV8 版本记录；float16 的目标 fork 问题已于 2026-11-14 解决。Wails 和 Rust 的源码审查要求与验证失败仍独立保留，用户创建 fork 不代表这些门禁已经通过。
 
-Wails 源码仍未提交，缺少其 AGENTS.md 强制要求的 `coderabbit --plain` 审查。Rust 1.99.1 SDK 的 ABI 回归及源码审阅门禁尚未通过。Codex 0.166.0 的真实匹配 helper 虽已构建成功，但尚缺最终对象/通知、成对包和运行验收，因此未把旧版 compatibility helper 或新未验收 helper 纳入本次发布。
+2026-11-14 已补充 Wails 只读静态审查，未发现阻断性代码问题，且与原测试输入、补丁一致；覆盖边界保留。已核实 `taliesin-ai` 身份，并在专用缓存取得签名及哈希校验通过的官方 CodeRabbit 0.9.5。其 x64 包经现有 LATX 实际执行 `--plain` 返回 Bun 解析错误、退出码 7，未完成审查，故 Wails 源码仍未提交或推送。详见 Wails 正式报告的同日补充。
+
+Rust 1.99.1 的只读审查已完成，源码、SDK 仍保留：现有 ABI 回归失败、选项未覆盖全部 ELF 生产路径，候选开发归档中仍有 `0x43` 代码对象，不能以最终链接文件的 `0x3` 代替验收；现有归档回归还漏查 `lib.rmeta-link`。详细审查为本地外部证据，不作为 Rust PR、issue 或贡献文档。Rust 对 LLM 原创贡献文本及 soundness-sensitive 实现的限制仍适用，后续须遵循该项目的人类处理流程和 `#llm-mentoring` 路径。
+
+Codex 0.166.0 的真实匹配 helper 虽已构建成功，但尚缺最终对象/通知、成对包和运行验收，因此未把旧版 compatibility helper 或新未验收 helper 纳入本次发布。
 
 ordinary16 的消费者夹具失败，Next35 仅完成组装，Next17 仅完成准备；Zstd 及其他工具草案也未进入本清单。已撤回的 GLib 单体、旧 GN/Ninja、旧编译器候选和 Git NO_CURL 包均排除。源码开发包只确认各报告所列 feature/consumer 范围，不表示已完成全部 548 个已观察 Rust crate 版本的依赖交付。
 
