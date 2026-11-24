@@ -1,0 +1,104 @@
+{
+  "binary_repository": "ChinaOSProject/binaries",
+  "packaged_game_assets": false,
+  "packages": [
+    {
+      "path": "box64-wine/loongarch64/box64-wine_v0.4.5-1+chinaos1+cpu04b10_loongarch64.deb",
+      "bytes": 4663044,
+      "sha256": "3beaa85425fbbdcfdcde931a31ff0e1638241e53e70612bc989ccf11ff13c478",
+      "package": "box64-wine",
+      "version": "0.4.5-1+chinaos1+cpu04b10",
+      "architecture": "loongarch64",
+      "depends": "wine-proton-runtime (= 11.0-1+chinaos1+goty20261124)"
+    },
+    {
+      "path": "clash-libatomic1/loongarch64/clash-libatomic1_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 63040,
+      "sha256": "584725bebfc38abfe289e6a009f168ba3b47ed15cd94a3544ea7b8f75ae16bfb",
+      "package": "clash-libatomic1",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "depends": "libc6 (>= 2.28)"
+    },
+    {
+      "path": "clash-libgcc-s1/loongarch64/clash-libgcc-s1_v13.4.0-1loong1_loongarch64.deb",
+      "bytes": 417724,
+      "sha256": "cfaa0db7941319e71eaac285c760c821287d658caace21b0d655a60b9f161662",
+      "package": "clash-libgcc-s1",
+      "version": "13.4.0-1loong1",
+      "architecture": "loongarch64",
+      "depends": "libc6 (>= 2.28)"
+    },
+    {
+      "path": "libx11-6-proton/loongarch64/libx11-6-proton_v1.8.12-1+chinaos1+proton11.0.2e1_loongarch64.deb",
+      "bytes": 549240,
+      "sha256": "61b2c3989ea9be454330dfd558615288c9e0754023a8078e14b51df435b8382a",
+      "package": "libx11-6-proton",
+      "version": "1.8.12-1+chinaos1+proton11.0.2e1",
+      "architecture": "loongarch64",
+      "depends": "libc6 (>= 2.28), libxcb1 (>= 1.11.1), libx11-data-proton (= 1.8.12-1+chinaos1+proton11.0.2e1)"
+    },
+    {
+      "path": "libx11-data-proton/all/libx11-data-proton_v1.8.12-1+chinaos1+proton11.0.2e1_all.deb",
+      "bytes": 103736,
+      "sha256": "03afddfcf7039c1244279867ae18e88bfc5de51030d8b7dd95c21f0f91417b86",
+      "package": "libx11-data-proton",
+      "version": "1.8.12-1+chinaos1+proton11.0.2e1",
+      "architecture": "all",
+      "depends": ""
+    },
+    {
+      "path": "libx11-xcb1-proton/loongarch64/libx11-xcb1-proton_v1.8.12-1+chinaos1+proton11.0.2e1_loongarch64.deb",
+      "bytes": 7856,
+      "sha256": "99481d9bfe4adc18688a14ee08605ae6d036dfb828cae5ce519bf2437c7d3dcc",
+      "package": "libx11-xcb1-proton",
+      "version": "1.8.12-1+chinaos1+proton11.0.2e1",
+      "architecture": "loongarch64",
+      "depends": "libc6 (>= 2.28), libx11-6-proton (= 1.8.12-1+chinaos1+proton11.0.2e1)"
+    },
+    {
+      "path": "plants-vs-zombies-goty-launcher/all/plants-vs-zombies-goty-launcher_v1.2.0.1096-1+chinaos1_all.deb",
+      "bytes": 3524,
+      "sha256": "ea9116f2abc9f5c258db8eb12fa76253fb77d9b3ae6d5be06f7a8db2d58a9916",
+      "package": "plants-vs-zombies-goty-launcher",
+      "version": "1.2.0.1096-1+chinaos1",
+      "architecture": "all",
+      "depends": "wine-proton-runtime (= 11.0-1+chinaos1+goty20261124), wine-proton-i386 (= 11.0-1+chinaos1+goty20261124), box64-wine (= 0.4.5-1+chinaos1+cpu04b10), util-linux"
+    },
+    {
+      "path": "wine-proton-i386/loongarch64/wine-proton-i386_v11.0-1+chinaos1+goty20261124_loongarch64.deb",
+      "bytes": 42214072,
+      "sha256": "4a22d3db8f2ad19e3aef39cfe7d1c8a1036139743a494f893a7d56a96d23b5aa",
+      "package": "wine-proton-i386",
+      "version": "11.0-1+chinaos1+goty20261124",
+      "architecture": "loongarch64",
+      "depends": "wine-proton-runtime (= 11.0-1+chinaos1+goty20261124)"
+    },
+    {
+      "path": "wine-proton-runtime/loongarch64/wine-proton-runtime_v11.0-1+chinaos1+goty20261124_loongarch64.deb",
+      "bytes": 43802628,
+      "sha256": "fe31df42eb99b0cfd6d90da4d166782d47bb0fe06ac0aab1d71870bf3c3616e3",
+      "package": "wine-proton-runtime",
+      "version": "11.0-1+chinaos1+goty20261124",
+      "architecture": "loongarch64",
+      "depends": "libc6 (>= 2.28), clash-libatomic1 (= 13.4.0-1loong1), clash-libgcc-s1 (= 13.4.0-1loong1), libx11-6-proton (= 1.8.12-1+chinaos1+proton11.0.2e1), libx11-xcb1-proton (= 1.8.12-1+chinaos1+proton11.0.2e1), libxext6, libxi6, libxtst6, libxrender1, libxrandr2, libxcursor1, libxcomposite1, libxinerama1, libxfixes3, libfreetype6, libfontconfig1, libgl1, libglx-mesa0, libgl1-mesa-dri, libgnutls30, libpulse0, libudev1, libusb-1.0-0"
+    }
+  ],
+  "corresponding_source": [
+    {
+      "path": "source/goty-20261124/box64-wine-0.4.5-1+chinaos1+cpu04b10-source.tar.gz",
+      "bytes": 4060262,
+      "sha256": "a8b53983bde627b31793363f8e39f4a039e4cc1dc352e71c70097f7aa39c5b73"
+    },
+    {
+      "path": "source/goty-20261124/libx11-1.8.12-proton-runtime-source-20261124.tar.gz",
+      "bytes": 1917703,
+      "sha256": "f0749f020af0e9fd59f6242284439dbc54668b0408dec961978f5f9731c7129d"
+    },
+    {
+      "path": "source/goty-20261124/wine-proton-11.0-1+chinaos1+goty20261124-corresponding-source.tar.xz",
+      "bytes": 47668712,
+      "sha256": "7cb2e04fc74827614bcc08803649d57c6b0476e787899b6edb2b98ea22ec59cc"
+    }
+  ]
+}
