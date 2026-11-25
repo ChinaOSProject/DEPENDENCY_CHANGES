@@ -1,5 +1,15 @@
 # cbindgen 0.29.4 LoongArch64 构建报告
 
+## Firefox 160.0.1 构建与交付（2026-11-25）
+
+- 以同一 crates.io 发行版和 `Cargo.lock` 重建。用 Clang 21 驱动及已有 LoongArch 旧 ABI 兼容 LLD 21 链接，保留展开表，未修改源码。
+- Debian 包 `cbindgen`，版本 `0.29.4-1+chinaos1`，架构 `loongarch64`，依赖由 `dpkg-shlibdeps` 计算为 `libc6 (>= 2.28), libgcc1 (>= 1:4.2)`。包内含 `/usr/bin/cbindgen` 及许可证。
+- 软件包名称和工具文件布局参考 Debian `rust-cbindgen` 源码包的 `cbindgen` 分包。本包使用 crates.io 的源码归档和旧基座的 `libgcc1`，架构名沿用目标系统的 `loongarch64`。[Debian 打包源码](https://packages.debian.org/source/sid/rust-cbindgen)
+- 交付 `../binaries/cbindgen/loongarch64/cbindgen_v0.29.4-1+chinaos1_loongarch64.deb`，SHA256 `1df64a4a79994a47e62fa27b7d9fc30251898d3b7dbaaf1d2646636336b0bd8b`。
+- 宿主解包执行返回 `cbindgen 0.29.4`。已与本次五个 Clang 分包和 LLVM 22 SDK 在独立 glibc 2.28 容器共同安装，并通过 `dpkg --verify`、`apt-get check` 与版本检查。Firefox 配置已选中该工具并生成 FFI 头。目标 ELF flags `0x3`，最高 GLIBC 导入 `2.28`。
+
+## 2026-10-28 构建记录
+
 - 仓库：<https://github.com/mozilla/cbindgen>；crates.io 固定版本 `0.29.4`，使用随发行包的 Cargo.lock（`--locked`）。
 - 类型：Firefox 157.0.1 构建期 Rust/C++ 绑定生成工具；不作为最终浏览器的运行依赖或独立应用交付。
 - 源码修改：无。通过 Cargo 官方注册表下载，全部在 Firefox 专用 Podman 容器内原生编译。

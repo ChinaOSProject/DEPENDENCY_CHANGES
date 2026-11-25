@@ -1,6 +1,24 @@
 # Clang 22.1.8 原生 LoongArch64 ABI v0 依赖构建
 
-## 来源与目的
+## Firefox 160.0.1 构建与分包（2026-11-25）
+
+本次在 `/mnt/chinaos-cache/ChinaOSProject-cache/firefox-160.0.1` 重建 Clang 前端和 C API。沿用下文记录的 Loongnix 源码归档，复用与正式 `llvm-22` 包匹配的 LLVM 22.1.8 SDK，未修改 Clang 或 LLVM 源码。构建容器为 `firefox-clang-160-matching-sdk`。Clang 及 libclang 的 ELF 均为 LoongArch LP64、flags `0x3`。libclang 保留上游构建生成的 SONAME `libclang.so.22.1`。
+
+分包参考 Debian `llvm-toolchain-22` 源码包的 `clang-22`、`clang-tools-22`、`libclang1-22`、`libclang-22-dev` 和 `libclang-common-22-dev`，本次均为 `22.1.8-1+chinaos1`、`loongarch64`。安装前缀为 `/usr/lib/llvm-22`。编译器包提供 `/usr/bin` 的版本化入口。工具包仅收录本次生成的 `clang-tblgen`。运行库包提供 SONAME 链接和前缀内私有 GCC 13 `libstdc++.so.6`。开发包提供 `clang-c` 和 `clang` 头文件、C API 链接入口及本次生成的 27 个静态库，并依赖匹配的 LLVM SDK。公共开发包提供编译器资源头。[Debian 分包依据](https://packages.debian.org/source/sid/llvm-toolchain-22)
+
+| 包名 | SHA256 |
+| --- | --- |
+| `clang-22` | `7e9a1303c2183e64d490e48b6c3edcfbac76f58a52f1275f64fd3f86fd1e19a4` |
+| `clang-tools-22` | `b8e8068f11529fd318a9e850247fd168d14fe706a6fdd2b968a15a8de8fdabf7` |
+| `libclang1-22` | `9a5bba56ed18b85b852693f34043e20ce9020325c8e7e2e72ff78c2cae252b58` |
+| `libclang-22-dev` | `642505f51070d71a67afbda22459f8d1f642ba438d322747cba7dd9e878e7482` |
+| `libclang-common-22-dev` | `397b4551d3e1b9566b559f1692070420cbd7738dcb1f21f2ac700c46d732b048` |
+
+五个 Clang 分包与 cbindgen、已有 LLVM 22 SDK 在干净的 glibc 2.28 容器中共同安装。`dpkg --audit`、`dpkg --verify`、`apt-get check`、Clang 和 Clang++ 版本检查、libclang C API、`-mlsx` 对象和静态 C++ 接口测试均通过。`clang-tblgen-22` 从样例声明生成了预期记录。静态库中的 684 个 ELF 对象均为 LoongArch ABI v0、flags `0x3`。TableGen 和静态链接探测程序使用 `/lib64/ld.so.1`，最高 GLIBC 导入均为 `2.27`。验证日志为 `logs/verify-clang-complete.log`。
+
+## 2026-10-28 构建记录
+
+### 来源与目的
 
 - 依赖仓库：https://github.com/llvm/llvm-project
 - 实际源码：Loongnix `llvm-project_22.1.8-1.src.tar.gz`
@@ -92,4 +110,4 @@ ninja -C /work/clang22-v0-20261028/build -j3 \
 
 配置、构建和验证日志保存在上述独立工作目录内：`configure.log`、`build.log`、`build-start.txt`、`build-end.txt`、`source-compare.log`、`install.log`、`verify.log`、`verify.sh` 及 `probes/`。反汇编与展开表单独保存在 `probes/cxx17-lsx-unwind.disassembly.txt`、`probes/cxx17-lsx-unwind.frames.txt`。
 
-这是用于 Firefox 构建的编译器/SDK 依赖，按项目规则不额外创建无用途的 `.deb` 应用包。Firefox 的新构建必须使用独立对象目录，不能混入此前 GCC 或 ABI v1 Clang 的对象。最终 Firefox 软件包的系统 ABI、运行库私有携带和浏览器功能验证由 Firefox 构建报告记录。
+2026-10-28 的构建产物用于 Firefox 157.0.1。2026-11-25 的重建和 Debian 分包见本报告开头。Firefox 软件包的系统 ABI、私有运行库和浏览器功能验证由各版本的 Firefox 构建报告记录。
