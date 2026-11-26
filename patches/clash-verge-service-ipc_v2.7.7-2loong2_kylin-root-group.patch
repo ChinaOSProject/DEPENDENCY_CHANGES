@@ -1,0 +1,67 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 81930ae..c1b16a7 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -45,6 +45,7 @@ path = "src/bin/service_integration_driver.rs"
+ required-features = ["client"]
+ 
+ [features]
++chinaos-kylin-root-group = []
+ development-channel = []
+ standalone = [
+     "kode-bridge",
+diff --git a/src/core/trusted_core_location.rs b/src/core/trusted_core_location.rs
+index 1b2b52f..2579053 100644
+--- a/src/core/trusted_core_location.rs
++++ b/src/core/trusted_core_location.rs
+@@ -69,14 +69,36 @@ fn is_trusted_macos_location(canonical: &Path) -> bool {
+     canonical.starts_with(MACOS_APPLICATIONS_ROOT)
+ }
+ 
+-/// Every component from the core down to `/` must be root-owned and unwritable by group or other.
+-/// Packaged installs land in root-owned prefixes, so this holds for DEB and RPM builds.
++/// Checks the full root-owned path using the build's Linux permission policy.
+ #[cfg(target_os = "linux")]
+ fn check_platform_location(canonical: &Path) -> Result<(), ServiceError> {
+     require_root_owned_chain(canonical, None)
+ }
+ 
+-/// Requires every component up the tree to be root-owned and unwritable by group or other.
++#[cfg(all(target_os = "linux", feature = "chinaos-kylin-root-group"))]
++fn is_kylin_system_directory(component: &Path, metadata: &std::fs::Metadata) -> bool {
++    use std::os::unix::fs::MetadataExt as _;
++
++    let path = match component.to_str() {
++        Some("/") => c"/",
++        Some("/usr") => c"/usr",
++        _ => return false,
++    };
++    if !metadata.is_dir() || metadata.gid() != 0 || metadata.mode() & 0o7777 != 0o775 {
++        return false;
++    }
++    let size = unsafe {
++        platform_lib::lgetxattr(
++            path.as_ptr(),
++            c"system.posix_acl_access".as_ptr(),
++            std::ptr::null_mut(),
++            0,
++        )
++    };
++    size == -1 && std::io::Error::last_os_error().raw_os_error() == Some(platform_lib::ENODATA)
++}
++
++/// Requires every component up the tree to be root-owned and protected against untrusted writes.
+ ///
+ /// `stop_after` bounds the walk at a directory whose own parents the operating system manages, for
+ /// platforms where those parents are deliberately group-writable.
+@@ -91,6 +113,10 @@ fn require_root_owned_chain(canonical: &Path, stop_after: Option<&Path>) -> Resu
+             return Err(untrusted(format!("core path {component:?} is not owned by root")));
+         }
+         if metadata.mode() & 0o022 != 0 {
++            #[cfg(all(target_os = "linux", feature = "chinaos-kylin-root-group"))]
++            if is_kylin_system_directory(component, &metadata) {
++                continue;
++            }
+             return Err(untrusted(format!(
+                 "core path {component:?} is writable by group or other"
+             )));
