@@ -19,4 +19,4 @@
 
 - 安装包为 `firefox_v160.0.1-3_loongarch64.deb`，大小为 81,955,532 字节。
 - SHA-256 为 `4fc7431cdfeb6a01cce07884e9b3f7e8940d32cfd913cb8c1e56bb672338b187`。
-- 官方品牌二进制在本地交付。公开分发待确认 Mozilla 的书面许可。[Mozilla 软件分发政策](https://www.mozilla.org/en-US/foundation/trademarks/distribution-policy/)
+- 安装包已发布至 `ChinaOSProject/binaries` 的 `firefox/loongarch64/`。该构建保留官方品牌；按 [Mozilla 软件分发政策](https://www.mozilla.org/en-US/foundation/trademarks/distribution-policy/)，带商标修改版的公开分发需事先取得书面许可，请在使用或再分发前确认授权。
