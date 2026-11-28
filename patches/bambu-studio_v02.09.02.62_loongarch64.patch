@@ -1,0 +1,2310 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d787af1..162504f 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -435,8 +435,11 @@ endif()
+ # set(Boost_COMPILER "-mgw81")
+ # boost::process was introduced first in version 1.64.0,
+ # boost::beast::detail::base64 was introduced first in version 1.66.0
+-set(MINIMUM_BOOST_VERSION "1.83.0")
++set(MINIMUM_BOOST_VERSION "1.71.0")
+ set(_boost_components "system;filesystem;thread;log;locale;regex;chrono;atomic;date_time;iostreams")
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++    set(Boost_NO_BOOST_CMAKE ON)
++endif()
+ find_package(Boost ${MINIMUM_BOOST_VERSION} REQUIRED COMPONENTS ${_boost_components})
+ 
+ add_library(boost_libs INTERFACE)
+@@ -531,7 +534,7 @@ if(SLIC3R_STATIC)
+     set(TBB_STATIC 1)
+ endif()
+ set(TBB_DEBUG 1)
+-find_package(TBB REQUIRED)
++find_package(TBB REQUIRED COMPONENTS tbbmalloc)
+ # include_directories(${TBB_INCLUDE_DIRS})
+ # add_definitions(${TBB_DEFINITIONS})
+ # if(MSVC)
+diff --git a/cmake/modules/FindTBB.cmake.in b/cmake/modules/FindTBB.cmake.in
+index fde8ca5..9cc2764 100644
+--- a/cmake/modules/FindTBB.cmake.in
++++ b/cmake/modules/FindTBB.cmake.in
+@@ -311,6 +311,14 @@ if(NOT TBB_FOUND)
+     endif()
+   endif()
+ 
++  if(TBB_FOUND AND TBB_tbbmalloc_FOUND AND NOT TARGET TBB::tbbmalloc)
++    add_library(TBB::tbbmalloc UNKNOWN IMPORTED)
++    set_target_properties(TBB::tbbmalloc PROPERTIES
++      INTERFACE_INCLUDE_DIRECTORIES "${TBB_INCLUDE_DIRS}"
++      IMPORTED_LOCATION "${TBB_tbbmalloc_LIBRARY}"
++    )
++  endif()
++
+   mark_as_advanced(TBB_INCLUDE_DIRS TBB_LIBRARIES)
+ 
+   unset(TBB_ARCHITECTURE)
+diff --git a/deps/OCCT/OCCT.cmake b/deps/OCCT/OCCT.cmake
+index 0c146a6..4f9710d 100644
+--- a/deps/OCCT/OCCT.cmake
++++ b/deps/OCCT/OCCT.cmake
+@@ -8,6 +8,31 @@ if (BINARY_DIR_REL)
+     set(OCCT_DIRECTORY_FLAG --directory ${BINARY_DIR_REL}/dep_OCCT-prefix/src/dep_OCCT)
+ endif ()
+ 
++find_path(_OCCT_FREETYPE_INCLUDE_DIR
++    NAMES ft2build.h
++    PATHS ${CMAKE_INCLUDE_PATH} ${DESTDIR}/usr/local/include
++    PATH_SUFFIXES freetype2
++)
++find_library(_OCCT_FREETYPE_LIBRARY
++    NAMES freetype
++    PATHS ${CMAKE_LIBRARY_PATH} ${DESTDIR}/usr/local/lib ${DESTDIR}/usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
++)
++if(NOT _OCCT_FREETYPE_INCLUDE_DIR OR NOT _OCCT_FREETYPE_LIBRARY)
++    message(FATAL_ERROR "OCCT requires FreeType headers and libraries.")
++endif()
++
++set(_OCCT_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++    find_path(_OCCT_X11_INCLUDE_DIR
++        NAMES X11/Xlib.h
++        PATHS ${CMAKE_INCLUDE_PATH}
++        NO_DEFAULT_PATH
++    )
++    if(_OCCT_X11_INCLUDE_DIR)
++        string(APPEND _OCCT_CXX_FLAGS " -idirafter ${_OCCT_X11_INCLUDE_DIR}")
++    endif()
++endif()
++
+ bambustudio_add_cmake_project(OCCT
+     URL https://github.com/Open-Cascade-SAS/OCCT/archive/refs/tags/V7_6_0.zip
+     URL_HASH SHA256=28334f0e98f1b1629799783e9b4d21e05349d89e695809d7e6dfa45ea43e1dbc
+@@ -30,8 +55,12 @@ bambustudio_add_cmake_project(OCCT
+         -DBUILD_MODULE_ModelingAlgorithms=OFF
+         -DBUILD_MODULE_ModelingData=OFF
+         -DBUILD_MODULE_Visualization=OFF
++        -DCMAKE_CXX_FLAGS:STRING=${_OCCT_CXX_FLAGS}
++        -D3RDPARTY_FREETYPE_INCLUDE_DIR_ft2build:PATH=${_OCCT_FREETYPE_INCLUDE_DIR}
++        -D3RDPARTY_FREETYPE_INCLUDE_DIR_freetype2:PATH=${_OCCT_FREETYPE_INCLUDE_DIR}
++        -D3RDPARTY_FREETYPE_LIBRARY:FILEPATH=${_OCCT_FREETYPE_LIBRARY}
+ )
+ 
+ if (DEP_BUILD_FREETYPE)
+     add_dependencies(dep_OCCT ${FREETYPE_PKG})
+-endif ()
+\ No newline at end of file
++endif ()
+diff --git a/deps/OpenMeshCraft/CMakeLists.txt.in b/deps/OpenMeshCraft/CMakeLists.txt.in
+index d583e57..06c23d8 100644
+--- a/deps/OpenMeshCraft/CMakeLists.txt.in
++++ b/deps/OpenMeshCraft/CMakeLists.txt.in
+@@ -62,6 +62,10 @@ endif()
+ # Studio TBB::tbb PUBLIC-links Threads::Threads; find it project-wide.
+ find_package(Threads REQUIRED)
+ 
++if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9")
++  add_compile_definitions(OMC_UNUSED=)
++endif()
++
+ add_subdirectory(external)
+ 
+ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+@@ -71,6 +75,15 @@ endif()
+ 
+ add_subdirectory(src)
+ 
++find_path(_OMC_TBB_INCLUDE_DIR NAMES tbb/tbb.h
++  PATHS ${CMAKE_PREFIX_PATH}
++  PATH_SUFFIXES include
++  NO_DEFAULT_PATH)
++if(_OMC_TBB_INCLUDE_DIR)
++  target_include_directories(OpenMeshCraft BEFORE PUBLIC "${_OMC_TBB_INCLUDE_DIR}")
++endif()
++set_property(TARGET OpenMeshCraft PROPERTY NO_SYSTEM_FROM_IMPORTED TRUE)
++
+ # ---- C ABI wrapper + install package (was bambu_studio_package.cmake) ----
+ if(NOT TARGET OpenMeshCraft)
+   message(FATAL_ERROR "OpenMeshCraft target is missing; cannot package boolean backend.")
+diff --git a/deps/OpenMeshCraft/OpenMeshCraft.cmake b/deps/OpenMeshCraft/OpenMeshCraft.cmake
+index 4ee62c6..5128756 100644
+--- a/deps/OpenMeshCraft/OpenMeshCraft.cmake
++++ b/deps/OpenMeshCraft/OpenMeshCraft.cmake
+@@ -39,6 +39,8 @@ cmake_minimum_required(VERSION 3.13)
+ if(NOT DEFINED OMC_SOURCE_DIR)
+   message(FATAL_ERROR "OMC_SOURCE_DIR must be set")
+ endif()
++set(CMAKE_INCLUDE_PATH "$ENV{CMAKE_INCLUDE_PATH}")
++set(CMAKE_LIBRARY_PATH "$ENV{CMAKE_LIBRARY_PATH}")
+ 
+ function(omc_fetch_zip url sha256 out_dir strip_prefix marker_file)
+   if(EXISTS "${out_dir}/${marker_file}")
+@@ -75,24 +77,37 @@ function(omc_fetch_zip url sha256 out_dir strip_prefix marker_file)
+ endfunction()
+ 
+ # Zip only has empty submodule placeholders for these; never pull CGAL.
+-omc_fetch_zip(
+-  "https://gitlab.com/libeigen/eigen/-/archive/68f4e58cfacc686583d16cff90361f0b43bc2c1b/eigen-68f4e58cfacc686583d16cff90361f0b43bc2c1b.zip"
+-  "41D12F1FC8E18606F39312681C6E1B957A4746ED97676C576E23E73554C6A662"
+-  "${OMC_SOURCE_DIR}/external/eigen"
+-  "eigen-68f4e58cfacc686583d16cff90361f0b43bc2c1b"
+-  "CMakeLists.txt")
++find_path(OMC_STUDIO_EIGEN_INCLUDE_DIR NAMES Eigen/Core PATH_SUFFIXES eigen3)
++if(NOT OMC_STUDIO_EIGEN_INCLUDE_DIR)
++  omc_fetch_zip(
++    "https://gitlab.com/libeigen/eigen/-/archive/68f4e58cfacc686583d16cff90361f0b43bc2c1b/eigen-68f4e58cfacc686583d16cff90361f0b43bc2c1b.zip"
++    "41D12F1FC8E18606F39312681C6E1B957A4746ED97676C576E23E73554C6A662"
++    "${OMC_SOURCE_DIR}/external/eigen"
++    "eigen-68f4e58cfacc686583d16cff90361f0b43bc2c1b"
++    "CMakeLists.txt")
++else()
++  message(STATUS "[OpenMeshCraft] Using Eigen headers at ${OMC_STUDIO_EIGEN_INCLUDE_DIR}")
++endif()
+ omc_fetch_zip(
+   "https://github.com/greg7mdp/parallel-hashmap/archive/154c63489e84d5569d3b466342a2ae8fd99e4734.zip"
+   "29D0C510018D9BDAA5FBECAF95C2EAA616027D568E4A631D363B27620DE4E07B"
+   "${OMC_SOURCE_DIR}/external/parallel-hashmap"
+   "parallel-hashmap-154c63489e84d5569d3b466342a2ae8fd99e4734"
+   "CMakeLists.txt")
+-omc_fetch_zip(
+-  "https://github.com/oneapi-src/oneTBB/archive/d75ea937f7e480bd7775d7dab224e0b38451bb40.zip"
+-  "FE22388FB9435DCEFA66C8189D4A8FBD8D968FDA3A3DC4F578F78A3DD201C68E"
+-  "${OMC_SOURCE_DIR}/external/oneTBB"
+-  "oneTBB-d75ea937f7e480bd7775d7dab224e0b38451bb40"
+-  "CMakeLists.txt")
++set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
++set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".a")
++find_path(OMC_STUDIO_TBB_INCLUDE_DIR NAMES tbb/tbb.h)
++find_library(OMC_STUDIO_TBB_LIBRARY NAMES tbb)
++if(NOT OMC_STUDIO_TBB_INCLUDE_DIR OR NOT OMC_STUDIO_TBB_LIBRARY)
++  omc_fetch_zip(
++    "https://github.com/oneapi-src/oneTBB/archive/d75ea937f7e480bd7775d7dab224e0b38451bb40.zip"
++    "FE22388FB9435DCEFA66C8189D4A8FBD8D968FDA3A3DC4F578F78A3DD201C68E"
++    "${OMC_SOURCE_DIR}/external/oneTBB"
++    "oneTBB-d75ea937f7e480bd7775d7dab224e0b38451bb40"
++    "CMakeLists.txt")
++else()
++  message(STATUS "[OpenMeshCraft] Using TBB at ${OMC_STUDIO_TBB_LIBRARY}")
++endif()
+ 
+ # Header-only {fmt} 10.2.1. OpenMeshCraft ConfigureFmt.cmake uses external/fmt
+ # when present and sets FMT_CONSTEVAL=; do not patch fmt headers here.
+@@ -180,9 +195,13 @@ if(OMC_BUILD_TEST)
+ endif()
+ 
+ if(NOT TARGET Eigen3)
++  find_path(OMC_STUDIO_EIGEN_INCLUDE_DIR NAMES Eigen/Core PATH_SUFFIXES eigen3)
++  if(NOT OMC_STUDIO_EIGEN_INCLUDE_DIR)
++    set(OMC_STUDIO_EIGEN_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/eigen")
++  endif()
+   add_library(Eigen3 INTERFACE IMPORTED GLOBAL)
+   set_target_properties(Eigen3 PROPERTIES
+-    INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/eigen")
++    INTERFACE_INCLUDE_DIRECTORIES "${OMC_STUDIO_EIGEN_INCLUDE_DIR}")
+ endif()
+ 
+ if(OMC_BUILD_TEST)
+@@ -249,12 +268,45 @@ if(MPFR_PKG)
+   list(APPEND _OMC_DEPENDS ${MPFR_PKG})
+ endif()
+ 
++set(_OMC_CMAKE_ARGS)
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++  find_path(_OMC_EIGEN_INCLUDE_DIR NAMES Eigen/Core PATH_SUFFIXES eigen3)
++  if(_OMC_EIGEN_INCLUDE_DIR)
++    list(APPEND _OMC_CMAKE_ARGS
++      "-DOMC_STUDIO_EIGEN_INCLUDE_DIR:PATH=${_OMC_EIGEN_INCLUDE_DIR}")
++  endif()
++  if(NOT BOOST_PKG)
++    find_package(Boost 1.71 CONFIG REQUIRED)
++    list(APPEND _OMC_CMAKE_ARGS "-DBoost_DIR:PATH=${Boost_DIR}")
++  endif()
++  if(NOT GMP_PKG)
++    find_path(_OMC_GMP_INCLUDE_DIR NAMES gmp.h)
++    find_library(_OMC_GMP_LIBRARY NAMES gmp)
++    if(NOT _OMC_GMP_INCLUDE_DIR OR NOT _OMC_GMP_LIBRARY)
++      message(FATAL_ERROR "OpenMeshCraft requires the target GMP development package.")
++    endif()
++    list(APPEND _OMC_CMAKE_ARGS
++      "-DOMC_STUDIO_GMP_INCLUDE_DIR:PATH=${_OMC_GMP_INCLUDE_DIR}"
++      "-DOMC_STUDIO_GMP_LIBRARY:FILEPATH=${_OMC_GMP_LIBRARY}")
++  endif()
++  if(NOT MPFR_PKG)
++    find_path(_OMC_MPFR_INCLUDE_DIR NAMES mpfr.h)
++    find_library(_OMC_MPFR_LIBRARY NAMES mpfr)
++    if(NOT _OMC_MPFR_INCLUDE_DIR OR NOT _OMC_MPFR_LIBRARY)
++      message(FATAL_ERROR "OpenMeshCraft requires the target MPFR development package.")
++    endif()
++    list(APPEND _OMC_CMAKE_ARGS
++      "-DOMC_STUDIO_MPFR_INCLUDE_DIR:PATH=${_OMC_MPFR_INCLUDE_DIR}"
++      "-DOMC_STUDIO_MPFR_LIBRARY:FILEPATH=${_OMC_MPFR_LIBRARY}")
++  endif()
++endif()
++
+ set(_OMC_SIMD_ARGS
+   -DOMC_CMAKE_ENABLE_AVX=OFF
+   -DOMC_CMAKE_ENABLE_AVX2=OFF
+   -DOMC_CMAKE_ENABLE_FMA=OFF
+ )
+-if(APPLE)
++if(APPLE OR CMAKE_SYSTEM_PROCESSOR MATCHES "^(loongarch64|loong64)$")
+   list(APPEND _OMC_SIMD_ARGS -DOMC_CMAKE_ENABLE_SSE2=OFF)
+ endif()
+ 
+@@ -276,9 +328,14 @@ bambustudio_add_cmake_project(OpenMeshCraft
+   PATCH_COMMAND ${CMAKE_COMMAND}
+     -DOMC_SOURCE_DIR=<SOURCE_DIR>
+     -P ${_OMC_GEN_DIR}/prepare_source.cmake
++  COMMAND ${CMAKE_COMMAND} -E copy
++    ${_OMC_DIR}/shewchuk-predicates-CMakeLists.txt
++    <SOURCE_DIR>/external/shewchuk-predicates/CMakeLists.txt
+   COMMAND ${CMAKE_COMMAND} -E copy
+     ${_OMC_DIR}/CMakeLists.txt.in
+     <SOURCE_DIR>/CMakeLists.txt
++  COMMAND patch -p1 --forward -i
++    ${_OMC_DIR}/0001-reduce-compat.patch
+   COMMAND ${CMAKE_COMMAND} -E copy
+     ${_OMC_GEN_DIR}/external_CMakeLists.txt
+     <SOURCE_DIR>/external/CMakeLists.txt
+@@ -298,10 +355,20 @@ bambustudio_add_cmake_project(OpenMeshCraft
+     -DOMC_MASTER_PROJECT=OFF
+     -DOMC_BUILD_PREDICATES_GENERATOR=OFF
+     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
++    ${_OMC_CMAKE_ARGS}
+     ${_OMC_FORMAT_ARGS}
+     ${_OMC_SIMD_ARGS}
+ )
+ 
++ExternalProject_Add_Step(dep_OpenMeshCraft update_studio_root
++  COMMAND ${CMAKE_COMMAND} -E copy_if_different
++    ${_OMC_DIR}/CMakeLists.txt.in
++    <SOURCE_DIR>/CMakeLists.txt
++  DEPENDEES patch
++  DEPENDERS configure
++  DEPENDS ${_OMC_DIR}/CMakeLists.txt.in
++)
++
+ if(MSVC)
+   add_debug_dep(dep_OpenMeshCraft)
+ endif()
+diff --git a/deps/OpenMeshCraft/OpenMeshCraftConfig.cmake.in b/deps/OpenMeshCraft/OpenMeshCraftConfig.cmake.in
+index b3895e2..ae9ebb3 100644
+--- a/deps/OpenMeshCraft/OpenMeshCraftConfig.cmake.in
++++ b/deps/OpenMeshCraft/OpenMeshCraftConfig.cmake.in
+@@ -31,10 +31,15 @@ find_library(OPENMESHCRAFT_SHEWCHUK_LIBRARY
+   NO_DEFAULT_PATH
+ )
+ 
++set(_OPENMESHCRAFT_REQUIRED_VARS OPENMESHCRAFT_INCLUDE_DIR OPENMESHCRAFT_BOOLEAN_LIBRARY)
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++  find_library(OPENMESHCRAFT_GMP_LIBRARY NAMES gmp libgmp)
++  find_library(OPENMESHCRAFT_MPFR_LIBRARY NAMES mpfr libmpfr)
++  list(APPEND _OPENMESHCRAFT_REQUIRED_VARS OPENMESHCRAFT_GMP_LIBRARY OPENMESHCRAFT_MPFR_LIBRARY)
++endif()
++
+ include(FindPackageHandleStandardArgs)
+-find_package_handle_standard_args(OpenMeshCraft
+-  REQUIRED_VARS OPENMESHCRAFT_INCLUDE_DIR OPENMESHCRAFT_BOOLEAN_LIBRARY
+-)
++find_package_handle_standard_args(OpenMeshCraft REQUIRED_VARS ${_OPENMESHCRAFT_REQUIRED_VARS})
+ 
+ if(NOT OpenMeshCraft_FOUND)
+   return()
+@@ -47,6 +52,15 @@ endif()
+ if(OPENMESHCRAFT_SHEWCHUK_LIBRARY)
+   list(APPEND _OPENMESHCRAFT_LINK_LIBS "${OPENMESHCRAFT_SHEWCHUK_LIBRARY}")
+ endif()
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++  include(CMakeFindDependencyMacro)
++  find_dependency(Threads)
++  if(NOT TARGET TBB::tbb)
++    find_dependency(TBB CONFIG)
++  endif()
++  list(APPEND _OPENMESHCRAFT_LINK_LIBS TBB::tbb
++    "${OPENMESHCRAFT_MPFR_LIBRARY}" "${OPENMESHCRAFT_GMP_LIBRARY}")
++endif()
+ 
+ if(NOT TARGET OpenMeshCraft::OpenMeshCraftBoolean)
+   add_library(OpenMeshCraft::OpenMeshCraftBoolean INTERFACE IMPORTED)
+diff --git a/deps/OpenVDB/OpenVDB.cmake b/deps/OpenVDB/OpenVDB.cmake
+index e6816a9..8ff6d1a 100644
+--- a/deps/OpenVDB/OpenVDB.cmake
++++ b/deps/OpenVDB/OpenVDB.cmake
+@@ -10,6 +10,23 @@ if (BINARY_DIR_REL)
+     set(OPENVDB_DIRECTORY_FLAG --directory ${BINARY_DIR_REL}/dep_OpenVDB-prefix/src/dep_OpenVDB)
+ endif ()
+ 
++find_path(_OPENVDB_BOOST_INCLUDE_DIR
++    NAMES boost/version.hpp
++    PATHS ${CMAKE_INCLUDE_PATH} ${CMAKE_PREFIX_PATH}
++    PATH_SUFFIXES include
++)
++find_library(_OPENVDB_BOOST_IOSTREAMS_LIBRARY
++    NAMES boost_iostreams
++    PATHS ${CMAKE_LIBRARY_PATH} ${CMAKE_PREFIX_PATH}
++    PATH_SUFFIXES lib/${CMAKE_LIBRARY_ARCHITECTURE} lib
++)
++if(NOT _OPENVDB_BOOST_INCLUDE_DIR OR NOT _OPENVDB_BOOST_IOSTREAMS_LIBRARY)
++    message(FATAL_ERROR "OpenVDB requires the target Boost headers and iostreams library.")
++endif()
++get_filename_component(_OPENVDB_BOOST_LIBRARY_DIR
++    "${_OPENVDB_BOOST_IOSTREAMS_LIBRARY}" DIRECTORY
++)
++
+ set (_openvdb_vdbprint ON)
+ #if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm")
+     # Build fails on raspberry pi due to missing link directive to latomic
+@@ -33,6 +50,9 @@ bambustudio_add_cmake_project(OpenVDB
+         -DTBB_STATIC=${_build_static}
+         -DOPENVDB_BUILD_VDB_PRINT=${_openvdb_vdbprint}
+         -DDISABLE_DEPENDENCY_VERSION_CHECKS=ON # Centos6 has old zlib
++        -DBoost_NO_BOOST_CMAKE=ON
++        -DBoost_INCLUDE_DIR:PATH=${_OPENVDB_BOOST_INCLUDE_DIR}
++        -DBOOST_LIBRARYDIR:PATH=${_OPENVDB_BOOST_LIBRARY_DIR}
+ )
+ 
+ if (MSVC)
+diff --git a/deps/TBB/TBB.cmake b/deps/TBB/TBB.cmake
+index 874737a..176deb4 100644
+--- a/deps/TBB/TBB.cmake
++++ b/deps/TBB/TBB.cmake
+@@ -13,6 +13,8 @@ if (MSVC)
+     # (__rdtsc, _mm_mfence) that softintrin handles at link time; TBB's default
+     # warnings-as-errors turns those fatal.
+     set(_tbb_strict -DTBB_STRICT=OFF)
++elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(loongarch64|loong64)$")
++    set(_tbb_patch PATCH_COMMAND patch -p1 --forward -i ${CMAKE_CURRENT_LIST_DIR}/0002-LoongArch-disable-ITT.patch)
+ endif ()
+ 
+ bambustudio_add_cmake_project(
+@@ -35,4 +37,3 @@ if (MSVC)
+     add_debug_dep(dep_TBB)
+ endif ()
+ 
+-
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 64dbc1a..241ab51 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -53,15 +53,21 @@ if (SLIC3R_GUI)
+         message(STATUS "WXWIN environment set to: $ENV{WXWIN}")
+     elseif(UNIX)
+         set(wxWidgets_USE_UNICODE ON)
+-        if(SLIC3R_STATIC)
+-            set(wxWidgets_USE_STATIC ON)
+-        else()
+-            set(wxWidgets_USE_STATIC OFF)
+-        endif()
++        option(SLIC3R_WX_STATIC "Link wxWidgets statically" ${SLIC3R_STATIC})
++        set(wxWidgets_USE_STATIC ${SLIC3R_WX_STATIC})
+     endif()
+ 
+     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+         set (wxWidgets_CONFIG_OPTIONS "--toolkit=gtk${SLIC3R_GTK}")
++        if(wxWidgets_CONFIG_EXECUTABLE)
++            foreach(_wx_prefix IN LISTS CMAKE_PREFIX_PATH)
++                file(RELATIVE_PATH _wx_config_relative "${_wx_prefix}" "${wxWidgets_CONFIG_EXECUTABLE}")
++                if(NOT _wx_config_relative MATCHES "^\\.\\.")
++                    list(APPEND wxWidgets_CONFIG_OPTIONS "--prefix=${_wx_prefix}")
++                    break()
++                endif()
++            endforeach()
++        endif()
+         if (SLIC3R_WX_STABLE)
+             find_package(wxWidgets 3.0 REQUIRED COMPONENTS base core adv html gl aui net media webview richtext xml)
+         else ()
+@@ -76,6 +82,9 @@ if (SLIC3R_GUI)
+     endif()
+ 
+     include(${wxWidgets_USE_FILE})
++    if(SLIC3R_WX_STATIC)
++        add_definitions(-DwxDEBUG_LEVEL=0)
++    endif()
+ 
+     find_package(JPEG QUIET)
+     find_package(TIFF QUIET)
+diff --git a/src/admesh/stlinit.cpp b/src/admesh/stlinit.cpp
+index 694a8ee..7ae6bb1 100644
+--- a/src/admesh/stlinit.cpp
++++ b/src/admesh/stlinit.cpp
+@@ -24,6 +24,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <math.h>
++#include <cmath>
+ #include <assert.h>
+ 
+ #include <boost/log/trivial.hpp>
+@@ -332,7 +333,7 @@ static bool stl_read(stl_file *stl, FILE *fp, int first_facet, bool first, Impor
+ 		// Write the facet into memory if none of facet vertices is NAN.
+ 		bool someone_is_nan = false;
+ 		for (size_t j = 0; j < 3; ++j) {
+-			if (isnan(facet.vertex[j](0)) || isnan(facet.vertex[j](1)) || isnan(facet.vertex[j](2))) {
++			if (std::isnan(facet.vertex[j](0)) || std::isnan(facet.vertex[j](1)) || std::isnan(facet.vertex[j](2))) {
+ 				someone_is_nan = true;
+ 				break;
+ 			}
+diff --git a/src/imgui/CMakeLists.txt b/src/imgui/CMakeLists.txt
+index 592e78c..05d6a32 100644
+--- a/src/imgui/CMakeLists.txt
++++ b/src/imgui/CMakeLists.txt
+@@ -18,5 +18,5 @@ add_library(imgui STATIC
+ )
+ 
+ if(Boost_FOUND)
+-    include_directories(${Boost_INCLUDE_DIRS})
+-endif()
+\ No newline at end of file
++    target_link_libraries(imgui PUBLIC boost_headeronly Boost::log)
++endif()
+diff --git a/src/libslic3r/Arachne/utils/SparseLineGrid.hpp b/src/libslic3r/Arachne/utils/SparseLineGrid.hpp
+index a9b5368..fc1c4ca 100644
+--- a/src/libslic3r/Arachne/utils/SparseLineGrid.hpp
++++ b/src/libslic3r/Arachne/utils/SparseLineGrid.hpp
+@@ -62,9 +62,8 @@ template<class ElemT, class Locator> void SparseLineGrid<ElemT, Locator>::insert
+         m_grid->emplace(grid_loc, elem);
+         return true;
+     };
+-    using namespace std::placeholders; // for _1, _2, _3...
+     GridMap                             *m_grid = &(this->m_grid);
+-    std::function<bool(const GridPoint)> process_cell_func(std::bind(process_cell_func_, m_grid, _1));
++    std::function<bool(const GridPoint)> process_cell_func(std::bind(process_cell_func_, m_grid, std::placeholders::_1));
+ 
+     SparseGrid<ElemT>::processLineCells(line, process_cell_func);
+ }
+diff --git a/src/libslic3r/CMakeLists.txt b/src/libslic3r/CMakeLists.txt
+index dfdbf67..2bbc7e3 100644
+--- a/src/libslic3r/CMakeLists.txt
++++ b/src/libslic3r/CMakeLists.txt
+@@ -618,6 +618,16 @@ add_library(libslic3r_cgal STATIC
+     MeshBoolean.hpp MeshBoolean.cpp
+     TryCatchSignal.hpp TryCatchSignal.cpp
+     Triangulation.hpp Triangulation.cpp)
++find_path(_SLIC3R_TBB_INCLUDE_DIR NAMES tbb/tbb.h
++    PATHS ${CMAKE_PREFIX_PATH}
++    PATH_SUFFIXES include
++    NO_DEFAULT_PATH)
++if(_SLIC3R_TBB_INCLUDE_DIR)
++    target_include_directories(libslic3r BEFORE PUBLIC "${_SLIC3R_TBB_INCLUDE_DIR}")
++    target_include_directories(libslic3r_cgal BEFORE PRIVATE "${_SLIC3R_TBB_INCLUDE_DIR}")
++endif()
++set_property(TARGET libslic3r PROPERTY NO_SYSTEM_FROM_IMPORTED TRUE)
++set_property(TARGET libslic3r_cgal PROPERTY NO_SYSTEM_FROM_IMPORTED TRUE)
+ target_include_directories(libslic3r_cgal PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+ 
+ # Reset compile options of libslic3r_cgal. Despite it being linked privately, CGAL options
+@@ -649,7 +659,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+     set_source_files_properties(PrintConfig.cpp PresetBundle.cpp PROPERTIES COMPILE_OPTIONS -fno-vectorize)
+ endif()
+ 
+-target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut)
++target_link_libraries(libslic3r_cgal PRIVATE ${_cgal_tgt} libigl mcut boost_headeronly Boost::log)
+ if(SLIC3R_HAS_OPENMESHCRAFT_BOOLEAN)
+     # GMP/MPFR usually come with CGAL/DEP, but may not be visible to find_library
+     # in non-standard layouts. Missing deps used to fall back to MCUT silently;
+@@ -673,6 +683,9 @@ if(SLIC3R_HAS_OPENMESHCRAFT_BOOLEAN)
+         target_compile_definitions(libslic3r PUBLIC SLIC3R_ENABLE_OPENMESHCRAFT_BOOLEAN=1)
+         target_compile_definitions(libslic3r_cgal PRIVATE SLIC3R_ENABLE_OPENMESHCRAFT_BOOLEAN=1)
+         target_sources(libslic3r_cgal PRIVATE MeshBooleanOpenMeshCraft.cpp)
++        if(OPENMESHCRAFT_INCLUDE_DIR)
++            target_include_directories(libslic3r_cgal BEFORE PRIVATE "${OPENMESHCRAFT_INCLUDE_DIR}")
++        endif()
+         target_link_libraries(libslic3r_cgal PRIVATE
+             OpenMeshCraftBoolean
+             ${GMP_LIBRARIES}
+@@ -751,6 +764,26 @@ set(OCCT_LIBS
+ )
+ 
+ 
++if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
++    include(CheckCXXSourceCompiles)
++    include(CMakePushCheckState)
++    set(_filesystem_check [=[
++        #include <filesystem>
++        int main() { return !std::filesystem::exists("."); }
++    ]=])
++    cmake_push_check_state(RESET)
++    check_cxx_source_compiles("${_filesystem_check}" SLIC3R_HAS_STD_FILESYSTEM)
++    if(NOT SLIC3R_HAS_STD_FILESYSTEM)
++        set(CMAKE_REQUIRED_LIBRARIES stdc++fs)
++        check_cxx_source_compiles("${_filesystem_check}" SLIC3R_HAS_STDCXXFS)
++        if(NOT SLIC3R_HAS_STDCXXFS)
++            message(FATAL_ERROR "The C++ compiler must support linking std::filesystem.")
++        endif()
++        set(_filesystem_library stdc++fs)
++    endif()
++    cmake_pop_check_state()
++endif()
++
+ target_link_libraries(libslic3r
+     noise::noise
+     libnest2d
+@@ -777,6 +810,7 @@ target_link_libraries(libslic3r
+     opencv_world
+     ${_cgal_tgt}
+     assimp::assimp
++    ${_filesystem_library}
+     )
+ 
+ if(NOT WIN32)
+diff --git a/src/libslic3r/GCode/GCodeProcessor.cpp b/src/libslic3r/GCode/GCodeProcessor.cpp
+index e07b90d..c14a1da 100644
+--- a/src/libslic3r/GCode/GCodeProcessor.cpp
++++ b/src/libslic3r/GCode/GCodeProcessor.cpp
+@@ -4408,7 +4408,7 @@ void GCodeProcessor::process_G1(const GCodeReader::GCodeLine& line)
+                 float angle = float(atan2(double(cross), double(dot)));
+                 float sin_theta_2 = sqrt((1.0f - cos(angle)) * 0.5f);
+                 float r = sqrt(sqr(delta_pos[X]) + sqr(delta_pos[Y])) * 0.5 / sin_theta_2;
+-                curr.feedrate = std::min(curr.feedrate, sqrt(acceleration * r));
++                curr.feedrate = std::min(curr.feedrate, static_cast<float>(sqrt(acceleration * r)));
+             }
+         }
+ 
+@@ -4806,7 +4806,7 @@ void GCodeProcessor::process_VG1(const GCodeReader::GCodeLine& line)
+                 float sin_theta_2 = sqrt((1.0f - cos(angle)) * 0.5f);
+                 float r = sqrt(sqr(delta_pos[X]) + sqr(delta_pos[Y])) * 0.5 / sin_theta_2;
+                 float acc = get_acceleration(static_cast<PrintEstimatedStatistics::ETimeMode>(i));
+-                curr.feedrate = std::min(curr.feedrate, sqrt(acc * r));
++                curr.feedrate = std::min(curr.feedrate, static_cast<float>(sqrt(acc * r)));
+             }
+         }
+ 
+diff --git a/src/libslic3r/utils.cpp b/src/libslic3r/utils.cpp
+index 5e5ff9b..7026ca6 100644
+--- a/src/libslic3r/utils.cpp
++++ b/src/libslic3r/utils.cpp
+@@ -817,7 +817,7 @@ bool copy_framework(const std::string &from, const std::string &to)
+             } else if (boost::filesystem::is_directory(entry)) {
+                 copy_framework(it->path().string(), dest_path.string());
+             } else {
+-                boost::filesystem::copy(entry, dest_path, boost::filesystem::copy_options::overwrite_existing);
++                boost::filesystem::copy_file(entry, dest_path, boost::filesystem::copy_option::overwrite_if_exists);
+             }
+         }
+         return true;
+diff --git a/src/slic3r/CMakeLists.txt b/src/slic3r/CMakeLists.txt
+index 3283d26..6f4c2af 100644
+--- a/src/slic3r/CMakeLists.txt
++++ b/src/slic3r/CMakeLists.txt
+@@ -904,6 +904,10 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+     FIND_LIBRARY(WAYLAND_EGL_LIBRARIES    NAMES wayland-egl)
+     FIND_LIBRARY(WAYLAND_CLIENT_LIBRARIES NAMES wayland-client)
+     find_package(CURL REQUIRED)
++    if(SLIC3R_WX_STATIC)
++        find_package(X11 REQUIRED)
++        target_link_libraries(libslic3r_gui ${X11_LIBRARIES})
++    endif()
+     target_link_libraries(libslic3r_gui ${DBUS_LIBRARIES} OSMesa)
+     target_link_libraries(libslic3r_gui
+         OpenGL::EGL
+diff --git a/src/slic3r/GUI/Auxiliary.cpp b/src/slic3r/GUI/Auxiliary.cpp
+index f78f682..44bfb24 100644
+--- a/src/slic3r/GUI/Auxiliary.cpp
++++ b/src/slic3r/GUI/Auxiliary.cpp
+@@ -948,7 +948,8 @@ void AuxiliaryPanel::on_import_file(wxCommandEvent &event)
+            
+ 
+             boost::system::error_code ec;
+-            if (!fs::copy_file(src_bfs_path, fs::path(dir_path.ToStdWstring()), fs::copy_option::overwrite_if_exists, ec)) continue;
++            fs::copy_file(src_bfs_path, fs::path(dir_path.ToStdWstring()), fs::copy_option::overwrite_if_exists, ec);
++            if (ec) continue;
+             wxGetApp().plater()->mark_project_dirty();
+ 
+             // add in file list
+diff --git a/src/slic3r/GUI/AuxiliaryDataViewModel.cpp b/src/slic3r/GUI/AuxiliaryDataViewModel.cpp
+index 11a171f..fdc4d71 100644
+--- a/src/slic3r/GUI/AuxiliaryDataViewModel.cpp
++++ b/src/slic3r/GUI/AuxiliaryDataViewModel.cpp
+@@ -335,8 +335,8 @@ wxDataViewItemArray AuxiliaryModel::ImportFile(AuxiliaryModelNode* sel, wxArrayS
+         dir_path += "\\" + src_bfs_path.filename().generic_wstring();
+ 
+         boost::system::error_code ec;
+-        if (!fs::copy_file(src_bfs_path, fs::path(dir_path.ToStdWstring()), fs::copy_option::overwrite_if_exists, ec))
+-            continue;
++        fs::copy_file(src_bfs_path, fs::path(dir_path.ToStdWstring()), fs::copy_option::overwrite_if_exists, ec);
++        if (ec) continue;
+ 
+         // Update model data
+         AuxiliaryModelNode* file = new AuxiliaryModelNode(parent, dir_path, false);
+diff --git a/src/slic3r/GUI/BitmapCache.cpp b/src/slic3r/GUI/BitmapCache.cpp
+index 763a849..606d402 100644
+--- a/src/slic3r/GUI/BitmapCache.cpp
++++ b/src/slic3r/GUI/BitmapCache.cpp
+@@ -7,7 +7,7 @@
+ 
+ #include <boost/filesystem.hpp>
+ #include <boost/nowide/cstdio.hpp>
+-#include <boost/system/detail/error_code.hpp>
++#include <boost/system/error_code.hpp>
+ #include <unordered_set>
+ 
+ #ifdef __WXGTK2__
+diff --git a/src/slic3r/GUI/CameraPopup.hpp b/src/slic3r/GUI/CameraPopup.hpp
+index 71cae18..947db1f 100644
+--- a/src/slic3r/GUI/CameraPopup.hpp
++++ b/src/slic3r/GUI/CameraPopup.hpp
+@@ -12,7 +12,6 @@
+ #include <wx/timer.h>
+ #include <chrono>
+ #include <wx/gbsizer.h>
+-#include <wx/webrequest.h>
+ #include <wx/hyperlink.h>
+ #include <functional>
+ #include "Widgets/SwitchButton.hpp"
+diff --git a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+index ed5ce4f..1edfe3d 100644
+--- a/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
++++ b/src/slic3r/GUI/DeviceWeb/CMakeLists.txt
+@@ -11,7 +11,7 @@ function(prepare_node_env)
+     set(PNPM_VERSION "10.12.1")
+ 
+     # ??????????????????clean build ??????
+-    set(NODE_CACHE_DIR "${CMAKE_SOURCE_DIR}/../node-cache")
++    set(NODE_CACHE_DIR "${CMAKE_SOURCE_DIR}/../node-cache" CACHE PATH "Node.js and pnpm cache")
+ 
+     # ???????? URL??????hash ??
+     if(WIN32)
+@@ -54,6 +54,11 @@ function(prepare_node_env)
+             set(PNPM_URL "https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-arm64")
+             set(PNPM_EXEC_NAME "pnpm")
+             set(PNPM_HASH "c2f9e9d42d81f9f40a0f895513d014a08d5ecb0abc9e15c426ecfde6f492706b")
++        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^(loongarch64|loong64)$")
++            set(NODE_VERSION "20.20.2")
++            set(NODE_BIN_DIR "node-v${NODE_VERSION}-linux-loongarch64/bin")
++            set(NODE_EXEC "node")
++            set(PNPM_EXEC_NAME "pnpm")
+         else()
+             set(NODE_URL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz")
+             set(NODE_ARCHIVE_NAME "node-v${NODE_VERSION}-linux-x64.tar.xz")
+@@ -177,7 +182,7 @@ prepare_node_env()
+ # ==================== ?????? ====================
+ 
+ set(DEVICE_PAGE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/device_page")
+-set(DEVICE_PAGE_DIST_DIR "${DEVICE_PAGE_SRC_DIR}/dist")
++set(DEVICE_PAGE_BUILD_DIR "${DEVICE_PAGE_SRC_DIR}")
+ set(DEVICE_PAGE_TARGET_DIR "${CMAKE_SOURCE_DIR}/resources/web/device_page/dist")
+ 
+ get_filename_component(NODE_BIN_PATH "${NODE_EXECUTABLE}" DIRECTORY)
+@@ -191,8 +196,9 @@ else()
+     set(DEVICE_PAGE_PATH "${NODE_BIN_PATH}:$ENV{PATH}")
+ endif()
+ 
+-set(PNPM_STORE_DIR "${CMAKE_CURRENT_BINARY_DIR}/.pnpm-store")
+-file(MAKE_DIRECTORY "${PNPM_STORE_DIR}")
++set(PNPM_STORE_DIR "${CMAKE_CURRENT_BINARY_DIR}/.pnpm-store" CACHE PATH "pnpm package store")
++set(DEVICE_PAGE_TMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/tmp")
++file(MAKE_DIRECTORY "${PNPM_STORE_DIR}" "${DEVICE_PAGE_TMP_DIR}")
+ 
+ set(DEVICE_PAGE_BUILD_STAMP "${CMAKE_CURRENT_BINARY_DIR}/device_page.stamp")
+ 
+@@ -223,12 +229,45 @@ set(DEVICE_PAGE_BUILD_INPUTS
+     "${DEVICE_PAGE_SRC_DIR}/i18next-parser.config.js"
+ )
+ 
++set(DEVICE_PAGE_PNPM_INSTALL_OPTIONS --config.confirm-modules-purge=false)
++set(DEVICE_PAGE_PNPM_BUILD_SCRIPT build)
++set(DEVICE_PAGE_PNPM_BUILD_ENV)
++set(DEVICE_PAGE_PREPARE_COMMAND)
++if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(loongarch64|loong64)$")
++    set(DEVICE_PAGE_STAGE_ROOT "${CMAKE_CURRENT_BINARY_DIR}/device-page-loongarch64")
++    set(DEVICE_PAGE_BUILD_DIR "${DEVICE_PAGE_STAGE_ROOT}/src/slic3r/GUI/DeviceWeb/device_page")
++    set(DEVICE_PAGE_LOONGARCH_PATCH "${DEVICE_PAGE_SRC_DIR}/patches/loongarch64-pnpm.patch")
++    set(DEVICE_PAGE_STAGE_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/stage-loongarch64-device-page.cmake")
++    set(DEVICE_PAGE_PREPARE_COMMAND
++        COMMAND "${CMAKE_COMMAND}"
++            "-DSOURCE_DIR=${DEVICE_PAGE_SRC_DIR}"
++            "-DSTAGE_DIR=${DEVICE_PAGE_BUILD_DIR}"
++            "-DSTAGE_ROOT=${DEVICE_PAGE_STAGE_ROOT}"
++            "-DRESOURCES_DIR=${CMAKE_SOURCE_DIR}/resources"
++            "-DPACKAGE_PATCH=${DEVICE_PAGE_LOONGARCH_PATCH}"
++            -P "${DEVICE_PAGE_STAGE_SCRIPT}")
++    list(APPEND DEVICE_PAGE_PNPM_INSTALL_OPTIONS --ignore-scripts --frozen-lockfile)
++    set(DEVICE_PAGE_PNPM_BUILD_SCRIPT build:loongarch64)
++    list(APPEND DEVICE_PAGE_PNPM_BUILD_ENV "NAPI_RS_FORCE_WASI=1")
++    list(APPEND DEVICE_PAGE_BUILD_INPUTS
++        "${DEVICE_PAGE_LOONGARCH_PATCH}"
++        "${DEVICE_PAGE_STAGE_SCRIPT}"
++        "${DEVICE_PAGE_SRC_DIR}/patches/@tailwindcss__oxide-wasm32-wasi@4.1.8.patch")
++endif()
++
++set(DEVICE_PAGE_DIST_DIR "${DEVICE_PAGE_BUILD_DIR}/dist")
++
+ add_custom_command(
+     OUTPUT "${DEVICE_PAGE_BUILD_STAMP}"
++    ${DEVICE_PAGE_PREPARE_COMMAND}
+     COMMAND echo "Running PNPM install"
+-    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} install --store-dir ${PNPM_STORE_DIR} --config.confirm-modules-purge=false
++    COMMAND ${CMAKE_COMMAND} -E chdir "${DEVICE_PAGE_BUILD_DIR}"
++        ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "TMPDIR=${DEVICE_PAGE_TMP_DIR}"
++        ${PNPM_EXECUTABLE} install ${DEVICE_PAGE_PNPM_INSTALL_OPTIONS} --store-dir "${PNPM_STORE_DIR}"
+     COMMAND echo "Running PNPM run build"
+-    COMMAND ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" ${PNPM_EXECUTABLE} run build
++    COMMAND ${CMAKE_COMMAND} -E chdir "${DEVICE_PAGE_BUILD_DIR}"
++        ${CMAKE_COMMAND} -E env "PATH=${DEVICE_PAGE_PATH}" "TMPDIR=${DEVICE_PAGE_TMP_DIR}"
++        ${DEVICE_PAGE_PNPM_BUILD_ENV} ${PNPM_EXECUTABLE} run ${DEVICE_PAGE_PNPM_BUILD_SCRIPT}
+     COMMAND echo "Removing page target directory"
+     COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEVICE_PAGE_TARGET_DIR}"
+     COMMAND echo "Creating page target directory"
+@@ -420,4 +459,4 @@ list(APPEND SLIC3R_GUI_SOURCES
+     GUI/DeviceWeb/ViewModels/PrintQueue/PrintQueueVM.cpp
+     GUI/DeviceWeb/ViewModels/PrintQueue/PrintQueueVM.hpp
+ )
+-set(SLIC3R_GUI_SOURCES ${SLIC3R_GUI_SOURCES} PARENT_SCOPE)
+\ No newline at end of file
++set(SLIC3R_GUI_SOURCES ${SLIC3R_GUI_SOURCES} PARENT_SCOPE)
+diff --git a/src/slic3r/GUI/DeviceWeb/device_page/vite.config.ts b/src/slic3r/GUI/DeviceWeb/device_page/vite.config.ts
+index 22759ff..966a1f8 100644
+--- a/src/slic3r/GUI/DeviceWeb/device_page/vite.config.ts
++++ b/src/slic3r/GUI/DeviceWeb/device_page/vite.config.ts
+@@ -2,8 +2,164 @@ import { defineConfig, type Plugin } from 'vite'
+ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+ import react from '@vitejs/plugin-react'
+ import tailwindcss from '@tailwindcss/vite'
++import ts from 'typescript'
+ import legacyWebkit from './legacy-webkit.postcss'
+ 
++const runtimeEnvironment = (globalThis as typeof globalThis & {
++  process?: { env?: Record<string, string | undefined> }
++}).process?.env ?? {}
++
++function isImportMeta(node: ts.Expression): boolean {
++  return ts.isMetaProperty(node) &&
++    node.keywordToken === ts.SyntaxKind.ImportKeyword &&
++    node.name.text === 'meta'
++}
++
++function isImportMetaEnv(node: ts.Expression): boolean {
++  return ts.isPropertyAccessExpression(node) &&
++    node.name.text === 'env' &&
++    isImportMeta(node.expression)
++}
++
++function isProcessEnv(node: ts.Expression): boolean {
++  return ts.isPropertyAccessExpression(node) &&
++    node.name.text === 'env' &&
++    ts.isIdentifier(node.expression) &&
++    node.expression.text === 'process'
++}
++
++function toExpression(value: string | boolean | undefined): ts.Expression {
++  if (typeof value === 'string') return ts.factory.createStringLiteral(value)
++  if (typeof value === 'boolean') return value ? ts.factory.createTrue() : ts.factory.createFalse()
++  return ts.factory.createIdentifier('undefined')
++}
++
++function cleanDefineComments(code: string): string {
++  const scanner = ts.createScanner(
++    ts.ScriptTarget.Latest,
++    false,
++    ts.LanguageVariant.JSX,
++    code,
++  )
++  const edits: Array<{ start: number; end: number; text: string }> = []
++
++  while (scanner.scan() !== ts.SyntaxKind.EndOfFileToken) {
++    const kind = scanner.getToken()
++    if (kind !== ts.SyntaxKind.SingleLineCommentTrivia && kind !== ts.SyntaxKind.MultiLineCommentTrivia) {
++      continue
++    }
++
++    const text = scanner.getTokenText()
++      .replaceAll('import.meta.env', 'import meta env')
++      .replaceAll('import.meta.hot', 'import meta hot')
++      .replaceAll('process.env', 'process env')
++    const start = scanner.getTokenPos()
++    if (text !== scanner.getTokenText()) edits.push({ start, end: scanner.getTextPos(), text })
++  }
++
++  return edits.reduceRight((result, edit) =>
++    result.slice(0, edit.start) + edit.text + result.slice(edit.end), code)
++}
++
++function loongarchTypeScriptPlugin(): Plugin {
++  let defineValues: Record<string, string | boolean> = {}
++  let nodeEnv = 'production'
++
++  return {
++    name: 'loongarch-typescript',
++    enforce: 'pre',
++    configResolved(config) {
++      nodeEnv = runtimeEnvironment.NODE_ENV || config.mode
++      defineValues = {
++        ...config.env,
++        BASE_URL: config.base,
++        MODE: config.mode,
++        DEV: config.mode !== 'production',
++        PROD: config.mode === 'production',
++        SSR: false,
++      }
++    },
++    transform(code, id) {
++      const fileName = id.split('?', 1)[0]
++      if (!/\.[cm]?[jt]sx?$/.test(fileName)) return null
++
++      const isTypeScript = /\.[cm]?tsx?$/.test(fileName)
++      if (!isTypeScript && !/(?:process\.env|import\.meta\.(?:env|hot))/.test(code)) return null
++
++      const result = ts.transpileModule(code, {
++        fileName,
++        compilerOptions: {
++          allowJs: true,
++          checkJs: false,
++          jsx: ts.JsxEmit.ReactJSX,
++          jsxImportSource: 'react',
++          module: ts.ModuleKind.ESNext,
++          noEmit: false,
++          sourceMap: true,
++          target: ts.ScriptTarget.ESNext,
++          verbatimModuleSyntax: true,
++        },
++        transformers: {
++          before: [context => sourceFile => {
++            const visit: ts.Visitor = node => {
++              if (ts.isPropertyAccessExpression(node)) {
++                if (node.name.text === 'NODE_ENV' && isProcessEnv(node.expression)) {
++                  return ts.factory.createStringLiteral(nodeEnv)
++                }
++                if (isProcessEnv(node)) return ts.factory.createObjectLiteralExpression()
++                if (isImportMetaEnv(node.expression)) {
++                  return toExpression(defineValues[node.name.text])
++                }
++                if (isImportMetaEnv(node)) {
++                  return ts.factory.createObjectLiteralExpression(
++                    Object.entries(defineValues).map(([key, value]) =>
++                      ts.factory.createPropertyAssignment(ts.factory.createStringLiteral(key), toExpression(value))),
++                  )
++                }
++                if (node.name.text === 'hot' && isImportMeta(node.expression)) {
++                  return ts.factory.createIdentifier('undefined')
++                }
++              }
++              return ts.visitEachChild(node, visit, context)
++            }
++
++            return ts.visitNode(sourceFile, visit) as ts.SourceFile
++          }],
++        },
++      })
++      return {
++        code: cleanDefineComments(result.outputText),
++        map: result.sourceMapText ? JSON.parse(result.sourceMapText) : null,
++      }
++    },
++  }
++}
++
++function loongarchDisableEsbuildPlugin(): Plugin {
++  return {
++    name: 'loongarch-disable-esbuild',
++    enforce: 'post',
++    config() {
++      return { esbuild: false }
++    },
++    async closeBundle() {
++      type EsbuildRequire = ((specifier: string) => { stop(): Promise<void> }) & {
++        resolve(specifier: string): string
++      }
++      type NodeModuleApi = { createRequire(filename: string | URL): EsbuildRequire }
++      const nodeProcess = (globalThis as typeof globalThis & {
++        process?: { getBuiltinModule?: (specifier: string) => unknown }
++      }).process
++      if (!nodeProcess?.getBuiltinModule) throw new Error('Node module API 不可用。')
++
++      const moduleApi = nodeProcess.getBuiltinModule('module') as NodeModuleApi
++      const requireFromConfig = moduleApi.createRequire(import.meta.url)
++      const requireFromVite = moduleApi.createRequire(requireFromConfig.resolve('vite'))
++      await requireFromVite('esbuild').stop()
++    },
++  }
++}
++
+ /**
+  * Make Vite build output compatible with file:// protocol:
+  * 1. Move <script> tags from <head> to end of <body> (DOM must be ready for React)
+@@ -51,11 +207,16 @@ export default defineConfig({
+       // IMPORTANT: false only for development debugging!!!! 【true for production】
+       autoCodeSplitting: false
+     }),
++    ...(runtimeEnvironment.BAMBU_STUDIO_LOONGARCH_BUILD === '1'
++      ? [loongarchTypeScriptPlugin(), loongarchDisableEsbuildPlugin()]
++      : []),
+     react(),
+     tailwindcss(),
+     fileProtocolCompat(),
+   ],
+ 
++  esbuild: runtimeEnvironment.BAMBU_STUDIO_LOONGARCH_BUILD === '1' ? false : undefined,
++
+   resolve: {
+     alias: {
+       '@locales': new URL('./locales', import.meta.url).href,
+diff --git a/src/slic3r/GUI/HttpServer.cpp b/src/slic3r/GUI/HttpServer.cpp
+index 888bd78..ede1a1a 100644
+--- a/src/slic3r/GUI/HttpServer.cpp
++++ b/src/slic3r/GUI/HttpServer.cpp
+@@ -258,7 +258,8 @@ static bool is_http_scheme(const std::string& url)
+ 
+ static HttpReqType parse_request_type(const boost::beast::http::request<boost::beast::http::string_body>& req)
+ {
+-    std::string target = req.target();
++    const auto target_view = req.target();
++    std::string target(target_view.data(), target_view.size());
+     if (boost::starts_with(target, "/refresh_token")) {
+         return HttpReqType::RefreshToken;
+     }
+@@ -269,7 +270,8 @@ static HttpReqType parse_request_type(const boost::beast::http::request<boost::b
+ static std::optional<LoginParams>
+ parse_login_params(const boost::beast::http::request<boost::beast::http::string_body>& req)
+ {
+-    std::string target = req.target(); // "/path?ticket=...&redirect_url=..."
++    const auto target_view = req.target();
++    std::string target(target_view.data(), target_view.size()); // "/path?ticket=...&redirect_url=..."
+ 
+     size_t qpos = target.find('?');
+     if (qpos == std::string::npos) {
+@@ -446,7 +448,8 @@ void session::handle_refresh_token()
+     } out;
+     std::string dkey;
+ 
+-    std::string target = req_.target(); // "/refresh_token?device=...&dev_ver=...&channel=..."
++    const auto target_view = req_.target();
++    std::string target(target_view.data(), target_view.size()); // "/refresh_token?device=...&dev_ver=...&channel=..."
+     size_t qpos = target.find('?');
+     if (qpos == std::string::npos) {
+         BOOST_LOG_TRIVIAL(info) << "refresh token: invalid format";
+diff --git a/src/slic3r/GUI/MediaFilePanel.cpp b/src/slic3r/GUI/MediaFilePanel.cpp
+index 76dfa7e..6102b58 100644
+--- a/src/slic3r/GUI/MediaFilePanel.cpp
++++ b/src/slic3r/GUI/MediaFilePanel.cpp
+@@ -335,7 +335,7 @@ void MediaFilePanel::UpdateByObj(MachineObject* obj)
+         fs->Attached();
+         m_image_grid->SetFileSystem(fs);
+         m_image_grid->SetFileType(m_last_type, m_external ? "" : "internal");
+-        fs->Bind(EVT_FILE_CHANGED, [this, wfs = boost::weak_ptr(fs)](auto &e) {
++        fs->Bind(EVT_FILE_CHANGED, [this, wfs = boost::weak_ptr<PrinterFileSystem>(fs)](auto &e) {
+             e.Skip();
+             boost::shared_ptr fs(wfs.lock());
+             if (fs == nullptr || m_image_grid->GetFileSystem() != fs) // canceled
+@@ -355,7 +355,7 @@ void MediaFilePanel::UpdateByObj(MachineObject* obj)
+                fs->ListAllFiles();
+             }
+         });
+-        fs->Bind(EVT_SELECT_CHANGED, [this, wfs = boost::weak_ptr(fs)](auto &e) {
++        fs->Bind(EVT_SELECT_CHANGED, [this, wfs = boost::weak_ptr<PrinterFileSystem>(fs)](auto &e) {
+             e.Skip();
+             boost::shared_ptr fs(wfs.lock());
+             if (fs == nullptr || m_image_grid->GetFileSystem() != fs) // canceled
+@@ -364,7 +364,7 @@ void MediaFilePanel::UpdateByObj(MachineObject* obj)
+             m_button_download->Enable(e.GetInt() > 0);
+         });
+         fs->Bind(EVT_MODE_CHANGED, &MediaFilePanel::modeChanged, this);
+-        fs->Bind(EVT_STATUS_CHANGED, [this, wfs = boost::weak_ptr(fs)](auto& e) {
++        fs->Bind(EVT_STATUS_CHANGED, [this, wfs = boost::weak_ptr<PrinterFileSystem>(fs)](auto& e) {
+             e.Skip();
+             boost::shared_ptr fs(wfs.lock());
+             if (fs == nullptr || m_image_grid->GetFileSystem() != fs) // canceled
+@@ -402,7 +402,7 @@ void MediaFilePanel::UpdateByObj(MachineObject* obj)
+             if (fs->GetCount() == 0 && !msg.empty())
+                 m_image_grid->SetStatus(icon, msg);
+             if (e.GetInt() == PrinterFileSystem::Initializing)
+-                fetchUrl(boost::weak_ptr(fs));
++                fetchUrl(boost::weak_ptr<PrinterFileSystem>(fs));
+ 
+             if ((status == PrinterFileSystem::Failed && m_last_errors.find(err) == m_last_errors.end()) ||
+                 status == PrinterFileSystem::ListReady) {
+@@ -424,7 +424,7 @@ void MediaFilePanel::UpdateByObj(MachineObject* obj)
+                 m_last_errors.insert(fs->GetLastError());
+             }
+         });
+-        fs->Bind(EVT_DOWNLOAD, [this, wfs = boost::weak_ptr(fs)](auto& e) {
++        fs->Bind(EVT_DOWNLOAD, [this, wfs = boost::weak_ptr<PrinterFileSystem>(fs)](auto& e) {
+             e.Skip();
+             boost::shared_ptr fs(wfs.lock());
+             if (fs == nullptr || m_image_grid->GetFileSystem() != fs) // canceled
+diff --git a/src/slic3r/GUI/Overview/AssemblyStepsUtils.cpp b/src/slic3r/GUI/Overview/AssemblyStepsUtils.cpp
+index 91bba10..79dcde9 100644
+--- a/src/slic3r/GUI/Overview/AssemblyStepsUtils.cpp
++++ b/src/slic3r/GUI/Overview/AssemblyStepsUtils.cpp
+@@ -37,7 +37,11 @@
+ #include <unordered_set>
+ #include <type_traits>
+ 
++#if __has_include(<hpdf/hpdf.h>)
+ #include <hpdf/hpdf.h>
++#else
++#include <hpdf.h>
++#endif
+ 
+ #include <GL/glew.h>
+ #include <wx/glcanvas.h>
+diff --git a/src/slic3r/GUI/PartSkipDialog.cpp b/src/slic3r/GUI/PartSkipDialog.cpp
+index 3274231..0e2f314 100644
+--- a/src/slic3r/GUI/PartSkipDialog.cpp
++++ b/src/slic3r/GUI/PartSkipDialog.cpp
+@@ -525,7 +525,7 @@ void PartSkipDialog::fetchUrl(boost::weak_ptr<PrinterFileSystem> wfs)
+ void PartSkipDialog::OnFileSystemEvent(wxCommandEvent &e)
+ {
+     e.Skip();
+-    auto              wfs = boost::weak_ptr(m_file_sys);
++    boost::weak_ptr<PrinterFileSystem> wfs(m_file_sys);
+     boost::shared_ptr fs(wfs.lock());
+     if (!fs) return;
+ 
+@@ -559,7 +559,7 @@ void PartSkipDialog::OnFileSystemEvent(wxCommandEvent &e)
+         CallAfter([=] {
+             boost::shared_ptr fs(wfs.lock());
+             if (!fs) return;
+-            fetchUrl(boost::weak_ptr(fs));
++            fetchUrl(boost::weak_ptr<PrinterFileSystem>(fs));
+             BOOST_LOG_TRIVIAL(info) << "part skip: fetch url, get parts info files from printer.";
+         });
+     }
+diff --git a/src/slic3r/GUI/Plater.cpp b/src/slic3r/GUI/Plater.cpp
+index 3e15b12..737766a 100644
+--- a/src/slic3r/GUI/Plater.cpp
++++ b/src/slic3r/GUI/Plater.cpp
+@@ -41,7 +41,7 @@
+ #include <boost/uuid/uuid.hpp>
+ #include <boost/uuid/uuid_generators.hpp>
+ #include <boost/uuid/uuid_io.hpp>
+-#include <boost/system/detail/error_code.hpp>
++#include <boost/system/error_code.hpp>
+ 
+ #include <wx/sizer.h>
+ #include <wx/stattext.h>
+diff --git a/src/slic3r/GUI/Printer/PrinterFileSystem.cpp b/src/slic3r/GUI/Printer/PrinterFileSystem.cpp
+index de9fcac..422838d 100644
+--- a/src/slic3r/GUI/Printer/PrinterFileSystem.cpp
++++ b/src/slic3r/GUI/Printer/PrinterFileSystem.cpp
+@@ -353,7 +353,7 @@ void PrinterFileSystem::DownloadRamFile(int index, const std::string &local_path
+                 download->ofs.open(download->local_path, std::ios::binary);
+                 if (!download->ofs) {
+                     download->error = last_system_error();
+-                    BOOST_LOG_TRIVIAL(info) << "DownloadImageFromRam open error:" << wxString::FromUTF8(download->error);
++                    BOOST_LOG_TRIVIAL(info) << "DownloadImageFromRam open error:" << wxString::FromUTF8(download->error.c_str());
+                     return FILE_OPEN_ERR;
+                 }
+             }
+@@ -361,7 +361,7 @@ void PrinterFileSystem::DownloadRamFile(int index, const std::string &local_path
+             download->ofs.write(reinterpret_cast<const char *>(data), size);
+             if (!download->ofs) {
+                 download->error = last_system_error();
+-                BOOST_LOG_TRIVIAL(info) << "DownloadImageFromRam write error: " << wxString::FromUTF8(download->error);
++                BOOST_LOG_TRIVIAL(info) << "DownloadImageFromRam write error: " << wxString::FromUTF8(download->error.c_str());
+                 return FILE_READ_WRITE_ERR;
+             }
+ 
+@@ -846,7 +846,7 @@ void PrinterFileSystem::DownloadNextFile()
+                 download->ofs.open(download->local_path, std::ios::binary);
+                 if (!download->ofs) {
+                     download->error = last_system_error();
+-                    BOOST_LOG_TRIVIAL(info) << "PrinterFileSystem::DownloadNextFile open error: " << wxString::FromUTF8(download->error);
++                    BOOST_LOG_TRIVIAL(info) << "PrinterFileSystem::DownloadNextFile open error: " << wxString::FromUTF8(download->error.c_str());
+                     return FILE_OPEN_ERR;
+                 }
+             }
+@@ -857,7 +857,7 @@ void PrinterFileSystem::DownloadNextFile()
+             download->ofs.write((char const *) data, size);
+             if (!download->ofs) {
+                 download->error = last_system_error();
+-                BOOST_LOG_TRIVIAL(info) << "PrinterFileSystem::DownloadNextFile write error: " << wxString::FromUTF8(download->error);
++                BOOST_LOG_TRIVIAL(info) << "PrinterFileSystem::DownloadNextFile write error: " << wxString::FromUTF8(download->error.c_str());
+                 return FILE_READ_WRITE_ERR;
+             }
+             download->boost_md5.process_bytes(data, size);
+@@ -1211,7 +1211,7 @@ struct CallbackEvent : wxCommandEvent
+ 
+ void PrinterFileSystem::PostCallback(std::function<void(void)> const& callback)
+ {
+-    wxCommandEvent *e = new CallbackEvent(callback, boost::weak_ptr(shared_from_this()));
++    wxCommandEvent *e = new CallbackEvent(callback, boost::weak_ptr<PrinterFileSystem>(shared_from_this()));
+     wxQueueEvent(this, e);
+ }
+ 
+@@ -1592,7 +1592,7 @@ void PrinterFileSystem::RecvMessageThread()
+             // OutputDebugStringA("\n");
+ 
+ #if !BBL_RELEASE_TO_PUBLIC
+-            BOOST_LOG_TRIVIAL(info) << "PrinterFileSystem::SendRequest >>>:" << wxString::FromUTF8(msg);
++            BOOST_LOG_TRIVIAL(info) << "PrinterFileSystem::SendRequest >>>:" << wxString::FromUTF8(msg.c_str());
+ #endif
+             l.unlock();
+             int n = Bambu_SendMessage(m_session.tunnel, CTRL_TYPE, msg.c_str(), msg.length());
+@@ -1635,7 +1635,7 @@ void PrinterFileSystem::HandleResponse(boost::unique_lock<boost::mutex> &l, Bamb
+     // OutputDebugStringA("\n");
+ 
+ #if !BBL_RELEASE_TO_PUBLIC
+-    BOOST_LOG_TRIVIAL(info) << "<<<: \n" << wxString::FromUTF8(msg);
++    BOOST_LOG_TRIVIAL(info) << "<<<: \n" << wxString::FromUTF8(msg.c_str());
+ #endif
+ 
+     std::istringstream iss(msg);
+diff --git a/src/slic3r/GUI/Widgets/StateHandler.cpp b/src/slic3r/GUI/Widgets/StateHandler.cpp
+index de9ced6..3b72724 100644
+--- a/src/slic3r/GUI/Widgets/StateHandler.cpp
++++ b/src/slic3r/GUI/Widgets/StateHandler.cpp
+@@ -51,7 +51,7 @@ void StateHandler::update_binds()
+     int diff = bind_states ^ bind_states_;
+     State       states[] = {Enabled, Checked, Focused, Hovered, Pressed};
+     wxEventType events[] = {EVT_ENABLE_CHANGED, wxEVT_CHECKBOX, wxEVT_SET_FOCUS, wxEVT_ENTER_WINDOW, wxEVT_LEFT_DOWN};
+-    wxEventType events2[] = {{0}, {0}, wxEVT_KILL_FOCUS, wxEVT_LEAVE_WINDOW, wxEVT_LEFT_UP};
++    wxEventType events2[] = {0, 0, wxEVT_KILL_FOCUS, wxEVT_LEAVE_WINDOW, wxEVT_LEFT_UP};
+     for (int i = 0; i < 5; ++i) {
+         int s = states[i];
+         if (diff & s) {
+@@ -94,7 +94,7 @@ void StateHandler::changed(wxEvent &event)
+ {
+     event.Skip();
+     wxEventType events[] = {EVT_ENABLE_CHANGED, wxEVT_CHECKBOX, wxEVT_SET_FOCUS, wxEVT_ENTER_WINDOW, wxEVT_LEFT_DOWN};
+-    wxEventType events2[] = {{0}, {0}, wxEVT_KILL_FOCUS, wxEVT_LEAVE_WINDOW, wxEVT_LEFT_UP};
++    wxEventType events2[] = {0, 0, wxEVT_KILL_FOCUS, wxEVT_LEAVE_WINDOW, wxEVT_LEFT_UP};
+     int old = states_;
+     // some events are from another window (ex: text_ctrl of TextInput), save state in states2_ to avoid conflicts
+     for (int i = 0; i < 5; ++i) {
+diff --git a/cmake/modules/FindCGAL.cmake b/cmake/modules/FindCGAL.cmake
+new file mode 100644
+index 0000000..2ef5238
+--- /dev/null
++++ b/cmake/modules/FindCGAL.cmake
+@@ -0,0 +1,64 @@
++find_package(CGAL CONFIG QUIET)
++if(CGAL_FOUND)
++    return()
++endif()
++
++find_path(CGAL_INCLUDE_DIR
++    NAMES CGAL/config.h
++)
++
++if(CGAL_DIR AND EXISTS "${CGAL_DIR}/CGAL_SetupCGALDependencies.cmake")
++    set(CGAL_MODULES_DIR "${CGAL_DIR}")
++else()
++    find_path(CGAL_MODULES_DIR
++        NAMES CGAL_SetupCGALDependencies.cmake
++        PATHS ${CMAKE_PREFIX_PATH}
++        PATH_SUFFIXES
++            "lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake/CGAL"
++            lib/cmake/CGAL
++    )
++endif()
++
++if(CGAL_INCLUDE_DIR AND CGAL_MODULES_DIR)
++    include("${CGAL_MODULES_DIR}/CGAL_parse_version_h.cmake")
++    cgal_parse_version_h("${CGAL_INCLUDE_DIR}/CGAL/version.h"
++        "CGAL_VERSION_NAME"
++        "CGAL_MAJOR_VERSION"
++        "CGAL_MINOR_VERSION"
++        "CGAL_BUGFIX_VERSION"
++        "CGAL_BUILD_VERSION"
++    )
++    set(CGAL_VERSION "${CGAL_MAJOR_VERSION}.${CGAL_MINOR_VERSION}.${CGAL_BUGFIX_VERSION}.${CGAL_BUILD_VERSION}")
++endif()
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(CGAL
++    REQUIRED_VARS CGAL_INCLUDE_DIR CGAL_MODULES_DIR
++    VERSION_VAR CGAL_VERSION
++)
++
++if(NOT CGAL_FOUND)
++    return()
++endif()
++
++set(CGAL_CONFIG_DIR "${CGAL_MODULES_DIR}")
++get_filename_component(CGAL_INSTALLATION_PACKAGE_DIR "${CGAL_INCLUDE_DIR}" DIRECTORY)
++set(CGAL_GRAPHICSVIEW_PACKAGE_DIR "${CGAL_INSTALLATION_PACKAGE_DIR}")
++set(CGAL_INCLUDE_DIRS "${CGAL_INCLUDE_DIR}")
++set(CGAL_LIBRARIES CGAL)
++set(CGAL_HEADER_ONLY TRUE)
++set(CGAL_USE_FILE "${CGAL_MODULES_DIR}/UseCGAL.cmake")
++
++list(APPEND CMAKE_MODULE_PATH "${CGAL_MODULES_DIR}")
++include("${CGAL_MODULES_DIR}/CGAL_SetupCGALDependencies.cmake")
++include("${CGAL_MODULES_DIR}/CGAL_setup_target_dependencies.cmake")
++include("${CGAL_MODULES_DIR}/CGAL_target_use_TBB.cmake")
++
++if(NOT TARGET CGAL)
++    add_library(CGAL INTERFACE IMPORTED GLOBAL)
++endif()
++if(NOT TARGET CGAL::CGAL)
++    add_library(CGAL::CGAL ALIAS CGAL)
++endif()
++
++CGAL_setup_target_dependencies(CGAL INTERFACE)
+diff --git a/cmake/modules/FindOpenCASCADE.cmake b/cmake/modules/FindOpenCASCADE.cmake
+new file mode 100644
+index 0000000..2ddb490
+--- /dev/null
++++ b/cmake/modules/FindOpenCASCADE.cmake
+@@ -0,0 +1,75 @@
++set(_OpenCASCADE_components
++    TKXDESTEP
++    TKSTEP
++    TKSTEP209
++    TKSTEPAttr
++    TKSTEPBase
++    TKXCAF
++    TKXSBase
++    TKVCAF
++    TKCAF
++    TKLCAF
++    TKCDF
++    TKV3d
++    TKService
++    TKMesh
++    TKBO
++    TKPrim
++    TKHLR
++    TKShHealing
++    TKTopAlgo
++    TKGeomAlgo
++    TKBRep
++    TKGeomBase
++    TKG3d
++    TKG2d
++    TKMath
++    TKernel
++)
++
++set(_OpenCASCADE_prefixes ${CMAKE_PREFIX_PATH})
++if(NOT _OpenCASCADE_prefixes AND DEFINED PREFIX_PATH_CHECK)
++    set(_OpenCASCADE_prefixes ${PREFIX_PATH_CHECK})
++endif()
++if(NOT _OpenCASCADE_prefixes AND DEFINED ENV{CMAKE_PREFIX_PATH})
++    set(_OpenCASCADE_prefixes $ENV{CMAKE_PREFIX_PATH})
++endif()
++
++find_path(OpenCASCADE_INCLUDE_DIR
++    NAMES Standard.hxx
++    PATHS ${_OpenCASCADE_prefixes}
++    PATH_SUFFIXES include/opencascade include
++    NO_DEFAULT_PATH
++)
++
++set(_OpenCASCADE_missing "")
++foreach(_OpenCASCADE_component IN LISTS _OpenCASCADE_components)
++    find_library(_OpenCASCADE_library_${_OpenCASCADE_component}
++        NAMES ${_OpenCASCADE_component}
++        PATHS ${_OpenCASCADE_prefixes}
++        PATH_SUFFIXES lib/${CMAKE_LIBRARY_ARCHITECTURE} lib
++        NO_DEFAULT_PATH
++    )
++    if(NOT _OpenCASCADE_library_${_OpenCASCADE_component})
++        list(APPEND _OpenCASCADE_missing ${_OpenCASCADE_component})
++    elseif(NOT OpenCASCADE_LIBRARY_DIR)
++        get_filename_component(OpenCASCADE_LIBRARY_DIR
++            "${_OpenCASCADE_library_${_OpenCASCADE_component}}" DIRECTORY
++        )
++    endif()
++endforeach()
++
++if(_OpenCASCADE_missing)
++    set(OpenCASCADE_LIBRARY_DIR "OpenCASCADE_LIBRARY_DIR-NOTFOUND")
++endif()
++
++include(FindPackageHandleStandardArgs)
++find_package_handle_standard_args(OpenCASCADE
++    REQUIRED_VARS OpenCASCADE_INCLUDE_DIR OpenCASCADE_LIBRARY_DIR
++)
++
++if(OpenCASCADE_FOUND)
++    link_directories("${OpenCASCADE_LIBRARY_DIR}")
++endif()
++
++mark_as_advanced(OpenCASCADE_INCLUDE_DIR OpenCASCADE_LIBRARY_DIR)
+diff --git a/deps/OpenMeshCraft/0001-reduce-compat.patch b/deps/OpenMeshCraft/0001-reduce-compat.patch
+new file mode 100644
+index 0000000..150d601
+--- /dev/null
++++ b/deps/OpenMeshCraft/0001-reduce-compat.patch
+@@ -0,0 +1,19 @@
++diff --git a/src/OpenMeshCraft/BVH/AABB/Static/SAABBTree.inl b/src/OpenMeshCraft/BVH/AABB/Static/SAABBTree.inl
++--- a/src/OpenMeshCraft/BVH/AABB/Static/SAABBTree.inl
+++++ b/src/OpenMeshCraft/BVH/AABB/Static/SAABBTree.inl
++@@ -292,5 +292,9 @@
+++#if defined(__cpp_lib_parallel_algorithm) && __cpp_lib_parallel_algorithm >= 201603L
++   if (parallel)
++     cur_node.bbox() = std::reduce(OMC_IF_EXEC(std::execution::par_unseq)
++                                     first + 1, beyond, init_box, ReduceOp(this));
++   else
++     cur_node.bbox() = std::reduce(first + 1, beyond, init_box, ReduceOp(this));
+++#else
+++  cur_node.bbox() = std::accumulate(first + 1, beyond, init_box, ReduceOp(this));
+++#endif
++diff --git a/cmake/OpenMeshCraft_ConfigureDeps.cmake b/cmake/OpenMeshCraft_ConfigureDeps.cmake
++--- a/cmake/OpenMeshCraft_ConfigureDeps.cmake
+++++ b/cmake/OpenMeshCraft_ConfigureDeps.cmake
++@@ -47 +47 @@
++-  find_package(Boost 1.78.0 CONFIG REQUIRED
+++  find_package(Boost 1.71.0 CONFIG REQUIRED
+diff --git a/deps/OpenMeshCraft/shewchuk-predicates-CMakeLists.txt b/deps/OpenMeshCraft/shewchuk-predicates-CMakeLists.txt
+new file mode 100644
+index 0000000..8cc24c2
+--- /dev/null
++++ b/deps/OpenMeshCraft/shewchuk-predicates-CMakeLists.txt
+@@ -0,0 +1,3 @@
++cmake_minimum_required(VERSION 3.13)
++
++add_library(shewchuk_predicates STATIC shewchuk.c)
+diff --git a/deps/TBB/0002-LoongArch-disable-ITT.patch b/deps/TBB/0002-LoongArch-disable-ITT.patch
+new file mode 100644
+index 0000000..3caafb1
+--- /dev/null
++++ b/deps/TBB/0002-LoongArch-disable-ITT.patch
+@@ -0,0 +1,12 @@
++diff --git a/src/tbb/CMakeLists.txt b/src/tbb/CMakeLists.txt
++--- a/src/tbb/CMakeLists.txt
+++++ b/src/tbb/CMakeLists.txt
++@@ -61 +61 @@
++-if (NOT ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(armv7-a|aarch64|mips|arm64)" OR
+++if (NOT ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(armv7-a|aarch64|mips|arm64|loongarch64|loong64)" OR
++diff --git a/src/tbbmalloc/CMakeLists.txt b/src/tbbmalloc/CMakeLists.txt
++--- a/src/tbbmalloc/CMakeLists.txt
+++++ b/src/tbbmalloc/CMakeLists.txt
++@@ -33 +33 @@
++-if (NOT ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(armv7-a|aarch64|mips|arm64)" OR
+++if (NOT ("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "(armv7-a|aarch64|mips|arm64|loongarch64|loong64)" OR
+diff --git a/src/slic3r/GUI/DeviceWeb/device_page/patches/@tailwindcss__oxide-wasm32-wasi@4.1.8.patch b/src/slic3r/GUI/DeviceWeb/device_page/patches/@tailwindcss__oxide-wasm32-wasi@4.1.8.patch
+new file mode 100644
+index 0000000..b4e009d
+--- /dev/null
++++ b/src/slic3r/GUI/DeviceWeb/device_page/patches/@tailwindcss__oxide-wasm32-wasi@4.1.8.patch
+@@ -0,0 +1,27 @@
++diff --git a/tailwindcss-oxide.wasi.cjs b/tailwindcss-oxide.wasi.cjs
++index 2367b4402c7ba8a72f21167df58cf29e717aaa54..f50c2e2146672f862f8a796a364074dc464adbb8 100644
++--- a/tailwindcss-oxide.wasi.cjs
+++++ b/tailwindcss-oxide.wasi.cjs
++@@ -65,6 +65,22 @@
++     worker.onmessage = ({ data }) => {
++       __wasmCreateOnMessageForFsProxy(__nodeFs)(data)
++     }
+++
+++    const kPublicPort = Object.getOwnPropertySymbols(worker).find(s =>
+++      s.toString().includes('kPublicPort')
+++    )
+++    if (kPublicPort) {
+++      worker[kPublicPort].ref = () => {}
+++    }
+++
+++    const kHandle = Object.getOwnPropertySymbols(worker).find(s =>
+++      s.toString().includes('kHandle')
+++    )
+++    if (kHandle) {
+++      worker[kHandle].ref = () => {}
+++    }
+++
+++    worker.unref()
++     return worker
++   },
++   overwriteImports(importObject) {
+diff --git a/src/slic3r/GUI/DeviceWeb/device_page/patches/loongarch64-pnpm.patch b/src/slic3r/GUI/DeviceWeb/device_page/patches/loongarch64-pnpm.patch
+new file mode 100644
+index 0000000..47f4ab3
+--- /dev/null
++++ b/src/slic3r/GUI/DeviceWeb/device_page/patches/loongarch64-pnpm.patch
+@@ -0,0 +1,874 @@
++diff --git a/package.json b/package.json
++index 950dc0c..45f9090 100644
++--- a/package.json
+++++ b/package.json
++@@ -6,6 +6,7 @@
++   "scripts": {
++     "dev": "vite",
++     "build": "tsc -b && vite build && node tools/check-legacy-css.mjs",
+++    "build:loongarch64": "tsc -b && BAMBU_STUDIO_LOONGARCH_BUILD=1 vite build --configLoader runner && node tools/check-legacy-css.mjs",
++     "check:legacy-css": "node tools/check-legacy-css.mjs",
++     "lint": "eslint .",
++     "preview": "vite preview",
++@@ -59,14 +60,20 @@
++     "lightningcss-win32-x64-msvc": "^1.32.0"
++   },
++   "pnpm": {
++-    "onlyBuiltDependencies": ["@tailwindcss/oxide", "esbuild"],
++-    "allowedBuiltDependencies": ["@tailwindcss/oxide", "esbuild"]
++-  },
++-  "pnpm": {
+++    "patchedDependencies": {
+++      "@tailwindcss/oxide-wasm32-wasi@4.1.8": "patches/@tailwindcss__oxide-wasm32-wasi@4.1.8.patch"
+++    },
+++    "supportedArchitectures": {
+++      "os": ["current", "wasi"],
+++      "cpu": ["current", "wasm32"]
+++    },
++     "overrides": {
++       "undici": "7.28.0",
++       "js-yaml": "4.2.0",
++-      "@babel/core": "7.29.6"
+++      "@babel/core": "7.29.6",
+++      "rollup": "npm:@rollup/wasm-node@4.41.1",
+++      "esbuild": "npm:esbuild-wasm@0.28.2",
+++      "lightningcss": "npm:lightningcss-wasm@1.30.1"
++     }
++   }
++ }
++diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
++index c598461..96e5ea1 100644
++--- a/pnpm-lock.yaml
+++++ b/pnpm-lock.yaml
++@@ -8,6 +8,14 @@ overrides:
++   undici: 7.28.0
++   js-yaml: 4.2.0
++   '@babel/core': 7.29.6
+++  rollup: npm:@rollup/wasm-node@4.41.1
+++  esbuild: npm:esbuild-wasm@0.28.2
+++  lightningcss: npm:lightningcss-wasm@1.30.1
+++
+++patchedDependencies:
+++  '@tailwindcss/oxide-wasm32-wasi@4.1.8':
+++    hash: 4aaa3704b1c85f3ad2609e11dc0dbadb85b8bb50fc2a3765c9d0d6fcc50c9ebe
+++    path: patches/@tailwindcss__oxide-wasm32-wasi@4.1.8.patch
++ 
++ importers:
++ 
++@@ -27,7 +35,7 @@ importers:
++         version: 1.1.10(@types/react-dom@19.1.6(@types/react@19.1.6))(@types/react@19.1.6)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
++       '@tailwindcss/vite':
++         specifier: ^4.1.8
++-        version: 4.1.8(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4))
+++        version: 4.1.8(vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4))
++       '@tanstack/react-router':
++         specifier: ^1.120.15
++         version: 1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
++@@ -64,7 +72,7 @@ importers:
++         version: 1.60.0
++       '@tanstack/router-plugin':
++         specifier: ^1.120.15
++-        version: 1.120.15(@tanstack/react-router@1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4))
+++        version: 1.120.15(@tanstack/react-router@1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4))
++       '@types/react':
++         specifier: ^19.1.2
++         version: 19.1.6
++@@ -73,7 +81,7 @@ importers:
++         version: 19.1.6(@types/react@19.1.6)
++       '@vitejs/plugin-react':
++         specifier: ^4.4.1
++-        version: 4.5.1(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4))
+++        version: 4.5.1(vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4))
++       eslint:
++         specifier: ^9.25.0
++         version: 9.28.0(jiti@2.4.2)
++@@ -93,8 +101,8 @@ importers:
++         specifier: ^9.4.0
++         version: 9.4.0
++       lightningcss:
++-        specifier: 1.30.1
++-        version: 1.30.1
+++        specifier: npm:lightningcss-wasm@1.30.1
+++        version: lightningcss-wasm@1.30.1
++       postcss:
++         specifier: 8.5.4
++         version: 8.5.4
++@@ -109,7 +117,7 @@ importers:
++         version: 8.33.1(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
++       vite:
++         specifier: ^6.3.5
++-        version: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4)
+++        version: 6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4)
++     optionalDependencies:
++       lightningcss-win32-x64-msvc:
++         specifier: ^1.32.0
++@@ -253,156 +261,6 @@ packages:
++     resolution: {integrity: sha512-4zBIxpPzowiZpusoFkyGVwakdRJUyuH5PxQ/PrqghfdFWWasvnCdPfQXHrenDai+gyLARulZjZowCOj6fjT4pA==}
++     engines: {node: '>=6.9.0'}
++ 
++-  '@esbuild/aix-ppc64@0.25.5':
++-    resolution: {integrity: sha512-9o3TMmpmftaCMepOdA5k/yDw8SfInyzWWTjYTFCX3kPSDJMROQTb8jg+h9Cnwnmm1vOzvxN7gIfB5V2ewpjtGA==}
++-    engines: {node: '>=18'}
++-    cpu: [ppc64]
++-    os: [aix]
++-
++-  '@esbuild/android-arm64@0.25.5':
++-    resolution: {integrity: sha512-VGzGhj4lJO+TVGV1v8ntCZWJktV7SGCs3Pn1GRWI1SBFtRALoomm8k5E9Pmwg3HOAal2VDc2F9+PM/rEY6oIDg==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [android]
++-
++-  '@esbuild/android-arm@0.25.5':
++-    resolution: {integrity: sha512-AdJKSPeEHgi7/ZhuIPtcQKr5RQdo6OO2IL87JkianiMYMPbCtot9fxPbrMiBADOWWm3T2si9stAiVsGbTQFkbA==}
++-    engines: {node: '>=18'}
++-    cpu: [arm]
++-    os: [android]
++-
++-  '@esbuild/android-x64@0.25.5':
++-    resolution: {integrity: sha512-D2GyJT1kjvO//drbRT3Hib9XPwQeWd9vZoBJn+bu/lVsOZ13cqNdDeqIF/xQ5/VmWvMduP6AmXvylO/PIc2isw==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [android]
++-
++-  '@esbuild/darwin-arm64@0.25.5':
++-    resolution: {integrity: sha512-GtaBgammVvdF7aPIgH2jxMDdivezgFu6iKpmT+48+F8Hhg5J/sfnDieg0aeG/jfSvkYQU2/pceFPDKlqZzwnfQ==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [darwin]
++-
++-  '@esbuild/darwin-x64@0.25.5':
++-    resolution: {integrity: sha512-1iT4FVL0dJ76/q1wd7XDsXrSW+oLoquptvh4CLR4kITDtqi2e/xwXwdCVH8hVHU43wgJdsq7Gxuzcs6Iq/7bxQ==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [darwin]
++-
++-  '@esbuild/freebsd-arm64@0.25.5':
++-    resolution: {integrity: sha512-nk4tGP3JThz4La38Uy/gzyXtpkPW8zSAmoUhK9xKKXdBCzKODMc2adkB2+8om9BDYugz+uGV7sLmpTYzvmz6Sw==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [freebsd]
++-
++-  '@esbuild/freebsd-x64@0.25.5':
++-    resolution: {integrity: sha512-PrikaNjiXdR2laW6OIjlbeuCPrPaAl0IwPIaRv+SMV8CiM8i2LqVUHFC1+8eORgWyY7yhQY+2U2fA55mBzReaw==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [freebsd]
++-
++-  '@esbuild/linux-arm64@0.25.5':
++-    resolution: {integrity: sha512-Z9kfb1v6ZlGbWj8EJk9T6czVEjjq2ntSYLY2cw6pAZl4oKtfgQuS4HOq41M/BcoLPzrUbNd+R4BXFyH//nHxVg==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [linux]
++-
++-  '@esbuild/linux-arm@0.25.5':
++-    resolution: {integrity: sha512-cPzojwW2okgh7ZlRpcBEtsX7WBuqbLrNXqLU89GxWbNt6uIg78ET82qifUy3W6OVww6ZWobWub5oqZOVtwolfw==}
++-    engines: {node: '>=18'}
++-    cpu: [arm]
++-    os: [linux]
++-
++-  '@esbuild/linux-ia32@0.25.5':
++-    resolution: {integrity: sha512-sQ7l00M8bSv36GLV95BVAdhJ2QsIbCuCjh/uYrWiMQSUuV+LpXwIqhgJDcvMTj+VsQmqAHL2yYaasENvJ7CDKA==}
++-    engines: {node: '>=18'}
++-    cpu: [ia32]
++-    os: [linux]
++-
++-  '@esbuild/linux-loong64@0.25.5':
++-    resolution: {integrity: sha512-0ur7ae16hDUC4OL5iEnDb0tZHDxYmuQyhKhsPBV8f99f6Z9KQM02g33f93rNH5A30agMS46u2HP6qTdEt6Q1kg==}
++-    engines: {node: '>=18'}
++-    cpu: [loong64]
++-    os: [linux]
++-
++-  '@esbuild/linux-mips64el@0.25.5':
++-    resolution: {integrity: sha512-kB/66P1OsHO5zLz0i6X0RxlQ+3cu0mkxS3TKFvkb5lin6uwZ/ttOkP3Z8lfR9mJOBk14ZwZ9182SIIWFGNmqmg==}
++-    engines: {node: '>=18'}
++-    cpu: [mips64el]
++-    os: [linux]
++-
++-  '@esbuild/linux-ppc64@0.25.5':
++-    resolution: {integrity: sha512-UZCmJ7r9X2fe2D6jBmkLBMQetXPXIsZjQJCjgwpVDz+YMcS6oFR27alkgGv3Oqkv07bxdvw7fyB71/olceJhkQ==}
++-    engines: {node: '>=18'}
++-    cpu: [ppc64]
++-    os: [linux]
++-
++-  '@esbuild/linux-riscv64@0.25.5':
++-    resolution: {integrity: sha512-kTxwu4mLyeOlsVIFPfQo+fQJAV9mh24xL+y+Bm6ej067sYANjyEw1dNHmvoqxJUCMnkBdKpvOn0Ahql6+4VyeA==}
++-    engines: {node: '>=18'}
++-    cpu: [riscv64]
++-    os: [linux]
++-
++-  '@esbuild/linux-s390x@0.25.5':
++-    resolution: {integrity: sha512-K2dSKTKfmdh78uJ3NcWFiqyRrimfdinS5ErLSn3vluHNeHVnBAFWC8a4X5N+7FgVE1EjXS1QDZbpqZBjfrqMTQ==}
++-    engines: {node: '>=18'}
++-    cpu: [s390x]
++-    os: [linux]
++-
++-  '@esbuild/linux-x64@0.25.5':
++-    resolution: {integrity: sha512-uhj8N2obKTE6pSZ+aMUbqq+1nXxNjZIIjCjGLfsWvVpy7gKCOL6rsY1MhRh9zLtUtAI7vpgLMK6DxjO8Qm9lJw==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [linux]
++-
++-  '@esbuild/netbsd-arm64@0.25.5':
++-    resolution: {integrity: sha512-pwHtMP9viAy1oHPvgxtOv+OkduK5ugofNTVDilIzBLpoWAM16r7b/mxBvfpuQDpRQFMfuVr5aLcn4yveGvBZvw==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [netbsd]
++-
++-  '@esbuild/netbsd-x64@0.25.5':
++-    resolution: {integrity: sha512-WOb5fKrvVTRMfWFNCroYWWklbnXH0Q5rZppjq0vQIdlsQKuw6mdSihwSo4RV/YdQ5UCKKvBy7/0ZZYLBZKIbwQ==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [netbsd]
++-
++-  '@esbuild/openbsd-arm64@0.25.5':
++-    resolution: {integrity: sha512-7A208+uQKgTxHd0G0uqZO8UjK2R0DDb4fDmERtARjSHWxqMTye4Erz4zZafx7Di9Cv+lNHYuncAkiGFySoD+Mw==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [openbsd]
++-
++-  '@esbuild/openbsd-x64@0.25.5':
++-    resolution: {integrity: sha512-G4hE405ErTWraiZ8UiSoesH8DaCsMm0Cay4fsFWOOUcz8b8rC6uCvnagr+gnioEjWn0wC+o1/TAHt+It+MpIMg==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [openbsd]
++-
++-  '@esbuild/sunos-x64@0.25.5':
++-    resolution: {integrity: sha512-l+azKShMy7FxzY0Rj4RCt5VD/q8mG/e+mDivgspo+yL8zW7qEwctQ6YqKX34DTEleFAvCIUviCFX1SDZRSyMQA==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [sunos]
++-
++-  '@esbuild/win32-arm64@0.25.5':
++-    resolution: {integrity: sha512-O2S7SNZzdcFG7eFKgvwUEZ2VG9D/sn/eIiz8XRZ1Q/DO5a3s76Xv0mdBzVM5j5R639lXQmPmSo0iRpHqUUrsxw==}
++-    engines: {node: '>=18'}
++-    cpu: [arm64]
++-    os: [win32]
++-
++-  '@esbuild/win32-ia32@0.25.5':
++-    resolution: {integrity: sha512-onOJ02pqs9h1iMJ1PQphR+VZv8qBMQ77Klcsqv9CNW2w6yLqoURLcgERAIurY6QE63bbLuqgP9ATqajFLK5AMQ==}
++-    engines: {node: '>=18'}
++-    cpu: [ia32]
++-    os: [win32]
++-
++-  '@esbuild/win32-x64@0.25.5':
++-    resolution: {integrity: sha512-TXv6YnJ8ZMVdX+SXWVBo/0p8LTcrUYngpWjvm91TMjjBQii7Oz11Lw5lbDV5Y0TzuhSJHwiH4hEtC1I42mMS0g==}
++-    engines: {node: '>=18'}
++-    cpu: [x64]
++-    os: [win32]
++-
++   '@eslint-community/eslint-utils@4.7.0':
++     resolution: {integrity: sha512-dyybb3AcajC7uha6CvhdVRJqaKyn7w2YKqKyAN37NKYgZT36w+iRb0Dymmc5qEJ549c/S31cMMSFd75bteCpCw==}
++     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
++@@ -1243,105 +1101,10 @@ packages:
++   '@rolldown/pluginutils@1.0.0-beta.9':
++     resolution: {integrity: sha512-e9MeMtVWo186sgvFFJOPGy7/d2j2mZhLJIdVW0C/xDluuOvymEATqz6zKsP0ZmXGzQtqlyjz5sC1sYQUoJG98w==}
++ 
++-  '@rollup/rollup-android-arm-eabi@4.41.1':
++-    resolution: {integrity: sha512-NELNvyEWZ6R9QMkiytB4/L4zSEaBC03KIXEghptLGLZWJ6VPrL63ooZQCOnlx36aQPGhzuOMwDerC1Eb2VmrLw==}
++-    cpu: [arm]
++-    os: [android]
++-
++-  '@rollup/rollup-android-arm64@4.41.1':
++-    resolution: {integrity: sha512-DXdQe1BJ6TK47ukAoZLehRHhfKnKg9BjnQYUu9gzhI8Mwa1d2fzxA1aw2JixHVl403bwp1+/o/NhhHtxWJBgEA==}
++-    cpu: [arm64]
++-    os: [android]
++-
++-  '@rollup/rollup-darwin-arm64@4.41.1':
++-    resolution: {integrity: sha512-5afxvwszzdulsU2w8JKWwY8/sJOLPzf0e1bFuvcW5h9zsEg+RQAojdW0ux2zyYAz7R8HvvzKCjLNJhVq965U7w==}
++-    cpu: [arm64]
++-    os: [darwin]
++-
++-  '@rollup/rollup-darwin-x64@4.41.1':
++-    resolution: {integrity: sha512-egpJACny8QOdHNNMZKf8xY0Is6gIMz+tuqXlusxquWu3F833DcMwmGM7WlvCO9sB3OsPjdC4U0wHw5FabzCGZg==}
++-    cpu: [x64]
++-    os: [darwin]
++-
++-  '@rollup/rollup-freebsd-arm64@4.41.1':
++-    resolution: {integrity: sha512-DBVMZH5vbjgRk3r0OzgjS38z+atlupJ7xfKIDJdZZL6sM6wjfDNo64aowcLPKIx7LMQi8vybB56uh1Ftck/Atg==}
++-    cpu: [arm64]
++-    os: [freebsd]
++-
++-  '@rollup/rollup-freebsd-x64@4.41.1':
++-    resolution: {integrity: sha512-3FkydeohozEskBxNWEIbPfOE0aqQgB6ttTkJ159uWOFn42VLyfAiyD9UK5mhu+ItWzft60DycIN1Xdgiy8o/SA==}
++-    cpu: [x64]
++-    os: [freebsd]
++-
++-  '@rollup/rollup-linux-arm-gnueabihf@4.41.1':
++-    resolution: {integrity: sha512-wC53ZNDgt0pqx5xCAgNunkTzFE8GTgdZ9EwYGVcg+jEjJdZGtq9xPjDnFgfFozQI/Xm1mh+D9YlYtl+ueswNEg==}
++-    cpu: [arm]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-arm-musleabihf@4.41.1':
++-    resolution: {integrity: sha512-jwKCca1gbZkZLhLRtsrka5N8sFAaxrGz/7wRJ8Wwvq3jug7toO21vWlViihG85ei7uJTpzbXZRcORotE+xyrLA==}
++-    cpu: [arm]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-arm64-gnu@4.41.1':
++-    resolution: {integrity: sha512-g0UBcNknsmmNQ8V2d/zD2P7WWfJKU0F1nu0k5pW4rvdb+BIqMm8ToluW/eeRmxCared5dD76lS04uL4UaNgpNA==}
++-    cpu: [arm64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-arm64-musl@4.41.1':
++-    resolution: {integrity: sha512-XZpeGB5TKEZWzIrj7sXr+BEaSgo/ma/kCgrZgL0oo5qdB1JlTzIYQKel/RmhT6vMAvOdM2teYlAaOGJpJ9lahg==}
++-    cpu: [arm64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-loongarch64-gnu@4.41.1':
++-    resolution: {integrity: sha512-bkCfDJ4qzWfFRCNt5RVV4DOw6KEgFTUZi2r2RuYhGWC8WhCA8lCAJhDeAmrM/fdiAH54m0mA0Vk2FGRPyzI+tw==}
++-    cpu: [loong64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-powerpc64le-gnu@4.41.1':
++-    resolution: {integrity: sha512-3mr3Xm+gvMX+/8EKogIZSIEF0WUu0HL9di+YWlJpO8CQBnoLAEL/roTCxuLncEdgcfJcvA4UMOf+2dnjl4Ut1A==}
++-    cpu: [ppc64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-riscv64-gnu@4.41.1':
++-    resolution: {integrity: sha512-3rwCIh6MQ1LGrvKJitQjZFuQnT2wxfU+ivhNBzmxXTXPllewOF7JR1s2vMX/tWtUYFgphygxjqMl76q4aMotGw==}
++-    cpu: [riscv64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-riscv64-musl@4.41.1':
++-    resolution: {integrity: sha512-LdIUOb3gvfmpkgFZuccNa2uYiqtgZAz3PTzjuM5bH3nvuy9ty6RGc/Q0+HDFrHrizJGVpjnTZ1yS5TNNjFlklw==}
++-    cpu: [riscv64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-s390x-gnu@4.41.1':
++-    resolution: {integrity: sha512-oIE6M8WC9ma6xYqjvPhzZYk6NbobIURvP/lEbh7FWplcMO6gn7MM2yHKA1eC/GvYwzNKK/1LYgqzdkZ8YFxR8g==}
++-    cpu: [s390x]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-x64-gnu@4.41.1':
++-    resolution: {integrity: sha512-cWBOvayNvA+SyeQMp79BHPK8ws6sHSsYnK5zDcsC3Hsxr1dgTABKjMnMslPq1DvZIp6uO7kIWhiGwaTdR4Og9A==}
++-    cpu: [x64]
++-    os: [linux]
++-
++-  '@rollup/rollup-linux-x64-musl@4.41.1':
++-    resolution: {integrity: sha512-y5CbN44M+pUCdGDlZFzGGBSKCA4A/J2ZH4edTYSSxFg7ce1Xt3GtydbVKWLlzL+INfFIZAEg1ZV6hh9+QQf9YQ==}
++-    cpu: [x64]
++-    os: [linux]
++-
++-  '@rollup/rollup-win32-arm64-msvc@4.41.1':
++-    resolution: {integrity: sha512-lZkCxIrjlJlMt1dLO/FbpZbzt6J/A8p4DnqzSa4PWqPEUUUnzXLeki/iyPLfV0BmHItlYgHUqJe+3KiyydmiNQ==}
++-    cpu: [arm64]
++-    os: [win32]
++-
++-  '@rollup/rollup-win32-ia32-msvc@4.41.1':
++-    resolution: {integrity: sha512-+psFT9+pIh2iuGsxFYYa/LhS5MFKmuivRsx9iPJWNSGbh2XVEjk90fmpUEjCnILPEPJnikAU6SFDiEUyOv90Pg==}
++-    cpu: [ia32]
++-    os: [win32]
++-
++-  '@rollup/rollup-win32-x64-msvc@4.41.1':
++-    resolution: {integrity: sha512-Wq2zpapRYLfi4aKxf2Xff0tN+7slj2d4R87WEzqw7ZLsVvO5zwYCIuEGSZYiK41+GlwUo1HiR+GdkLEJnCKTCw==}
++-    cpu: [x64]
++-    os: [win32]
+++  '@rollup/wasm-node@4.41.1':
+++    resolution: {integrity: sha512-70qfem+U3hAgwNgOlnUQiIdfKHLELUxsEWbFWg3aErPUvsyXYF1HALJBwoDgMUhRWyn+SqWVneDTnO/Kbey9hg==}
+++    engines: {node: '>=18.0.0', npm: '>=8.0.0'}
+++    hasBin: true
++ 
++   '@tailwindcss/node@4.1.8':
++     resolution: {integrity: sha512-OWwBsbC9BFAJelmnNcrKuf+bka2ZxCE2A4Ft53Tkg4uoiE67r/PMEYwCsourC26E+kmxfwE0hVzMdxqeW+xu7Q==}
++@@ -1883,8 +1646,8 @@ packages:
++   eol@0.9.1:
++     resolution: {integrity: sha512-Ds/TEoZjwggRoz/Q2O7SE3i4Jm66mqTDfmdHdq/7DKVk3bro9Q8h6WdXKdPqFLMoqxrDK5SVRzHVPOS6uuGtrg==}
++ 
++-  esbuild@0.25.5:
++-    resolution: {integrity: sha512-P8OtKZRv/5J5hhz0cUAdu/cLuPIKXpQl1R9pZtvmHWQvrAUVd0UNIPT4IB4W3rNOqVO0rlqHmCIbSwxh/c9yUQ==}
+++  esbuild-wasm@0.28.2:
+++    resolution: {integrity: sha512-GccVwhv3mmOUVQHCQm2Ox/rby8n/EqUwvZxE6Pjfikrq/lWw9g9WX/u9EykWnpot3Ko6j426DgQdea2xWKIAQA==}
++     engines: {node: '>=18'}
++     hasBin: true
++ 
++@@ -1928,6 +1691,7 @@ packages:
++   eslint@9.28.0:
++     resolution: {integrity: sha512-ocgh41VhRlf9+fVpe7QKzwLj9c92fDiqOj8Y3Sd4/ZmVA4Btx4PlUYPq4pp9JDyupkf1upbEXecxL2mwNV7jPQ==}
++     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+++    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
++     hasBin: true
++     peerDependencies:
++       jiti: '*'
++@@ -2256,65 +2020,11 @@ packages:
++     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
++     engines: {node: '>= 0.8.0'}
++ 
++-  lightningcss-darwin-arm64@1.30.1:
++-    resolution: {integrity: sha512-c8JK7hyE65X1MHMN+Viq9n11RRC7hgin3HhYKhrMyaXflk5GVplZ60IxyoVtzILeKr+xAJwg6zK6sjTBJ0FKYQ==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [arm64]
++-    os: [darwin]
++-
++-  lightningcss-darwin-x64@1.30.1:
++-    resolution: {integrity: sha512-k1EvjakfumAQoTfcXUcHQZhSpLlkAuEkdMBsI/ivWw9hL+7FtilQc0Cy3hrx0AAQrVtQAbMI7YjCgYgvn37PzA==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [x64]
++-    os: [darwin]
++-
++-  lightningcss-freebsd-x64@1.30.1:
++-    resolution: {integrity: sha512-kmW6UGCGg2PcyUE59K5r0kWfKPAVy4SltVeut+umLCFoJ53RdCUWxcRDzO1eTaxf/7Q2H7LTquFHPL5R+Gjyig==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [x64]
++-    os: [freebsd]
++-
++-  lightningcss-linux-arm-gnueabihf@1.30.1:
++-    resolution: {integrity: sha512-MjxUShl1v8pit+6D/zSPq9S9dQ2NPFSQwGvxBCYaBYLPlCWuPh9/t1MRS8iUaR8i+a6w7aps+B4N0S1TYP/R+Q==}
+++  lightningcss-wasm@1.30.1:
+++    resolution: {integrity: sha512-KJTnKEn0REV6DoJzxG0m5EKVEFA1CVE1isDYpXjsuqWXwLKFPJtA9Z9BSzPZJwAZFN2KaUzy+IWGP59p5bm2sA==}
++     engines: {node: '>= 12.0.0'}
++-    cpu: [arm]
++-    os: [linux]
++-
++-  lightningcss-linux-arm64-gnu@1.30.1:
++-    resolution: {integrity: sha512-gB72maP8rmrKsnKYy8XUuXi/4OctJiuQjcuqWNlJQ6jZiWqtPvqFziskH3hnajfvKB27ynbVCucKSm2rkQp4Bw==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [arm64]
++-    os: [linux]
++-
++-  lightningcss-linux-arm64-musl@1.30.1:
++-    resolution: {integrity: sha512-jmUQVx4331m6LIX+0wUhBbmMX7TCfjF5FoOH6SD1CttzuYlGNVpA7QnrmLxrsub43ClTINfGSYyHe2HWeLl5CQ==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [arm64]
++-    os: [linux]
++-
++-  lightningcss-linux-x64-gnu@1.30.1:
++-    resolution: {integrity: sha512-piWx3z4wN8J8z3+O5kO74+yr6ze/dKmPnI7vLqfSqI8bccaTGY5xiSGVIJBDd5K5BHlvVLpUB3S2YCfelyJ1bw==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [x64]
++-    os: [linux]
++-
++-  lightningcss-linux-x64-musl@1.30.1:
++-    resolution: {integrity: sha512-rRomAK7eIkL+tHY0YPxbc5Dra2gXlI63HL+v1Pdi1a3sC+tJTcFrHX+E86sulgAXeI7rSzDYhPSeHHjqFhqfeQ==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [x64]
++-    os: [linux]
++-
++-  lightningcss-win32-arm64-msvc@1.30.1:
++-    resolution: {integrity: sha512-mSL4rqPi4iXq5YVqzSsJgMVFENoa4nGTT/GjO2c0Yl9OuQfPsIfncvLrEW6RbbB24WtZ3xP/2CCmI3tNkNV4oA==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [arm64]
++-    os: [win32]
++-
++-  lightningcss-win32-x64-msvc@1.30.1:
++-    resolution: {integrity: sha512-PVqXh48wh4T53F/1CCu8PIPCxLzWyCnn/9T5W1Jpmdy5h9Cwd+0YQS6/LwhHXSafuc61/xg9Lv5OrCby6a++jg==}
++-    engines: {node: '>= 12.0.0'}
++-    cpu: [x64]
++-    os: [win32]
+++    bundledDependencies:
+++      - napi-wasm
++ 
++   lightningcss-win32-x64-msvc@1.32.0:
++     resolution: {integrity: sha512-Amq9B/SoZYdDi1kFrojnoqPLxYhQ4Wo5XiL8EVJrVsB8ARoC1PWW6VGtT0WKCemjy8aC+louJnjS7U18x3b06Q==}
++@@ -2322,10 +2032,6 @@ packages:
++     cpu: [x64]
++     os: [win32]
++ 
++-  lightningcss@1.30.1:
++-    resolution: {integrity: sha512-xi6IyHML+c9+Q3W0S4fCQJOym42pyurFiJUHEcEyHS0CeKzia4yZDEsLlqOFykxOdHpNy0NmvVO31vcSqAxJCg==}
++-    engines: {node: '>= 12.0.0'}
++-
++   lilconfig@3.1.3:
++     resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
++     engines: {node: '>=14'}
++@@ -2636,11 +2342,6 @@ packages:
++     resolution: {integrity: sha512-l0OE8wL34P4nJH/H2ffoaniAokM2qSmrtXHmlpvYr5AVVX8msAyW0l8NVJFDxlSK4u3Uh/f41cQheDVdnYijwQ==}
++     hasBin: true
++ 
++-  rollup@4.41.1:
++-    resolution: {integrity: sha512-cPmwD3FnFv8rKMBc1MxWCwVQFxwf1JEmSX3iQXrRVVG15zerAIXRjMFVWnd5Q5QvgKF7Aj+5ykXFhUl+QGnyOw==}
++-    engines: {node: '>=18.0.0', npm: '>=8.0.0'}
++-    hasBin: true
++-
++   rsvp@3.2.1:
++     resolution: {integrity: sha512-Rf4YVNYpKjZ6ASAmibcwTNciQ5Co5Ztq6iZPEykHpkoflnD/K5ryE/rHehFsTm4NJj8nKDhbi3eKBWGogmNnkg==}
++ 
++@@ -3189,81 +2890,6 @@ snapshots:
++       '@babel/helper-string-parser': 7.29.7
++       '@babel/helper-validator-identifier': 7.29.7
++ 
++-  '@esbuild/aix-ppc64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/android-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/android-arm@0.25.5':
++-    optional: true
++-
++-  '@esbuild/android-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/darwin-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/darwin-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/freebsd-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/freebsd-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-arm@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-ia32@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-loong64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-mips64el@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-ppc64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-riscv64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-s390x@0.25.5':
++-    optional: true
++-
++-  '@esbuild/linux-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/netbsd-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/netbsd-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/openbsd-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/openbsd-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/sunos-x64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/win32-arm64@0.25.5':
++-    optional: true
++-
++-  '@esbuild/win32-ia32@0.25.5':
++-    optional: true
++-
++-  '@esbuild/win32-x64@0.25.5':
++-    optional: true
++-
++   '@eslint-community/eslint-utils@4.7.0(eslint@9.28.0(jiti@2.4.2))':
++     dependencies:
++       eslint: 9.28.0(jiti@2.4.2)
++@@ -4168,72 +3794,18 @@ snapshots:
++ 
++   '@rolldown/pluginutils@1.0.0-beta.9': {}
++ 
++-  '@rollup/rollup-android-arm-eabi@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-android-arm64@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-darwin-arm64@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-darwin-x64@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-freebsd-arm64@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-freebsd-x64@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-arm-gnueabihf@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-arm-musleabihf@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-arm64-gnu@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-arm64-musl@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-loongarch64-gnu@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-powerpc64le-gnu@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-riscv64-gnu@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-riscv64-musl@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-s390x-gnu@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-x64-gnu@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-linux-x64-musl@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-win32-arm64-msvc@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-win32-ia32-msvc@4.41.1':
++-    optional: true
++-
++-  '@rollup/rollup-win32-x64-msvc@4.41.1':
++-    optional: true
+++  '@rollup/wasm-node@4.41.1':
+++    dependencies:
+++      '@types/estree': 1.0.7
+++    optionalDependencies:
+++      fsevents: 2.3.3
++ 
++   '@tailwindcss/node@4.1.8':
++     dependencies:
++       '@ampproject/remapping': 2.3.0
++       enhanced-resolve: 5.18.1
++       jiti: 2.4.2
++-      lightningcss: 1.30.1
+++      lightningcss: lightningcss-wasm@1.30.1
++       magic-string: 0.30.17
++       source-map-js: 1.2.1
++       tailwindcss: 4.1.8
++@@ -4265,7 +3837,7 @@ snapshots:
++   '@tailwindcss/oxide-linux-x64-musl@4.1.8':
++     optional: true
++ 
++-  '@tailwindcss/oxide-wasm32-wasi@4.1.8':
+++  '@tailwindcss/oxide-wasm32-wasi@4.1.8(patch_hash=4aaa3704b1c85f3ad2609e11dc0dbadb85b8bb50fc2a3765c9d0d6fcc50c9ebe)':
++     optional: true
++ 
++   '@tailwindcss/oxide-win32-arm64-msvc@4.1.8':
++@@ -4288,16 +3860,16 @@ snapshots:
++       '@tailwindcss/oxide-linux-arm64-musl': 4.1.8
++       '@tailwindcss/oxide-linux-x64-gnu': 4.1.8
++       '@tailwindcss/oxide-linux-x64-musl': 4.1.8
++-      '@tailwindcss/oxide-wasm32-wasi': 4.1.8
+++      '@tailwindcss/oxide-wasm32-wasi': 4.1.8(patch_hash=4aaa3704b1c85f3ad2609e11dc0dbadb85b8bb50fc2a3765c9d0d6fcc50c9ebe)
++       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.8
++       '@tailwindcss/oxide-win32-x64-msvc': 4.1.8
++ 
++-  '@tailwindcss/vite@4.1.8(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4))':
+++  '@tailwindcss/vite@4.1.8(vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4))':
++     dependencies:
++       '@tailwindcss/node': 4.1.8
++       '@tailwindcss/oxide': 4.1.8
++       tailwindcss: 4.1.8
++-      vite: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4)
+++      vite: 6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4)
++ 
++   '@tanstack/history@1.115.0': {}
++ 
++@@ -4334,7 +3906,7 @@ snapshots:
++     optionalDependencies:
++       '@tanstack/react-router': 1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
++ 
++-  '@tanstack/router-plugin@1.120.15(@tanstack/react-router@1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4))':
+++  '@tanstack/router-plugin@1.120.15(@tanstack/react-router@1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4))':
++     dependencies:
++       '@babel/core': 7.29.6
++       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.29.6)
++@@ -4355,7 +3927,7 @@ snapshots:
++       zod: 3.25.51
++     optionalDependencies:
++       '@tanstack/react-router': 1.120.15(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
++-      vite: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4)
+++      vite: 6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4)
++     transitivePeerDependencies:
++       - supports-color
++ 
++@@ -4499,7 +4071,7 @@ snapshots:
++       '@typescript-eslint/types': 8.33.1
++       eslint-visitor-keys: 4.2.0
++ 
++-  '@vitejs/plugin-react@4.5.1(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4))':
+++  '@vitejs/plugin-react@4.5.1(vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4))':
++     dependencies:
++       '@babel/core': 7.29.6
++       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.29.6)
++@@ -4507,7 +4079,7 @@ snapshots:
++       '@rolldown/pluginutils': 1.0.0-beta.9
++       '@types/babel__core': 7.20.5
++       react-refresh: 0.17.0
++-      vite: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4)
+++      vite: 6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4)
++     transitivePeerDependencies:
++       - supports-color
++ 
++@@ -4791,33 +4363,7 @@ snapshots:
++ 
++   eol@0.9.1: {}
++ 
++-  esbuild@0.25.5:
++-    optionalDependencies:
++-      '@esbuild/aix-ppc64': 0.25.5
++-      '@esbuild/android-arm': 0.25.5
++-      '@esbuild/android-arm64': 0.25.5
++-      '@esbuild/android-x64': 0.25.5
++-      '@esbuild/darwin-arm64': 0.25.5
++-      '@esbuild/darwin-x64': 0.25.5
++-      '@esbuild/freebsd-arm64': 0.25.5
++-      '@esbuild/freebsd-x64': 0.25.5
++-      '@esbuild/linux-arm': 0.25.5
++-      '@esbuild/linux-arm64': 0.25.5
++-      '@esbuild/linux-ia32': 0.25.5
++-      '@esbuild/linux-loong64': 0.25.5
++-      '@esbuild/linux-mips64el': 0.25.5
++-      '@esbuild/linux-ppc64': 0.25.5
++-      '@esbuild/linux-riscv64': 0.25.5
++-      '@esbuild/linux-s390x': 0.25.5
++-      '@esbuild/linux-x64': 0.25.5
++-      '@esbuild/netbsd-arm64': 0.25.5
++-      '@esbuild/netbsd-x64': 0.25.5
++-      '@esbuild/openbsd-arm64': 0.25.5
++-      '@esbuild/openbsd-x64': 0.25.5
++-      '@esbuild/sunos-x64': 0.25.5
++-      '@esbuild/win32-arm64': 0.25.5
++-      '@esbuild/win32-ia32': 0.25.5
++-      '@esbuild/win32-x64': 0.25.5
+++  esbuild-wasm@0.28.2: {}
++ 
++   escalade@3.2.0: {}
++ 
++@@ -5110,7 +4656,7 @@ snapshots:
++       colors: 1.4.0
++       commander: 12.1.0
++       eol: 0.9.1
++-      esbuild: 0.25.5
+++      esbuild: esbuild-wasm@0.28.2
++       fs-extra: 11.3.4
++       gulp-sort: 2.0.0
++       i18next: 24.2.3(typescript@5.8.3)
++@@ -5233,54 +4779,11 @@ snapshots:
++       prelude-ls: 1.2.1
++       type-check: 0.4.0
++ 
++-  lightningcss-darwin-arm64@1.30.1:
++-    optional: true
++-
++-  lightningcss-darwin-x64@1.30.1:
++-    optional: true
++-
++-  lightningcss-freebsd-x64@1.30.1:
++-    optional: true
++-
++-  lightningcss-linux-arm-gnueabihf@1.30.1:
++-    optional: true
++-
++-  lightningcss-linux-arm64-gnu@1.30.1:
++-    optional: true
++-
++-  lightningcss-linux-arm64-musl@1.30.1:
++-    optional: true
++-
++-  lightningcss-linux-x64-gnu@1.30.1:
++-    optional: true
++-
++-  lightningcss-linux-x64-musl@1.30.1:
++-    optional: true
++-
++-  lightningcss-win32-arm64-msvc@1.30.1:
++-    optional: true
++-
++-  lightningcss-win32-x64-msvc@1.30.1:
++-    optional: true
+++  lightningcss-wasm@1.30.1: {}
++ 
++   lightningcss-win32-x64-msvc@1.32.0:
++     optional: true
++ 
++-  lightningcss@1.30.1:
++-    dependencies:
++-      detect-libc: 2.0.4
++-    optionalDependencies:
++-      lightningcss-darwin-arm64: 1.30.1
++-      lightningcss-darwin-x64: 1.30.1
++-      lightningcss-freebsd-x64: 1.30.1
++-      lightningcss-linux-arm-gnueabihf: 1.30.1
++-      lightningcss-linux-arm64-gnu: 1.30.1
++-      lightningcss-linux-arm64-musl: 1.30.1
++-      lightningcss-linux-x64-gnu: 1.30.1
++-      lightningcss-linux-x64-musl: 1.30.1
++-      lightningcss-win32-arm64-msvc: 1.30.1
++-      lightningcss-win32-x64-msvc: 1.30.1
++-
++   lilconfig@3.1.3: {}
++ 
++   locate-path@6.0.0:
++@@ -5597,32 +5100,6 @@ snapshots:
++     dependencies:
++       glob: 10.5.0
++ 
++-  rollup@4.41.1:
++-    dependencies:
++-      '@types/estree': 1.0.7
++-    optionalDependencies:
++-      '@rollup/rollup-android-arm-eabi': 4.41.1
++-      '@rollup/rollup-android-arm64': 4.41.1
++-      '@rollup/rollup-darwin-arm64': 4.41.1
++-      '@rollup/rollup-darwin-x64': 4.41.1
++-      '@rollup/rollup-freebsd-arm64': 4.41.1
++-      '@rollup/rollup-freebsd-x64': 4.41.1
++-      '@rollup/rollup-linux-arm-gnueabihf': 4.41.1
++-      '@rollup/rollup-linux-arm-musleabihf': 4.41.1
++-      '@rollup/rollup-linux-arm64-gnu': 4.41.1
++-      '@rollup/rollup-linux-arm64-musl': 4.41.1
++-      '@rollup/rollup-linux-loongarch64-gnu': 4.41.1
++-      '@rollup/rollup-linux-powerpc64le-gnu': 4.41.1
++-      '@rollup/rollup-linux-riscv64-gnu': 4.41.1
++-      '@rollup/rollup-linux-riscv64-musl': 4.41.1
++-      '@rollup/rollup-linux-s390x-gnu': 4.41.1
++-      '@rollup/rollup-linux-x64-gnu': 4.41.1
++-      '@rollup/rollup-linux-x64-musl': 4.41.1
++-      '@rollup/rollup-win32-arm64-msvc': 4.41.1
++-      '@rollup/rollup-win32-ia32-msvc': 4.41.1
++-      '@rollup/rollup-win32-x64-msvc': 4.41.1
++-      fsevents: 2.3.3
++-
++   rsvp@3.2.1: {}
++ 
++   rsvp@4.8.5: {}
++@@ -5784,7 +5261,7 @@ snapshots:
++ 
++   tsx@4.19.4:
++     dependencies:
++-      esbuild: 0.25.5
+++      esbuild: esbuild-wasm@0.28.2
++       get-tsconfig: 4.10.1
++     optionalDependencies:
++       fsevents: 2.3.3
++@@ -5911,18 +5388,18 @@ snapshots:
++       - bare-abort-controller
++       - react-native-b4a
++ 
++-  vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.46.2)(tsx@4.19.4):
+++  vite@6.3.5(jiti@2.4.2)(lightningcss-wasm@1.30.1)(terser@5.46.2)(tsx@4.19.4):
++     dependencies:
++-      esbuild: 0.25.5
+++      esbuild: esbuild-wasm@0.28.2
++       fdir: 6.4.5(picomatch@4.0.2)
++       picomatch: 4.0.2
++       postcss: 8.5.4
++-      rollup: 4.41.1
+++      rollup: '@rollup/wasm-node@4.41.1'
++       tinyglobby: 0.2.14
++     optionalDependencies:
++       fsevents: 2.3.3
++       jiti: 2.4.2
++-      lightningcss: 1.30.1
+++      lightningcss: lightningcss-wasm@1.30.1
++       terser: 5.46.2
++       tsx: 4.19.4
++ 
+diff --git a/src/slic3r/GUI/DeviceWeb/stage-loongarch64-device-page.cmake b/src/slic3r/GUI/DeviceWeb/stage-loongarch64-device-page.cmake
+new file mode 100644
+index 0000000..a13fa2d
+--- /dev/null
++++ b/src/slic3r/GUI/DeviceWeb/stage-loongarch64-device-page.cmake
+@@ -0,0 +1,26 @@
++cmake_minimum_required(VERSION 3.13)
++
++find_program(PATCH_EXECUTABLE patch)
++if(NOT PATCH_EXECUTABLE)
++    message(FATAL_ERROR "LoongArch64 DeviceWeb builds require patch.")
++endif()
++
++file(REMOVE_RECURSE "${STAGE_DIR}")
++file(COPY "${SOURCE_DIR}/" DESTINATION "${STAGE_DIR}"
++    PATTERN "node_modules" EXCLUDE
++    PATTERN "dist" EXCLUDE)
++
++execute_process(
++    COMMAND "${CMAKE_COMMAND}" -E create_symlink "${RESOURCES_DIR}" "${STAGE_ROOT}/resources"
++    RESULT_VARIABLE resource_link_result)
++if(NOT resource_link_result STREQUAL "0")
++    message(FATAL_ERROR "Cannot link resources for the LoongArch64 DeviceWeb build (${resource_link_result}).")
++endif()
++
++execute_process(
++    COMMAND "${PATCH_EXECUTABLE}" --batch --forward --fuzz=0 -p1 -i "${PACKAGE_PATCH}"
++    WORKING_DIRECTORY "${STAGE_DIR}"
++    RESULT_VARIABLE patch_result)
++if(NOT patch_result STREQUAL "0")
++    message(FATAL_ERROR "DeviceWeb LoongArch64 package patch failed (${patch_result}).")
++endif()

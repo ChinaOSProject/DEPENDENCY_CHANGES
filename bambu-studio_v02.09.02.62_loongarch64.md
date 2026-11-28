@@ -8,7 +8,7 @@
 
 ## 源码与依赖
 
-- 以正式版标签为基线，依次迁移 `debian10-v02.08.04.57` 和 `loong64-v02.08.04.57` 的适配。保留 GCC 8、Boost 1.71、目标 multiarch 库搜索及 wxWidgets GTK 3 静态链接所需修改。完整适配补丁已在干净的上游源码上通过 `git apply --check`。
+- 以正式版标签为基线，依次迁移 `debian10-v02.08.04.57` 和 `loong64-v02.08.04.57` 的适配。保留 GCC 8、Boost 1.71、目标 multiarch 库搜索及 wxWidgets GTK 3 静态链接所需修改。[完整源码适配补丁](patches/bambu-studio_v02.09.02.62_loongarch64.patch)已在干净的上游源码上通过 `git apply --check`。
 - `std::filesystem` 在 GCC 8 上需要单独链接 `libstdc++fs`。构建先探测标准库直接链接能力，再探测补充库。具备直接链接能力的工具链走第一条路径。
 - 缓存中保留 wxWidgets 3.1.5 Bambu Lab fork、OCCT 7.6.0、oneTBB 2021.5.0、OpenVDB 8.2.0、OpenCV 4.6.0 及本次未变化的静态依赖。Boost 1.71、GMP、MPFR、GTK 3、WebKitGTK 和 FFmpeg 由目标发行版提供。
 - OpenMeshCraft 使用上游固定提交 `0e8d12c3df54804393593ab5d86c05caa340cbee` 及 Studio 2.9.2 的补丁与包装层重建。CMake 优先引用新包的头文件和静态库。独立验证、ABI、打包判定及与旧版行为一致的共面几何偏差详见 [OpenMeshCraft 适配报告](lib_OpenMeshCraft_v1.0.0_loongarch64.md)。
